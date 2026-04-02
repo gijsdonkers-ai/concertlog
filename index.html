@@ -480,21 +480,47 @@ async function fetchSetlist(){
   var btn=document.getElementById('sfBtn'), st=document.getElementById('sfSt');
   if(btn) btn.disabled=true;
   if(st) st.innerHTML='<span class="spin"></span> Ophalen...';
+
+  // Multiple proxies to try in order - if one fails, next is tried
+  var PROXIES = [
+    function(apiUrl){ return {url:'https://corsproxy.io/?url='+encodeURIComponent(apiUrl), parse:function(r){ return r.json(); }}; },
+    function(apiUrl){ return {url:'https://api.allorigins.win/get?url='+encodeURIComponent(apiUrl), parse:async function(r){ var w=await r.json(); if(!w.contents) throw new Error('Lege respons'); return JSON.parse(w.contents); }}; },
+    function(apiUrl){ return {url:'https://corsproxy.io/?'+encodeURIComponent(apiUrl), parse:function(r){ return r.json(); }}; }
+  ];
+
+  async function callSetlistFm(params){
+    var apiUrl='https://api.setlist.fm/rest/1.0/search/setlists?'+params;
+    var lastErr='Alle proxies mislukt';
+    for(var i=0;i<PROXIES.length;i++){
+      try{
+        var p=PROXIES[i](apiUrl);
+        var r=await fetch(p.url, {signal: AbortSignal.timeout(8000)});
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        return await p.parse(r);
+      } catch(e){
+        lastErr=e.message;
+        console.warn('Proxy '+i+' mislukt:',e.message);
+      }
+    }
+    throw new Error(lastErr);
+  }
+
   try{
-    var tryFetch=async function(useDate){
-      var params='artistName='+encodeURIComponent(artist)+'&p=1';
-      if(useDate&&datum){ var pts=datum.split('-'); if(pts.length===3) params+='&date='+pts[2]+'-'+pts[1]+'-'+pts[0]; }
-      var apiUrl='https://api.setlist.fm/rest/1.0/search/setlists?'+params;
-      var proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(apiUrl);
-      var r=await fetch(proxyUrl);
-      if(!r.ok) throw new Error('Proxy HTTP '+r.status);
-      var w=await r.json();
-      if(!w.contents) throw new Error('Lege proxy respons');
-      return JSON.parse(w.contents);
+    var makeParams=function(useDate){
+      var p='artistName='+encodeURIComponent(artist)+'&p=1';
+      if(useDate&&datum){ var pts=datum.split('-'); if(pts.length===3) p+='&date='+pts[2]+'-'+pts[1]+'-'+pts[0]; }
+      return p;
     };
-    var data=await tryFetch(true); var sl=data.setlist&&data.setlist[0];
-    if(!sl&&datum){ if(st) st.innerHTML='<span class="spin"></span> Zoekt zonder datum...'; data=await tryFetch(false); sl=data.setlist&&data.setlist[0]; }
-    if(!sl){ if(st) st.innerHTML=''; toast('Geen setlist gevonden','err'); if(btn) btn.disabled=false; return; }
+
+    var data=await callSetlistFm(makeParams(true));
+    var sl=data.setlist&&data.setlist[0];
+    if(!sl&&datum){
+      if(st) st.innerHTML='<span class="spin"></span> Zoekt zonder datum...';
+      data=await callSetlistFm(makeParams(false));
+      sl=data.setlist&&data.setlist[0];
+    }
+    if(!sl){ if(st) st.innerHTML=''; toast('Geen setlist gevonden op Setlist.fm','err'); if(btn) btn.disabled=false; return; }
+
     var songs=[];
     if(sl.sets&&sl.sets.set) sl.sets.set.forEach(function(s){ if(s.song) s.song.forEach(function(sg){ if(sg.name) songs.push(sg.name); }); });
     FD.setlist=songs;
@@ -505,7 +531,7 @@ async function fetchSetlist(){
     if(st) st.textContent='Setlist: '+songs.length+' nummers!';
     document.getElementById('APP').innerHTML=buildForm();
     toast('Setlist: '+songs.length+' nrs','ok');
-  } catch(e){ if(st) st.textContent='Fout: '+e.message; toast('Setlist mislukt','err'); }
+  } catch(e){ if(st) st.textContent='Fout: '+e.message; toast('Setlist mislukt: '+e.message,'err'); }
   var btn2=document.getElementById('sfBtn'); if(btn2) btn2.disabled=false;
 }
 
