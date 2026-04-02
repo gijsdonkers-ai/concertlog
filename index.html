@@ -81,10 +81,10 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
-.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto;padding-bottom:2px}
-.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}
-.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px}
-.ylbl{font-size:9px;color:var(--muted)}.ycnt{font-size:10px;color:var(--accent);font-weight:600}
+.ybars{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding:4px 0 2px}
+.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:28px;flex:1}
+.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:3px}
+.ylbl{font-size:9px;color:var(--muted);margin-top:1px}.ycnt{font-size:10px;color:var(--accent);font-weight:600;white-space:nowrap}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:540px){.two{grid-template-columns:1fr}}
 .dz{background:var(--card);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px}
@@ -574,7 +574,7 @@ function buildAnalytics(){
     +stEl(streak,'Record maand',streakLbl)+stEl(span,'Jaren actief','jaar bijgehouden')+stEl(withSl,'Met setlist','concerten')+'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar(top10,maxA)+'</div>'
     +'<div class="cbox"><div class="clbl">Concerten per jaar</div><div class="ybars">'
-    +yrs.map(function(e){ var h=Math.round(e[1]/maxY*72)+4; return '<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar" style="height:'+h+'px"></div><div class="ylbl">\''+String(e[0]).slice(2)+'</div></div>'; }).join('')+'</div></div>'
+    +yrs.map(function(e){ var h=Math.round(e[1]/maxY*90)+6; return '<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar" style="height:'+h+'px"></div><div class="ylbl">\''+String(e[0]).slice(2)+'</div></div>'; }).join('')+'</div></div>'
     +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar(topP,maxP)+'</div>'
     +'<div class="cbox"><div class="clbl">Top locaties</div>'+bar(topL,maxL)+'</div></div>'
     +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'
