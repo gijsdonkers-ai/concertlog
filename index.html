@@ -929,13 +929,21 @@ async function chatSend() {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 600,
+        max_tokens: 1000,
         system: systemPrompt,
         messages: chatHistory
       })
     });
     var data = await r.json();
-    var reply = (data.content && data.content[0] && data.content[0].text) || 'Sorry, geen antwoord ontvangen.';
+    // Show API error if present (wrong key, quota, etc.)
+    if (data.error) {
+      var think = document.getElementById(thinkId);
+      if (think) think.remove();
+      chatAddMsg('bot', 'API fout: ' + (data.error.message || JSON.stringify(data.error)));
+      if (btn) btn.disabled = false;
+      return;
+    }
+    var reply = (data.content && data.content[0] && data.content[0].text) || ('Onverwachte respons: ' + JSON.stringify(data).slice(0,200));
     var think = document.getElementById(thinkId);
     if (think) think.remove();
     chatAddMsg('bot', reply);
@@ -971,30 +979,39 @@ function buildDataSummary() {
   var lastYear  = dated.length ? dated[dated.length-1].datum.slice(0,4) : '?';
   lines.push('TOTAAL: ' + DB.length + ' concerten van ' + firstYear + ' t/m ' + lastYear);
 
+  // Top artiesten
   var ac = {};
   DB.forEach(function(c) { ac[c.artiest] = (ac[c.artiest] || 0) + 1; });
-  var topA = Object.entries(ac).sort(function(a,b) { return b[1]-a[1]; }).slice(0,20);
-  lines.push('\nTOP 20 ARTIESTEN:');
+  var topA = Object.entries(ac).sort(function(a,b) { return b[1]-a[1]; }).slice(0,30);
+  lines.push('\nTOP ARTIESTEN (naam: aantal keer gezien):');
   topA.forEach(function(e) { lines.push('  ' + e[0] + ': ' + e[1]); });
 
+  // Top locaties
   var lc = {};
   DB.forEach(function(c) { if(c.locatie) lc[c.locatie] = (lc[c.locatie] || 0) + 1; });
-  var topL = Object.entries(lc).sort(function(a,b) { return b[1]-a[1]; }).slice(0,20);
-  lines.push('\nTOP 20 LOCATIES:');
+  var topL = Object.entries(lc).sort(function(a,b) { return b[1]-a[1]; }).slice(0,30);
+  lines.push('\nTOP LOCATIES (naam: aantal keer bezocht):');
   topL.forEach(function(e) { lines.push('  ' + e[0] + ': ' + e[1]); });
 
+  // Per jaar
   var yc = {};
   DB.forEach(function(c) { if(c.jaar) yc[c.jaar] = (yc[c.jaar] || 0) + 1; });
-  lines.push('\nPER JAAR:');
+  lines.push('\nCONCERTEN PER JAAR:');
   Object.entries(yc).sort(function(a,b) { return +a[0]-+b[0]; })
     .forEach(function(e) { lines.push('  ' + e[0] + ': ' + e[1]); });
 
-  lines.push('\nVOLLEDIGE LIJST (datum|artiest|locatie|plaats):');
+  // VOLLEDIGE lijst voor gap-analyses etc — compact formaat
+  lines.push('\nVOLLEDIGE CONCERTLIJST (datum|artiest|locatie|plaats):');
   dated.forEach(function(c) {
-    lines.push('  ' + c.datum + '|' + c.artiest + '|' + (c.locatie||'') + '|' + (c.plaats||''));
+    lines.push(c.datum + '|' + c.artiest + '|' + (c.locatie||'') + '|' + (c.plaats||''));
   });
 
-  return lines.join('\n');
+  var result = lines.join('\n');
+  // Cap at ~80k chars to stay within API limits (roughly 20k tokens)
+  if (result.length > 80000) {
+    result = result.slice(0, 80000) + '\n[...lijst ingekort vanwege lengte]';
+  }
+  return result;
 }
 
 // ── BOOT ────────────────────────────────────────────────────────
