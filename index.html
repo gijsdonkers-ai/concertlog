@@ -855,14 +855,14 @@ function syncNow(){
 // ── READ-ONLY DOWNLOAD ────────────────────────────────────────────
 function downloadReadOnly(){
   var gid = GIST_ID || '';
-  var ro = buildROHtml(gid);
+  var ro = buildROHtml(gid, DB);
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([ro],{type:'text/html;charset=utf-8'}));
   a.download='readonly.html'; a.click();
   toast('readonly.html gedownload!','ok');
 }
 
-function buildROHtml(gid){
+function buildROHtml(gid, dbData){
   // Build as an array and join to avoid any <script> parsing issues
   var lines = [];
   lines.push('<!DOCTYPE html>');
@@ -907,6 +907,8 @@ function buildROHtml(gid){
   var SCRTAG = 'scr'+'ipt';
   lines.push('<'+SCRTAG+'>');
   lines.push('var DB=[],pg=0,Q="",FJ="",FS="",FP="",FL="",CP=1,PP=50;');
+  var dbJson = JSON.stringify(dbData||[]);
+  lines.push('var EMBEDDED_DB='+dbJson+';');
   lines.push('var GID="'+gid+'",GF="concertlog.json";');
   lines.push('function eh(s){return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}');
   lines.push('function fm(q,t){if(!q)return true;if(!t)return false;var tl=t.toLowerCase(),ql=q.toLowerCase().trim();if(tl.includes(ql))return true;return ql.split(/\\s+/).filter(Boolean).every(function(w){return tl.includes(w);});}');
@@ -981,15 +983,14 @@ function buildROHtml(gid){
   lines.push('}');
   
   lines.push('document.addEventListener("keydown",function(e){if(e.key==="Escape")cd();});');
-  lines.push('async function init(){');
-  lines.push('  if(!GID){document.getElementById("A").innerHTML="<p style=\\"padding:40px;text-align:center;color:#6b6560\\">Geen Gist ID geconfigureerd.</p>";return;}');
-  lines.push('  try{');
-  lines.push('    var r=await fetch("https://api.github.com/gists/"+GID,{headers:{"Accept":"application/vnd.github+json"}});');
-  lines.push('    if(!r.ok)throw new Error("HTTP "+r.status);');
-  lines.push('    var g=await r.json(),f=g.files&&g.files[GF];');
-  lines.push('    if(!f)throw new Error("Bestand niet gevonden");');
-  lines.push('    DB=JSON.parse(f.content);re();');
-  lines.push('  }catch(e){document.getElementById("A").innerHTML="<p style=\\"padding:40px;text-align:center;color:#ff4d6d\\">Laden mislukt: "+eh(e.message)+"</p>";}');
+  lines.push('function init(){');
+  lines.push('  DB=EMBEDDED_DB||[];re();');
+  lines.push('  if(GID){');
+  lines.push('    fetch("https://api.github.com/gists/"+GID,{headers:{"Accept":"application/vnd.github+json"}})');
+  lines.push('      .then(function(r){return r.json();})');
+  lines.push('      .then(function(g){var f=g.files&&g.files[GF];if(f){DB=JSON.parse(f.content);re();}})');
+  lines.push('      .catch(function(){});');
+  lines.push('  }');
   lines.push('}');
   lines.push('init();');
   lines.push('</'+ SCRTAG +'>');
