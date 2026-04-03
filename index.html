@@ -81,10 +81,10 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
-.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto;padding-bottom:2px}
-.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}
-.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px}
-.ylbl{font-size:9px;color:var(--muted)}.ycnt{font-size:10px;color:var(--accent);font-weight:600}
+.ybars{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding:4px 0 2px}
+.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:28px;flex:1}
+.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:3px}
+.ylbl{font-size:9px;color:var(--muted);margin-top:1px}.ycnt{font-size:10px;color:var(--accent);font-weight:600;white-space:nowrap}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:540px){.two{grid-template-columns:1fr}}
 .dz{background:var(--card);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px}
@@ -125,6 +125,26 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .setlist-item:last-child{border-bottom:none}
 .setlist-num{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);min-width:28px;text-align:right}
 .setlist-name{color:var(--text)}
+
+.chat-box{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-top:14px;display:flex;flex-direction:column;overflow:hidden}
+.chat-msgs{padding:16px;display:flex;flex-direction:column;gap:10px;max-height:380px;overflow-y:auto}
+.chat-msg{display:flex;gap:8px;align-items:flex-start}
+.chat-msg.user{flex-direction:row-reverse}
+.chat-bubble{padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.6;max-width:85%}
+.chat-msg.bot .chat-bubble{background:var(--bg3);border:1px solid var(--border);color:var(--text);border-radius:4px 14px 14px 14px}
+.chat-msg.user .chat-bubble{background:var(--accent);color:var(--bg);border-radius:14px 4px 14px 14px}
+.chat-msg.thinking .chat-bubble{color:var(--muted)}
+.chat-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+.chat-bot-avatar{background:var(--bg3);border:1px solid var(--border)}
+.chat-user-avatar{background:var(--accent);color:var(--bg)}
+.chat-input-row{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--border)}
+.chat-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:22px;padding:9px 16px;color:var(--text);font-family:DM Sans,sans-serif;font-size:13px;resize:none}
+.chat-input:focus{outline:none;border-color:var(--accent)}
+.chat-send{width:38px;height:38px;border-radius:50%;border:none;background:var(--accent);color:var(--bg);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:filter .15s}
+.chat-send:hover{filter:brightness(1.1)}.chat-send:disabled{opacity:.4;cursor:not-allowed}
+.chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px}
+.chat-sug{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all .15s}
+.chat-sug:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body class="theme-dark">
@@ -439,11 +459,9 @@ function buildForm(){
     +'</div><div class="divr"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">'
     +'<span style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">&#127925; Setlist ('+songs.length+' nrs)</span>'
-    +'<a class="btn b-sec b-sm" href="https://www.setlist.fm/search?query='+encodeURIComponent(FD.artiest||'')+'" target="_blank" rel="noopener">&#128269; Zoek op Setlist.fm</a>'
+    +'<button class="btn b-sec b-sm" id="sfBtn" onclick="fetchSetlist()">&#11015; Setlist.fm ophalen</button>'
     +'</div>'
-    +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;padding:10px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);line-height:1.7">'
-    +'Ga naar Setlist.fm, zoek het concert op, kopieer de setlist en plak hem hieronder. '
-    +'</div>'
+    +'<div id="sfSt" style="font-size:12px;color:var(--muted);margin-bottom:6px"></div>'
     +songHtml
     +'<div style="margin-bottom:8px"><label style="margin-bottom:5px;display:block">Plak volledige setlist (één nummer per regel)</label>'
     +'<textarea class="paste-area" id="pasteArea" placeholder="01. Song name&#10;02. Another song..." rows="3"></textarea>'
@@ -476,12 +494,40 @@ async function callAI(venue){
 }
 
 async function fetchSetlist(){
-  // Setlist.fm blocks direct browser API calls (CORS + auth).
-  // Use the "Zoek op Setlist.fm" button to find the concert,
-  // then paste the setlist in the text area below.
-  toast('Gebruik de zoekknop om Setlist.fm te openen en plak de setlist hieronder.', 'info');
+  var aEl=document.getElementById('fA'), datEl=document.getElementById('fDat');
+  var artist=aEl?aEl.value.trim():FD.artiest, datum=datEl?datEl.value.trim():FD.datum;
+  if(!artist){ toast('Vul eerst een artiest in','err'); return; }
+  var btn=document.getElementById('sfBtn'), st=document.getElementById('sfSt');
+  if(btn) btn.disabled=true;
+  if(st) st.innerHTML='<span class="spin"></span> Ophalen...';
+  try{
+    var tryFetch=async function(useDate){
+      var params='artistName='+encodeURIComponent(artist)+'&p=1';
+      if(useDate&&datum){ var pts=datum.split('-'); if(pts.length===3) params+='&date='+pts[2]+'-'+pts[1]+'-'+pts[0]; }
+      var apiUrl='https://api.setlist.fm/rest/1.0/search/setlists?'+params;
+      var proxyUrl='https://api.allorigins.win/get?url='+encodeURIComponent(apiUrl);
+      var r=await fetch(proxyUrl);
+      if(!r.ok) throw new Error('Proxy HTTP '+r.status);
+      var w=await r.json();
+      if(!w.contents) throw new Error('Lege proxy respons');
+      return JSON.parse(w.contents);
+    };
+    var data=await tryFetch(true); var sl=data.setlist&&data.setlist[0];
+    if(!sl&&datum){ if(st) st.innerHTML='<span class="spin"></span> Zoekt zonder datum...'; data=await tryFetch(false); sl=data.setlist&&data.setlist[0]; }
+    if(!sl){ if(st) st.innerHTML=''; toast('Geen setlist gevonden','err'); if(btn) btn.disabled=false; return; }
+    var songs=[];
+    if(sl.sets&&sl.sets.set) sl.sets.set.forEach(function(s){ if(s.song) s.song.forEach(function(sg){ if(sg.name) songs.push(sg.name); }); });
+    FD.setlist=songs;
+    var lEl=document.getElementById('fL'), pEl=document.getElementById('fP');
+    if(lEl&&!lEl.value&&sl.venue&&sl.venue.name) lEl.value=sl.venue.name;
+    if(pEl&&!pEl.value&&sl.venue&&sl.venue.city&&sl.venue.city.name) pEl.value=sl.venue.city.name;
+    syncFDFromForm();
+    if(st) st.textContent='Setlist: '+songs.length+' nummers!';
+    document.getElementById('APP').innerHTML=buildForm();
+    toast('Setlist: '+songs.length+' nrs','ok');
+  } catch(e){ if(st) st.textContent='Fout: '+e.message; toast('Setlist mislukt','err'); }
+  var btn2=document.getElementById('sfBtn'); if(btn2) btn2.disabled=false;
 }
-
 
 function addSong(){ var el=document.getElementById('newSong'); if(el&&el.value.trim()){ syncFDFromForm(); FD.setlist.push(el.value.trim()); el.value=''; refreshSongArea(); } }
 function rmSong(i){ syncFDFromForm(); FD.setlist.splice(i,1); refreshSongArea(); }
@@ -554,11 +600,31 @@ function buildAnalytics(){
     +stEl(streak,'Record maand',streakLbl)+stEl(span,'Jaren actief','jaar bijgehouden')+stEl(withSl,'Met setlist','concerten')+'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar(top10,maxA)+'</div>'
     +'<div class="cbox"><div class="clbl">Concerten per jaar</div><div class="ybars">'
-    +yrs.map(function(e){ var h=Math.round(e[1]/maxY*72)+4; return '<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar" style="height:'+h+'px"></div><div class="ylbl">\''+String(e[0]).slice(2)+'</div></div>'; }).join('')+'</div></div>'
+    +yrs.map(function(e){ var h=Math.round(e[1]/maxY*90)+6; return '<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar" style="height:'+h+'px"></div><div class="ylbl">\''+String(e[0]).slice(2)+'</div></div>'; }).join('')+'</div></div>'
     +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar(topP,maxP)+'</div>'
     +'<div class="cbox"><div class="clbl">Top locaties</div>'+bar(topL,maxL)+'</div></div>'
     +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'
-    +topS.map(function(e){ return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>'; }).join('')+'</div></div>';
+    +topS.map(function(e){ return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>'; }).join('')+'</div></div>'
+    +'<div class="chat-box">'
+    +'<div style="padding:16px 16px 8px;display:flex;align-items:center;gap:8px">'
+    +'<span style="font-size:18px">&#129302;</span>'
+    +'<div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:.5px;color:var(--text)">Concert Assistent</div>'
+    +'<div style="font-size:11px;color:var(--muted)">Stel vragen over jouw concertdata</div></div></div>'
+    +'<div class="chat-msgs" id="chatMsgs">'
+    +'<div class="chat-msg bot"><div class="chat-avatar chat-bot-avatar">&#129302;</div>'
+    +'<div class="chat-bubble">Hoi! Ik kan vragen beantwoorden over jouw '+(DB.length)+' concerten. Vraag maar raak! &#127928;</div></div>'
+    +'</div>'
+    +'<div class="chat-suggestions">'
+    +'<span class="chat-sug" onclick="chatAsk(this.textContent)">Langste tijd tussen 2 concerten in dezelfde zaal?</span>'
+    +'<span class="chat-sug" onclick="chatAsk(this.textContent)">Welke artiest zag ik het meest in één jaar?</span>'
+    +'<span class="chat-sug" onclick="chatAsk(this.textContent)">Hoeveel unieke zalen heb ik bezocht?</span>'
+    +'<span class="chat-sug" onclick="chatAsk(this.textContent)">Wat is mijn drukste concertmaand ooit?</span>'
+    +'<span class="chat-sug" onclick="chatAsk(this.textContent)">Welk concert had de langste setlist?</span>'
+    +'</div>'
+    +'<div class="chat-input-row">'
+    +'<textarea class="chat-input" id="chatInput" placeholder="Stel een vraag over je concerten..." rows="1"></textarea>'
+    +'<button class="chat-send" id="chatSend" onclick="chatSend()" title="Verstuur">&#10148;</button>'
+    +'</div></div>';
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────
@@ -793,9 +859,128 @@ function deleteAllConcerts(){
   DB=[]; afterMutate(); toast('Alle concerten verwijderd','err'); goPage('sync');
 }
 
-// ── BOOT ──────────────────────────────────────────────────────────
+// ── ANALYTICS CHATBOT ────────────────────────────────────────────
+function chatAsk(question) {
+  var input = document.getElementById('chatInput');
+  if (input) { input.value = question; }
+  chatSend();
+}
+
+var chatHistory = [];
+
+async function chatSend() {
+  var input = document.getElementById('chatInput');
+  var btn   = document.getElementById('chatSend');
+  var msgs  = document.getElementById('chatMsgs');
+  if (!input || !msgs) return;
+  var q = input.value.trim();
+  if (!q) return;
+
+  chatAddMsg('user', q);
+  input.value = '';
+  if (btn) btn.disabled = true;
+
+  var thinkId = 'think_' + Date.now();
+  msgs.insertAdjacentHTML('beforeend',
+    '<div class="chat-msg thinking" id="' + thinkId + '">'
+    + '<div class="chat-avatar chat-bot-avatar">&#129302;</div>'
+    + '<div class="chat-bubble"><span class="spin"></span> Denkt na...</div></div>');
+  msgs.scrollTop = msgs.scrollHeight;
+
+  chatHistory.push({ role: 'user', content: q });
+  if (chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
+
+  var summary = buildDataSummary();
+  var systemPrompt = 'Je bent een data-analist die vragen beantwoordt over de concertgeschiedenis van Gijs. '
+    + 'Antwoord altijd in het Nederlands, bondig en concreet. Gebruik geen markdown headers of bullets. '
+    + 'Je hebt toegang tot de volgende concertdata:\n\n' + summary;
+
+  try {
+    var r = await fetch(CAPI, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 600,
+        system: systemPrompt,
+        messages: chatHistory
+      })
+    });
+    var data = await r.json();
+    var reply = (data.content && data.content[0] && data.content[0].text) || 'Sorry, geen antwoord ontvangen.';
+    var think = document.getElementById(thinkId);
+    if (think) think.remove();
+    chatAddMsg('bot', reply);
+    chatHistory.push({ role: 'assistant', content: reply });
+    if (chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
+  } catch(e) {
+    var think2 = document.getElementById(thinkId);
+    if (think2) think2.remove();
+    chatAddMsg('bot', 'Fout: ' + e.message);
+  }
+  if (btn) btn.disabled = false;
+}
+
+function chatAddMsg(role, text) {
+  var msgs = document.getElementById('chatMsgs');
+  if (!msgs) return;
+  var isUser = role === 'user';
+  var avatar = isUser
+    ? '<div class="chat-avatar chat-user-avatar">&#128100;</div>'
+    : '<div class="chat-avatar chat-bot-avatar">&#129302;</div>';
+  var bubble = '<div class="chat-bubble">' + escH(text).replace(/\n/g, '<br>') + '</div>';
+  msgs.insertAdjacentHTML('beforeend',
+    '<div class="chat-msg ' + role + '">' + (isUser ? bubble + avatar : avatar + bubble) + '</div>');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function buildDataSummary() {
+  var lines = [];
+  var dated = DB.filter(function(c) { return c.datum; })
+    .sort(function(a, b) { return a.datum > b.datum ? 1 : -1; });
+
+  var firstYear = dated.length ? dated[0].datum.slice(0,4) : '?';
+  var lastYear  = dated.length ? dated[dated.length-1].datum.slice(0,4) : '?';
+  lines.push('TOTAAL: ' + DB.length + ' concerten van ' + firstYear + ' t/m ' + lastYear);
+
+  var ac = {};
+  DB.forEach(function(c) { ac[c.artiest] = (ac[c.artiest] || 0) + 1; });
+  var topA = Object.entries(ac).sort(function(a,b) { return b[1]-a[1]; }).slice(0,20);
+  lines.push('\nTOP 20 ARTIESTEN:');
+  topA.forEach(function(e) { lines.push('  ' + e[0] + ': ' + e[1]); });
+
+  var lc = {};
+  DB.forEach(function(c) { if(c.locatie) lc[c.locatie] = (lc[c.locatie] || 0) + 1; });
+  var topL = Object.entries(lc).sort(function(a,b) { return b[1]-a[1]; }).slice(0,20);
+  lines.push('\nTOP 20 LOCATIES:');
+  topL.forEach(function(e) { lines.push('  ' + e[0] + ': ' + e[1]); });
+
+  var yc = {};
+  DB.forEach(function(c) { if(c.jaar) yc[c.jaar] = (yc[c.jaar] || 0) + 1; });
+  lines.push('\nPER JAAR:');
+  Object.entries(yc).sort(function(a,b) { return +a[0]-+b[0]; })
+    .forEach(function(e) { lines.push('  ' + e[0] + ': ' + e[1]); });
+
+  lines.push('\nVOLLEDIGE LIJST (datum|artiest|locatie|plaats):');
+  dated.forEach(function(c) {
+    lines.push('  ' + c.datum + '|' + c.artiest + '|' + (c.locatie||'') + '|' + (c.plaats||''));
+  });
+
+  return lines.join('\n');
+}
+
+// ── BOOT ────────────────────────────────────────────────────────
 document.body.className = 'theme-' + curTheme;
-document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDetail(); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closeDetail();
+});
+document.addEventListener('keydown', function(e) {
+  var ci = document.getElementById('chatInput');
+  if (e.key === 'Enter' && !e.shiftKey && document.activeElement === ci) {
+    e.preventDefault();
+    chatSend();
+  }
+});
 initDB();
 render();
 </script>
