@@ -631,6 +631,7 @@ function buildAnalytics(){
   var mc={};DB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mc[m]=(mc[m]||0)+1;});
   var bm=Object.entries(mc).sort(function(a,b){return b[1]-a[1];})[0];
   var streak=bm?bm[1]:0,streakLbl=bm?new Date(bm[0]+'-01').toLocaleDateString('nl-NL',{month:'short',year:'numeric'}):'';
+  var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
   var recordYrEntry=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0];
@@ -934,6 +935,7 @@ function buildAllFacts(){
   var sorted=DB.filter(function(c){return c.datum;}).sort(function(a,b){return a.datum>b.datum?1:-1;});
   var wdNames=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
   var mNames=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
   var recordYrEntry=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0];
