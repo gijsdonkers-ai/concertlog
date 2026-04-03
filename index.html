@@ -937,51 +937,39 @@ function buildROHtml(gid, dbData){
   lines.push('ov.innerHTML="<div class=\\"md\\"><div class=\\"mh\\"><div style=\\"min-width:0\\"><div class=\\"mt\\">"+eh(c.artiest)+"</div><div class=\\"mm\\">"+eh(d)+(c.locatie?" &middot; &#128205; "+eh(c.locatie)+(c.plaats?", "+eh(c.plaats):""):c.plaats?" &middot; &#128205; "+eh(c.plaats):"")+( c.soort?" <span class=\\"pill ps\\">"+eh(c.soort)+"</span>":"")+"</div></div><button class=\\"mc\\" onclick=\\"cd()\\">&#215;</button></div>"+"<div class=\\"mb\\">"+( s.length?"<div style=\\"font-size:11px;color:#6b6560;text-transform:uppercase;margin-bottom:10px\\">Setlist &mdash; "+s.length+" nummers</div>"+s.map(function(t,i){return"<div class=\\"sli\\"><span class=\\"sln\\">"+(i+1)+"</span><span class=\\"slt\\">"+eh(t)+"</span></div>";}).join(""):"<div style=\\"padding:30px;text-align:center;color:#6b6560\\">Geen setlist</div>")+"</div></div>";');
   lines.push('ov.addEventListener("click",function(e){if(e.target===ov)cd();});document.body.appendChild(ov);document.body.style.overflow="hidden";}');
   lines.push('function cd(){var m=document.getElementById("dm");if(m){m.remove();document.body.style.overflow="";}}');
-  lines.push('function bA(){');
-  lines.push('  if(!DB.length)return"<p style=\"padding:40px;text-align:center;color:#6b6560\">Geen data</p>";');
-  lines.push('  var tot=DB.length;');
-  lines.push('  var uA=new Set(DB.map(function(c){return c.artiest;})).size;');
-  lines.push('  var uP=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;');
-  lines.push('  var uL=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;');
-  lines.push('  var withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;');
-  lines.push('  var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});');
-  lines.push('  var jArr=DB.map(function(c){return c.jaar;}).filter(Boolean);');
-  lines.push('  var span=jArr.length?Math.max.apply(null,jArr)-Math.min.apply(null,jArr)+1:0;');
-  lines.push('  var mc2={};DB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mc2[m]=(mc2[m]||0)+1;});');
-  lines.push('  var bm2=Object.entries(mc2).sort(function(a,b){return b[1]-a[1];})[0];');
-  lines.push('  var streak=bm2?bm2[1]:0,streakLbl=bm2?new Date(bm2[0]+"-01").toLocaleDateString("nl-NL",{month:"short",year:"numeric"}):"";');
-  lines.push('  var rye=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0];');
-  lines.push('  var rJaar=rye?rye[0]:"",rN=rye?rye[1]:0;');
-  lines.push('  function st(v,l,s){return"<div class=\"stat\"><div class=\"stl\">"+l+"</div><div class=\"stv\">"+v+"</div><div class=\"sts\">"+s+"</div></div>";}');
-  lines.push('  function bar(e,mx){return e.map(function(x){return"<div class=\"br\"><div class=\"bn\">"+eh(x[0])+"</div><div class=\"bt\"><div class=\"bf\" style=\"width:"+Math.round(x[1]/mx*100)+"%\"></div></div><div class=\"bc\">"+x[1]+"</div></div>";}).join("");}');
-  lines.push('  var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});');
-  lines.push('  var t10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,10),mA=t10[0]?t10[0][1]:1;');
-  lines.push('  var pc={};DB.forEach(function(c){if(c.plaats)pc[c.plaats]=(pc[c.plaats]||0)+1;});');
-  lines.push('  var tP=Object.entries(pc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mP=tP[0]?tP[0][1]:1;');
-  lines.push('  var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});');
-  lines.push('  var tL=Object.entries(lc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mL=tL[0]?tL[0][1]:1;');
-  lines.push('  var sc={};DB.forEach(function(c){if(c.soort)sc[c.soort]=(sc[c.soort]||0)+1;});');
-  lines.push('  var tS=Object.entries(sc).sort(function(a,b){return b[1]-a[1];});');
-  lines.push('  var SOORTEN=["Hoofdprogramma","Voorprogramma","Festivaloptreden","Theater","Musical","Comedy"];');
-  lines.push('  var SC={"Hoofdprogramma":"#1a1a2e","Voorprogramma":"#c84b31","Festivaloptreden":"#e5a100","Theater":"#6b3f8a","Musical":"#c06090","Comedy":"#d46a20"};');
-  lines.push('  var yrs=Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];});');
-  lines.push('  var maxY=yrs.length?Math.max.apply(null,yrs.map(function(y){return y[1];})):1;');
-  lines.push('  var yrHtml=yrs.map(function(e){');
-  lines.push('    var sd={};DB.filter(function(c){return String(c.jaar)===String(e[0]);}).forEach(function(c){var s=c.soort||"Hoofdprogramma";sd[s]=(sd[s]||0)+1;});');
-  lines.push('    var segs=SOORTEN.map(function(s){var n=sd[s]||0;if(!n)return"";var pct=Math.round(n/e[1]*100);return"<div class=\"yseg\" data-s=\""+s+"\" style=\"height:"+pct+"%;background:"+(SC[s]||"#1a1a2e")+"\" title=\""+s+": "+n+"\"></div>";}).join("");');
-  lines.push('    var h=Math.round(e[1]/maxY*90)+6;');
-  lines.push('    return"<div class=\"ycol\"><div class=\"ycnt\">"+e[1]+"</div><div class=\"ybar ystacked\" style=\"height:"+h+"px\">"+segs+"</div><div class=\"ylbl\">&apos;"+String(e[0]).slice(2)+"</div></div>";');
-  lines.push('  }).join("");');
-  lines.push('  var MAANDEN=["Jan","Feb","Mrt","Apr","Mei","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];');
-  lines.push('  var maandData={};DB.forEach(function(c){if(c.maand){var s=c.soort||"Hoofdprogramma";if(!maandData[c.maand])maandData[c.maand]={};maandData[c.maand][s]=(maandData[c.maand][s]||0)+1;}});');
-  lines.push('  var mTotals=[];for(var mi=1;mi<=12;mi++){var mt=Object.values(maandData[mi]||{}).reduce(function(a,b){return a+b;},0);mTotals.push(mt);}');
-  lines.push('  var maxM=Math.max.apply(null,mTotals)||1;');
-  lines.push('  var mHtml="";for(var mi2=1;mi2<=12;mi2++){var md=maandData[mi2]||{};var tm=mTotals[mi2-1];var h2=tm?Math.round(tm/maxM*90)+6:4;var segs2=SOORTEN.map(function(s){var n=md[s]||0;if(!n)return"";var pct=tm?Math.round(n/tm*100):0;return"<div class=\"yseg\" style=\"height:"+pct+"%;background:"+(SC[s]||"#1a1a2e")+"\" title=\""+s+": "+n+"\"></div>";}).join("");mHtml+="<div class=\"ycol\"><div class=\"ycnt\">"+(tm||"")+"</div><div class=\"ybar ystacked\" style=\"height:"+h2+"px\">"+(tm?segs2:"")+"</div><div class=\"ylbl\">"+MAANDEN[mi2-1]+"</div></div>";}');
-  lines.push('  var statsHtml="<div class=\"sg\">"+st(tot.toLocaleString("nl"),"Totaal","concerten")+st(uA,"Artiesten","uniek")+st(uP,"Plaatsen","bezocht")+st(uL,"Locaties","venues")+st(span,"Jaren actief","jaar")+st(streak,"Record maand",streakLbl)+st(rJaar,"Record jaar",rN+" concerten")+st(withSl,"Met setlist","concerten")+"</div>";');
-  lines.push('  var soortHtml="<div class=\"sg\">"+tS.map(function(e){var pct=Math.round(e[1]/tot*100);return st(e[1],e[0],pct+"% van totaal");}).join("")+"</div>";');
-  lines.push('  return"<h1>ANALYTICS</h1>"+statsHtml+soortHtml+"<div class=\"cb\"><div class=\"cl\">Top 10 artiesten</div>"+bar(t10,mA)+"</div>"+"<div class=\"cb\"><div class=\"cl\">Concerten per jaar</div><div class=\"ybars\">"+yrHtml+"</div></div>"+"<div class=\"cb\"><div class=\"cl\">Concerten per maand</div><div class=\"ybars\">"+mHtml+"</div></div>"+"<div class=\"two\"><div class=\"cb\"><div class=\"cl\">Top plaatsen</div>"+bar(tP,mP)+"</div><div class=\"cb\"><div class=\"cl\">Top locaties</div>"+bar(tL,mL)+"</div></div>";');
-  lines.push('}');
-  
+    var _bA_src = function(){
+    var tot=DB.length,uA=new Set(DB.map(function(c){return c.artiest;})).size,uP=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size,uL=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size,withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
+    var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
+    var jArr=DB.map(function(c){return c.jaar;}).filter(Boolean),span=jArr.length?Math.max.apply(null,jArr)-Math.min.apply(null,jArr)+1:0;
+    var mc2={};DB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mc2[m]=(mc2[m]||0)+1;});
+    var bm2=Object.entries(mc2).sort(function(a,b){return b[1]-a[1];})[0];
+    var streak=bm2?bm2[1]:0,streakLbl=bm2?new Date(bm2[0]+'-01').toLocaleDateString('nl-NL',{month:'short',year:'numeric'}):'';
+    var rye=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0],rJaar=rye?rye[0]:'',rN=rye?rye[1]:0;
+    function st(v,l,s){return'<div class="stat"><div class="stl">'+l+'</div><div class="stv">'+v+'</div><div class="sts">'+s+'</div></div>';}
+    function bar(e,mx){return e.map(function(x){return'<div class="br"><div class="bn">'+eh(x[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(x[1]/mx*100)+'%"></div></div><div class="bc">'+x[1]+'</div></div>';}).join('');}
+    var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});
+    var t10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,10),mA=t10[0]?t10[0][1]:1;
+    var pc={};DB.forEach(function(c){if(c.plaats)pc[c.plaats]=(pc[c.plaats]||0)+1;});
+    var tP=Object.entries(pc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mP=tP[0]?tP[0][1]:1;
+    var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});
+    var tL=Object.entries(lc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mL=tL[0]?tL[0][1]:1;
+    var sc={};DB.forEach(function(c){if(c.soort)sc[c.soort]=(sc[c.soort]||0)+1;});
+    var tS=Object.entries(sc).sort(function(a,b){return b[1]-a[1];});
+    var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater','Musical','Comedy'];
+    var SC={'Hoofdprogramma':'#1a1a2e','Voorprogramma':'#c84b31','Festivaloptreden':'#e5a100','Theater':'#6b3f8a','Musical':'#c06090','Comedy':'#d46a20'};
+    var yrs=Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];}),maxY=yrs.length?Math.max.apply(null,yrs.map(function(y){return y[1];})):1;
+    var yrHtml=yrs.map(function(e){var sd={};DB.filter(function(c){return String(c.jaar)===String(e[0]);}).forEach(function(c){var s=c.soort||'Hoofdprogramma';sd[s]=(sd[s]||0)+1;});var segs=SOORTEN.map(function(s){var n=sd[s]||0;if(!n)return'';var pct=Math.round(n/e[1]*100);return'<div class="yseg" style="height:'+pct+'%;background:'+(SC[s]||'#1a1a2e')+'" title="'+s+': '+n+'"></div>';}).join('');var h=Math.round(e[1]/maxY*90)+6;return'<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar ystacked" style="height:'+h+'px">'+segs+'</div><div class="ylbl">&apos;'+String(e[0]).slice(2)+'</div></div>';}).join('');
+    var MAANDEN=['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var maandData={};DB.forEach(function(c){if(c.maand){var s=c.soort||'Hoofdprogramma';if(!maandData[c.maand])maandData[c.maand]={};maandData[c.maand][s]=(maandData[c.maand][s]||0)+1;}});
+    var mTotals=[];for(var mi=1;mi<=12;mi++){var mt=Object.values(maandData[mi]||{}).reduce(function(a,b){return a+b;},0);mTotals.push(mt);}
+    var maxM=Math.max.apply(null,mTotals)||1,mHtml='';
+    for(var mi2=1;mi2<=12;mi2++){var md=maandData[mi2]||{},tm=mTotals[mi2-1],h2=tm?Math.round(tm/maxM*90)+6:4,segs2=SOORTEN.map(function(s){var n=md[s]||0;if(!n)return'';var pct=tm?Math.round(n/tm*100):0;return'<div class="yseg" style="height:'+pct+'%;background:'+(SC[s]||'#1a1a2e')+'" title="'+s+': '+n+'"></div>';}).join('');mHtml+='<div class="ycol"><div class="ycnt">'+(tm||'')+'</div><div class="ybar ystacked" style="height:'+h2+'px">'+(tm?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi2-1]+'</div></div>';}
+    var sg='<div class="sg">',s2='<div class="sg">'+tS.map(function(e){var p=Math.round(e[1]/tot*100);return st(e[1],e[0],p+'% van totaal');}).join('')+'</div>';
+    return'<h1>ANALYTICS</h1>'+sg+st(tot.toLocaleString('nl'),'Totaal','concerten')+st(uA,'Artiesten','uniek')+st(uP,'Plaatsen','bezocht')+st(uL,'Locaties','venues')+st(span,'Jaren actief','jaar')+st(streak,'Record maand',streakLbl)+st(rJaar,'Record jaar',rN+' concerten')+st(withSl,'Met setlist','concerten')+'</div>'+s2+'<div class="cb"><div class="cl">Top 10 artiesten</div>'+bar(t10,mA)+'</div>'+'<div class="cb"><div class="cl">Concerten per jaar</div><div class="ybars">'+yrHtml+'</div></div>'+'<div class="cb"><div class="cl">Concerten per maand</div><div class="ybars">'+mHtml+'</div></div>'+'<div class="two"><div class="cb"><div class="cl">Top plaatsen</div>'+bar(tP,mP)+'</div><div class="cb"><div class="cl">Top locaties</div>'+bar(tL,mL)+'</div></div>';
+  };
+  var _bA_str = 'function bA(){if(!DB.length)return"<em>Geen data</em>";' + _bA_src.toString().replace(/^function[^{]+\{/, '').replace(/\}[^}]*$/, '') + '}';
+  lines.push(_bA_str);
+
   lines.push('document.addEventListener("keydown",function(e){if(e.key==="Escape")cd();});');
   lines.push('function init(){');
   lines.push('  DB=EMBEDDED_DB||[];re();');
