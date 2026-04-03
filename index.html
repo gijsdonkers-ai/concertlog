@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Gijs' Concertlog</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -37,7 +37,7 @@ h1{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-
 .b-gist{background:rgba(71,197,255,.12);color:var(--accent3);border:1px solid rgba(71,197,255,.2)}.b-gist:hover{background:rgba(71,197,255,.22)}
 .b-sm{padding:5px 10px;font-size:11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-input,select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;transition:border-color .2s}
+input,select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;width:100%;transition:border-color .2s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 input::placeholder,textarea::placeholder{color:var(--muted)}
 select option{background:var(--bg2)}
@@ -364,9 +364,12 @@ function updateCards(){
   if(!cg) return;
   if(tc) tc.textContent = total.toLocaleString('nl')+' concerten';
   if(ri) ri.textContent = total+' resultaten \u00b7 pagina '+curPage+' van '+pages;
-  cg.innerHTML = total===0
-    ? '<div class="empty"><div style="font-size:36px;margin-bottom:10px">&#127928;</div><div class="emtitle">Geen resultaten</div></div>'
-    : slice.map(buildCard).join('');
+  if(total===0){
+    cg.innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:10px">&#127928;</div><div class="emtitle">Geen resultaten</div></div>';
+  } else {
+    cg.innerHTML='';
+    slice.forEach(function(con){ cg.appendChild(buildCard(con)); });
+  }
   if(pd) pd.innerHTML = pages>1
     ? '<button class="btn b-sec b-sm"'+(curPage===1?' disabled':'')+' onclick="curPage=Math.max(1,curPage-1);updateCards()">&larr; Vorige</button>'
       +'<span class="pinfo">'+curPage+' / '+pages+'</span>'
@@ -374,17 +377,21 @@ function updateCards(){
     : '';
 }
 
-function buildCard(c){
-  var d = c.datum ? new Date(c.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}) : '';
-  var songs = c.setlist||[];
-  return '<div class="card" onclick="openDetail(\''+c.id+'\')">'
-    +'<div class="ctop"><div class="cartist">'+escH(c.artiest)+'</div><div class="cdate">'+d+'</div></div>'
+function buildCard(con){
+  var d = con.datum ? new Date(con.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}) : '';
+  var songs = con.setlist||[];
+  var el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.cid = con.id;
+  el.addEventListener('click', function(){ openDetail(this.dataset.cid); });
+  el.innerHTML = '<div class="ctop"><div class="cartist">'+escH(con.artiest)+'</div><div class="cdate">'+d+'</div></div>'
     +'<div class="cmeta">'
-    +(c.locatie?'<span>&#128205; '+escH(c.locatie)+(c.plaats?', '+escH(c.plaats):'')+' </span>':(c.plaats?'<span>&#128205; '+escH(c.plaats)+'</span>':''))
-    +(c.soort?' <span class="pill p-soort">'+escH(c.soort)+'</span>':'')
-    +(c.festival?' <span class="pill p-fest">&#127894; '+escH(c.festival)+'</span>':'')
+    +(con.locatie?'<span>&#128205; '+escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'')+'</span>':(con.plaats?'<span>&#128205; '+escH(con.plaats)+'</span>':''))
+    +(con.soort?' <span class="pill p-soort">'+escH(con.soort)+'</span>':'')
+    +(con.festival?' <span class="pill p-fest">&#127894; '+escH(con.festival)+'</span>':'')
     +(songs.filter(function(x){return x!=='---';}).length?' <span class="pill p-sl">&#127925; '+songs.filter(function(x){return x!=='---';}).length+' nrs</span>':'')
-    +'</div></div>';
+    +'</div>';
+  return el;
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────────────
