@@ -81,10 +81,11 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
-.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto;padding-bottom:2px}
-.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}
-.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px}
-.ylbl{font-size:9px;color:var(--muted)}.ycnt{font-size:10px;color:var(--accent);font-weight:600}
+.ybars{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding:4px 0 2px}
+.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:28px;flex:1}
+.ybar{border-radius:3px 3px 0 0;width:100%;min-height:3px;transition:height .25s ease}
+.ylbl{font-size:9px;color:var(--muted);margin-top:1px}
+.ycnt{font-size:10px;color:var(--accent);font-weight:600;white-space:nowrap}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:540px){.two{grid-template-columns:1fr}}
 .dz{background:var(--card);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px}
@@ -131,11 +132,6 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .ybtn:hover{border-color:var(--accent)}
 .ybar.ystacked{display:flex;flex-direction:column-reverse;overflow:hidden}
 .yseg{width:100%;flex-shrink:0}
-.ybars{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding:4px 0 2px}
-.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:28px;flex:1}
-.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:3px}
-.ylbl{font-size:9px;color:var(--muted);margin-top:1px}
-.ycnt{font-size:10px;color:var(--accent);font-weight:600;white-space:nowrap}
 .chat-box{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-top:14px;display:flex;flex-direction:column;overflow:hidden}
 .chat-msgs{padding:16px;display:flex;flex-direction:column;gap:10px;max-height:380px;overflow-y:auto}
 .chat-msg{display:flex;gap:8px;align-items:flex-start}
@@ -386,7 +382,7 @@ function buildCard(c){
     +(c.locatie?'<span>&#128205; '+escH(c.locatie)+(c.plaats?', '+escH(c.plaats):'')+' </span>':(c.plaats?'<span>&#128205; '+escH(c.plaats)+'</span>':''))
     +(c.soort?' <span class="pill p-soort">'+escH(c.soort)+'</span>':'')
     +(c.festival?' <span class="pill p-fest">&#127894; '+escH(c.festival)+'</span>':'')
-    +(songs.length?' <span class="pill p-sl">&#127925; '+songs.length+' nrs</span>':'')
+    +(songs.filter(function(x){return x!=='---';}).length?' <span class="pill p-sl">&#127925; '+songs.filter(function(x){return x!=='---';}).length+' nrs</span>':'')
     +'</div></div>';
 }
 
@@ -397,8 +393,19 @@ function openDetail(id){
   var d = c.datum ? new Date(c.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'}) : '';
   var songs = c.setlist||[];
 
+  var realNum=0;
   var songHtml = songs.length
-    ? songs.map(function(s,i){ return '<div class="setlist-item"><span class="setlist-num">'+(i+1)+'</span><span class="setlist-name">'+escH(s)+'</span></div>'; }).join('')
+    ? songs.map(function(s,i){
+        if(s==='---'){
+          return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0">'
+            +'<div style="flex:1;height:1px;background:var(--border)"></div>'
+            +'<span style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px">ENCORE</span>'
+            +'<div style="flex:1;height:1px;background:var(--border)"></div>'
+            +'</div>';
+        }
+        realNum++;
+        return '<div class="setlist-item"><span class="setlist-num">'+realNum+'</span><span class="setlist-name">'+escH(s)+'</span></div>';
+      }).join('')
     : '<div style="text-align:center;padding:30px;color:var(--muted)">Geen setlist beschikbaar</div>';
 
   var meta = [];
@@ -415,7 +422,7 @@ function openDetail(id){
     +'<div class="modal-meta">'+escH(d)+(meta.length?' &nbsp;&middot;&nbsp; '+meta.join(' &nbsp;&middot;&nbsp; '):'')+'</div>'
     +'</div><button class="modal-close" onclick="closeDetail()">&#215;</button></div>'
     +'<div class="modal-body">'
-    +(songs.length?'<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">&#127925; Setlist &mdash; '+songs.length+' nummers</div>':'')
+    +(songs.filter(function(x){return x!=='---';}).length?'<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">&#127925; Setlist &mdash; '+songs.filter(function(x){return x!=='---';}).length+' nummers</div>':'')
     +songHtml+'</div>'
     +'<div class="modal-actions">'
     +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\''+c.id+'\')">&#9998; Bewerken</button>'
@@ -479,7 +486,7 @@ function buildForm(){
     +'<div style="margin-bottom:8px"><label style="margin-bottom:5px;display:block">Plak volledige setlist (één nummer per regel)</label>'
     +'<textarea class="paste-area" id="pasteArea" placeholder="01. Song name&#10;02. Another song..." rows="3"></textarea>'
     +'<button class="btn b-sec b-sm" style="margin-top:6px" onclick="parseAndAddPaste()">&#10003; Verwerk geplakte lijst</button></div>'
-    +'<div style="display:flex;gap:8px;margin-top:4px"><input id="newSong" placeholder="Of voeg één nummer toe..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addSong()}"><button class="btn b-sec b-sm" onclick="addSong()">+</button></div>'
+    +'<div style="display:flex;gap:8px;margin-top:4px"><input id="newSong" placeholder="Nummer, of typ - voor encore-scheiding" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addSong()}"><button class="btn b-sec b-sm" onclick="addSong()">+</button></div>'
     +'<div class="divr"></div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
     +'<button class="btn b-pri" style="flex:1;justify-content:center" onclick="saveConcert()">&#128190; '+(editId?'Opslaan':'Toevoegen')+'</button>'
@@ -509,19 +516,54 @@ async function callAI(venue){
 async function fetchSetlist(){
   toast('Gebruik de zoekknop om Setlist.fm te openen en plak de setlist hieronder.','info');
 }
-function addSong(){ var el=document.getElementById('newSong'); if(el&&el.value.trim()){ syncFDFromForm(); FD.setlist.push(el.value.trim()); el.value=''; refreshSongArea(); } }
+function addSong(){
+  var el=document.getElementById('newSong');
+  if(!el||!el.value.trim()) return;
+  syncFDFromForm();
+  var val=el.value.trim();
+  // '-' of '--' als invoer = encore-scheidingsteken
+  if(val==='-'||val==='--'||/^encore$/i.test(val)){
+    if(FD.setlist.length && FD.setlist[FD.setlist.length-1]!=='---'){
+      FD.setlist.push('---');
+    }
+  } else {
+    FD.setlist.push(val);
+  }
+  el.value=''; refreshSongArea();
+}
 function rmSong(i){ syncFDFromForm(); FD.setlist.splice(i,1); refreshSongArea(); }
 
 function parseAndAddPaste(){
   var ta=document.getElementById('pasteArea'); if(!ta||!ta.value.trim()){ toast('Geen tekst','err'); return; }
   syncFDFromForm(); var added=0;
-  ta.value.split('\n').forEach(function(line){ line=line.trim(); if(!line) return; var c=line.replace(/^[\d]+[\s]*[\.\-\)]\s*/,'').trim(); if(c){ FD.setlist.push(c); added++; } });
+  ta.value.split('\n').forEach(function(line){
+    line=line.trim(); if(!line) return;
+    // Herken "Encore", "E:", "---", "***" als scheidingsteken -> sla op als '---'
+    if(/^[-=*]{2,}$/.test(line) || /^encore[:\s]*/i.test(line) || /^e:/i.test(line)){
+      if(FD.setlist.length && FD.setlist[FD.setlist.length-1]!=='---'){ FD.setlist.push('---'); }
+      return;
+    }
+    var cleaned=line.replace(/^[\d]+[\s]*[\.\-\)][\s]*/,'').trim();
+    if(cleaned) { FD.setlist.push(cleaned); added++; }
+  });
   ta.value=''; refreshSongArea(); toast(added+' nummers toegevoegd!','ok');
 }
 
 function refreshSongArea(){
   var songs=FD.setlist;
-  var html=songs.length?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+songs.map(function(s,i){ return '<div class="schip"><span class="snum">'+(i+1)+'</span><span>'+escH(s)+'</span><button class="srem" onclick="rmSong('+i+')">&#215;</button></div>'; }).join('')+'</div>':'';
+  var num=0;
+  var html=songs.length?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+songs.map(function(s,i){
+    if(s==='---'){
+      return '<div style="width:100%;display:flex;align-items:center;gap:6px;margin:2px 0">'
+        +'<div style="flex:1;height:1px;background:var(--border)"></div>'
+        +'<span style="font-size:10px;color:var(--muted);flex-shrink:0">ENCORE</span>'
+        +'<div style="flex:1;height:1px;background:var(--border)"></div>'
+        +'<button class="srem" onclick="rmSong('+i+')" title="Verwijder scheiding">&#215;</button>'
+        +'</div>';
+    }
+    num++;
+    return '<div class="schip"><span class="snum">'+num+'</span><span>'+escH(s)+'</span><button class="srem" onclick="rmSong('+i+')">&#215;</button></div>';
+  }).join('')+'</div>':'';
   var existing=document.querySelector('.fcard div[style*="flex-wrap:wrap"][style*="gap:6px"]');
   var sfSt=document.getElementById('sfSt');
   if(existing) existing.outerHTML=html;
@@ -612,15 +654,54 @@ function buildAnalytics(){
 
 function yToggle(btn){btn.classList.toggle('ybtn-on');yApplyFilter();}
 function yApplyFilter(){
-  var active=[];document.querySelectorAll('#yfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
-  document.querySelectorAll('#yrBars .yseg').forEach(function(s){s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';});
-  document.querySelectorAll('#yrBars .ycol').forEach(function(col){var cnt=col.querySelector('.ycnt');if(!cnt)return;var tot=0;col.querySelectorAll('.yseg').forEach(function(s){if(s.style.display!=='none'){var m=(s.getAttribute('title')||'').match(/: (\d+)$/);if(m)tot+=parseInt(m[1]);}});cnt.textContent=tot||'';});
+  var active=[];
+  document.querySelectorAll('#yfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
+  // show/hide segments
+  document.querySelectorAll('#yrBars .yseg').forEach(function(s){
+    s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';
+  });
+  // recalc totals per column
+  var totals=[];
+  document.querySelectorAll('#yrBars .ycol').forEach(function(col){
+    var tot=0;
+    col.querySelectorAll('.yseg').forEach(function(s){
+      if(s.style.display!=='none'){var m=(s.getAttribute('title')||'').match(/: (\d+)$/);if(m)tot+=parseInt(m[1]);}
+    });
+    totals.push(tot);
+    var cnt=col.querySelector('.ycnt'); if(cnt) cnt.textContent=tot||'';
+  });
+  // rescale bar heights
+  var maxTot=Math.max.apply(null,totals.concat([1]));
+  document.querySelectorAll('#yrBars .ycol').forEach(function(col,i){
+    var ybar=col.querySelector('.ybar');
+    if(!ybar)return;
+    var h=totals[i]?Math.round(totals[i]/maxTot*90)+6:4;
+    ybar.style.height=h+'px';
+  });
 }
 function mToggle(btn){btn.classList.toggle('ybtn-on');mApplyFilter();}
 function mApplyFilter(){
-  var active=[];document.querySelectorAll('#mfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
-  document.querySelectorAll('#mBars .yseg').forEach(function(s){s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';});
-  document.querySelectorAll('#mBars .ycol').forEach(function(col){var cnt=col.querySelector('.ycnt');if(!cnt)return;var tot=0;col.querySelectorAll('.yseg').forEach(function(s){if(s.style.display!=='none'){var m=(s.getAttribute('title')||'').match(/: (\d+)$/);if(m)tot+=parseInt(m[1]);}});cnt.textContent=tot||'';});
+  var active=[];
+  document.querySelectorAll('#mfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
+  document.querySelectorAll('#mBars .yseg').forEach(function(s){
+    s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';
+  });
+  var totals=[];
+  document.querySelectorAll('#mBars .ycol').forEach(function(col){
+    var tot=0;
+    col.querySelectorAll('.yseg').forEach(function(s){
+      if(s.style.display!=='none'){var m=(s.getAttribute('title')||'').match(/: (\d+)$/);if(m)tot+=parseInt(m[1]);}
+    });
+    totals.push(tot);
+    var cnt=col.querySelector('.ycnt'); if(cnt) cnt.textContent=tot||'';
+  });
+  var maxTot=Math.max.apply(null,totals.concat([1]));
+  document.querySelectorAll('#mBars .ycol').forEach(function(col,i){
+    var ybar=col.querySelector('.ybar');
+    if(!ybar)return;
+    var h=totals[i]?Math.round(totals[i]/maxTot*90)+6:4;
+    ybar.style.height=h+'px';
+  });
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────
