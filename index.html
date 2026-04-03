@@ -1215,14 +1215,16 @@ function doImport(input){
       var wb=XLSX.read(e.target.result,{type:'array'});
       var ws=wb.Sheets[wb.SheetNames[0]];
       var data=XLSX.utils.sheet_to_json(ws,{defval:''});
+      DB = [];
       var added=0;
+      var importBase=Date.now();
       data.forEach(function(row){
         var art=row['Artiest']||row['artiest']||''; if(!art) return;
         var d=row['Datum ']||row['Datum']||row['datum']||''; var ds='';
         if(d){ var dt=new Date(d); if(!isNaN(dt)) ds=dt.toISOString().slice(0,10); else ds=String(d).slice(0,10); }
         var sl=row['Setlist']||'';
         var songs=sl?String(sl).split(/[\n|]/).map(function(s){ return s.trim(); }).filter(Boolean):[];
-        DB.push({id:String(Date.now()+Math.random()),artiest:String(art),
+        DB.push({id:String(importBase + added),artiest:String(art),
           locatie:String(row['Locatie']||row['locatie']||''),
           plaats:String(row['Plaats']||row['plaats']||''),
           datum:ds,setlist:songs,
