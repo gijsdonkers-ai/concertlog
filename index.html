@@ -152,6 +152,7 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .chat-sug{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all .15s}
 .chat-sug:hover{border-color:var(--accent);color:var(--accent)}
 #factDisplay{transition:opacity .15s;min-height:40px}
+.stat-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
 </style>
 </head>
 <body class="theme-dark">
@@ -544,6 +545,8 @@ function parseAndAddPaste(){
       return;
     }
     var cleaned=line.replace(/^[\d]+[\s]*[\.\-\)][\s]*/,'').trim();
+    // Strip Setlist.fm artefacten
+    if(/^play video$/i.test(cleaned)) return;
     if(cleaned) { FD.setlist.push(cleaned); added++; }
   });
   ta.value=''; refreshSongArea(); toast(added+' nummers toegevoegd!','ok');
@@ -613,6 +616,10 @@ function buildAnalytics(){
   var streak=bm?bm[1]:0,streakLbl=bm?new Date(bm[0]+'-01').toLocaleDateString('nl-NL',{month:'short',year:'numeric'}):'';
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
+  var recordYrEntry=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0];
+  var recordJaar=recordYrEntry?recordYrEntry[0]:'';
+  var recordJaarN=recordYrEntry?recordYrEntry[1]:0;
+  var uLoc=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;
   function stEl2(v,l,s){return '<div class="stat"><div class="stl">'+l+'</div><div class="stv">'+v+'</div><div class="sts">'+s+'</div></div>';}
   function bar2(entries,mx){return entries.map(function(e){return '<div class="brow"><div class="bname">'+escH(e[0])+'</div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div><div class="bcnt">'+e[1]+'</div></div>';}).join('');}
   var soortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="yToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
@@ -635,14 +642,24 @@ function buildAnalytics(){
     mBarsHtml+='<div class="ycol"><div class="ycnt" id="mcnt_'+mi2+'">'+(tot_m||'')+'</div><div class="ybar ystacked" id="mbar_'+mi2+'" style="height:'+h2+'px">'+(tot_m?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi2-1]+'</div></div>';
   }
   return '<h1>ANALYTICS</h1>'
-    +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uPl,'Plaatsen','bezocht')
-    +stEl2((total/uArt).toFixed(1)+'&times;','Loyalty','gem. per artiest')+stEl2(Math.round(uArt/total*100)+'%','Diversity','unieke artiesten')
-    +stEl2(streak,'Record maand',streakLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
+    +'<div class="stat-grid4">'
+    +stEl2(total.toLocaleString('nl'),'Totaal','concerten')
+    +stEl2(uArt,'Artiesten','uniek')
+    +stEl2(uPl,'Plaatsen','bezocht')
+    +stEl2(uLoc,'Locaties','unieke venues')
+    +stEl2(span,'Jaren actief','jaar bijgehouden')
+    +stEl2(streak,'Record maand',streakLbl)
+    +stEl2(recordJaar,'Record jaar',recordJaarN+' concerten')
+    +stEl2(withSl,'Met setlist','concerten')
+    +'</div>'
+    +'<div class="stat-grid4">'
+    +topS.map(function(e){var n=e[1];var pct=Math.round(n/total*100);return stEl2(n,escH(e[0]),pct+'% van totaal');}).join('')
+    +'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA)+'</div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per maand (alle jaren)</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="mfilters">'+mSoortBtns+'</div></div><div class="ybars" id="mBars">'+mBarsHtml+'</div></div>'
     +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar2(topP,maxP)+'</div><div class="cbox"><div class="clbl">Top locaties</div>'+bar2(topL,maxL)+'</div></div>'
-    +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'+topS.map(function(e){return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>';}).join('')+'</div></div>'
+    
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div class="clbl" style="margin-bottom:0">&#10024; Leuke weetjes</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)" id="factCounter"></span><button class="btn b-sec b-sm" onclick="prevFact()">&#8592;</button><button class="btn b-sec b-sm" onclick="nextFact()">&#8594;</button><button class="btn b-pri b-sm" onclick="randomFact()">&#127922; Willekeurig</button></div></div><div id="factDisplay" style="font-size:14px;color:var(--text);line-height:1.8"></div></div>'
     +'<div class="chat-box"><div style="padding:16px 16px 8px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">&#129302;</span><div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:.5px;color:var(--text)">Concert Assistent</div><div style="font-size:11px;color:var(--muted)">Stel vragen over jouw concertdata</div></div></div>'
     +'<div class="chat-msgs" id="chatMsgs"><div class="chat-msg bot"><div class="chat-avatar chat-bot-avatar">&#129302;</div>'
@@ -902,6 +919,10 @@ function buildAllFacts(){
   var mNames=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
+  var recordYrEntry=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0];
+  var recordJaar=recordYrEntry?recordYrEntry[0]:'';
+  var recordJaarN=recordYrEntry?recordYrEntry[1]:0;
+  var uLoc=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;
   var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});
   var withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
   var locV={};sorted.forEach(function(c){if(c.locatie){if(!locV[c.locatie])locV[c.locatie]=[];locV[c.locatie].push(c.datum);}});
