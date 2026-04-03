@@ -145,6 +145,7 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .chat-suggestions{display:flex;flex-wrap:wrap;gap:6px;padding:0 16px 12px}
 .chat-sug{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all .15s}
 .chat-sug:hover{border-color:var(--accent);color:var(--accent)}
+#factDisplay{transition:opacity .15s}
 
 .ybtn{padding:3px 9px;border-radius:12px;border:1px solid var(--c,var(--border));background:transparent;font-size:10px;cursor:pointer;font-family:DM Sans,sans-serif;color:var(--muted);transition:all .15s;white-space:nowrap}
 .ybtn.ybtn-on{background:var(--c,var(--accent));color:var(--bg);border-color:var(--c,var(--accent));font-weight:500}
@@ -283,7 +284,7 @@ function render(){
   var el = document.getElementById('APP');
   if     (page==='list')      el.innerHTML = buildList();
   else if(page==='add')       el.innerHTML = buildForm();
-  else if(page==='analytics') el.innerHTML = buildAnalytics();
+  else if(page==='analytics') { el.innerHTML = buildAnalytics(); window._allFacts = buildAllFacts(); showFact(0); }
   else if(page==='sync')      el.innerHTML = buildAdmin();
 }
 
@@ -661,58 +662,9 @@ function buildAnalytics(){
     mBarsHtml+='<div class="ycol"><div class="ycnt" id="mcnt_'+mi+'">'+(tot_m||'')+'</div><div class="ybar ystacked" id="mbar_'+mi+'" style="height:'+h2+'px">'+(tot_m?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi-1]+'</div></div>';
   }
 
-  // ── fun facts ──
-  var facts=[];
-  // 1. artiest + locatie combo
-  var combo={};
-  DB.forEach(function(c){if(c.artiest&&c.locatie){var k=c.artiest+'||'+c.locatie;combo[k]=(combo[k]||0)+1;}});
-  var topCombo=Object.entries(combo).sort(function(a,b){return b[1]-a[1];})[0];
-  if(topCombo&&topCombo[1]>1){var parts=topCombo[0].split('||');facts.push('&#127894; <strong>'+escH(parts[0])+'</strong> in <strong>'+escH(parts[1])+'</strong> zag je het vaakst: <strong>'+topCombo[1]+'&times;</strong>');}
-
-  // 2. langste periode zonder concert
-  var sorted=DB.filter(function(c){return c.datum;}).sort(function(a,b){return a.datum>b.datum?1:-1;});
-  var maxGap=0,gapA='',gapB='';
-  for(var gi=1;gi<sorted.length;gi++){
-    var diff=(new Date(sorted[gi].datum)-new Date(sorted[gi-1].datum))/(1000*60*60*24);
-    if(diff>maxGap){maxGap=diff;gapA=sorted[gi-1].datum;gapB=sorted[gi].datum;}
-  }
-  if(maxGap>0){
-    var fmtA=new Date(gapA).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'});
-    var fmtB=new Date(gapB).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'});
-    facts.push('&#9200; Langste periode zonder concert: <strong>'+Math.round(maxGap)+' dagen</strong> ('+fmtA+' &rarr; '+fmtB+')');
-  }
-
-  // 3. langste tijd tussen bezoeken aan dezelfde locatie
-  var locVisits={};
-  sorted.forEach(function(c){if(c.locatie){if(!locVisits[c.locatie])locVisits[c.locatie]=[];locVisits[c.locatie].push(c.datum);}});
-  var maxLocGap=0,maxLocName='',maxLocD1='',maxLocD2='';
-  Object.entries(locVisits).forEach(function(entry){
-    var loc=entry[0],dates=entry[1];
-    for(var li=1;li<dates.length;li++){
-      var d=(new Date(dates[li])-new Date(dates[li-1]))/(1000*60*60*24);
-      if(d>maxLocGap){maxLocGap=d;maxLocName=loc;maxLocD1=dates[li-1];maxLocD2=dates[li];}
-    }
-  });
-  if(maxLocGap>0){
-    var fmtL1=new Date(maxLocD1).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'});
-    var fmtL2=new Date(maxLocD2).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'});
-    facts.push('&#127961; Langste tijd tussen twee bezoeken aan <strong>'+escH(maxLocName)+'</strong>: <strong>'+Math.round(maxLocGap/365*10)/10+' jaar</strong> ('+fmtL1+' &rarr; '+fmtL2+')');
-  }
-
-  // 4. meest actieve week dag
-  var wdCount=[0,0,0,0,0,0,0];
-  var wdNames=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
-  sorted.forEach(function(c){if(c.datum)wdCount[new Date(c.datum).getDay()]++;});
-  var maxWd=Math.max.apply(null,wdCount);var topWd=wdCount.indexOf(maxWd);
-  facts.push('&#128197; Meest bezochte dag van de week: <strong>'+wdNames[topWd]+'</strong> ('+maxWd+' concerten)');
-
-  // 5. artiest gezien in meeste verschillende locaties
-  var artLoc={};
-  DB.forEach(function(c){if(c.artiest&&c.locatie){if(!artLoc[c.artiest])artLoc[c.artiest]=new Set();artLoc[c.artiest].add(c.locatie);}});
-  var topArtLoc=Object.entries(artLoc).sort(function(a,b){return b[1].size-a[1].size;})[0];
-  if(topArtLoc&&topArtLoc[1].size>1){facts.push('&#127930; <strong>'+escH(topArtLoc[0])+'</strong> zag je op de meeste verschillende locaties: <strong>'+topArtLoc[1].size+'</strong> verschillende zalen');}
-
-  var factsHtml=facts.map(function(f){return '<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);line-height:1.6">'+f+'</div>';}).join('');
+  // ── fun facts (computed once, stored globally) ──
+  window._allFacts = window._allFacts || buildAllFacts();
+  var factsHtml = ''; // rendered by showFact()
 
   return '<h1>ANALYTICS</h1>'
     +'<div class="sgrid2">'+stEl(total.toLocaleString('nl'),'Totaal','concerten')+stEl(uArt,'Artiesten','uniek')+stEl(uPl,'Plaatsen','bezocht')
@@ -740,7 +692,7 @@ function buildAnalytics(){
     +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'
     +topS.map(function(e){return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>';}).join('')+'</div></div>'
     // fun facts
-    +'<div class="cbox"><div class="clbl">&#10024; Leuke weetjes</div>'+factsHtml+'</div>'
+    +'<div class="cbox">'+'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">'+'<div class="clbl" style="margin-bottom:0">&#10024; Leuke weetjes</div>'+'<div style="display:flex;align-items:center;gap:8px">'+'<span style="font-size:11px;color:var(--muted)" id="factCounter"></span>'+'<button class="btn b-sec b-sm" onclick="prevFact()">&#8592;</button>'+'<button class="btn b-sec b-sm" onclick="nextFact()">&#8594;</button>'+'<button class="btn b-pri b-sm" onclick="randomFact()">&#127922; Willekeurig</button>'+'</div></div>'+'<div id="factDisplay" style="font-size:14px;color:var(--text);line-height:1.8;min-height:40px"></div>'+'</div>'
     // chatbot
     +'<div class="chat-box">'
     +'<div style="padding:16px 16px 8px;display:flex;align-items:center;gap:8px">'
@@ -818,6 +770,283 @@ function mApplyFilter() {
   });
 }
 
+
+// ── FUN FACTS ────────────────────────────────────────────────────
+var _factIdx = 0;
+
+function buildAllFacts() {
+  var F = [];
+  var fmt = function(d) { return new Date(d).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}); };
+  var sorted = DB.filter(function(c){return c.datum;}).sort(function(a,b){return a.datum>b.datum?1:-1;});
+  var wdNames = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
+  var mNames  = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+
+  // 1. meest geziene artiest+locatie combo
+  var combo={};
+  DB.forEach(function(c){if(c.artiest&&c.locatie){var k=c.artiest+'||'+c.locatie;combo[k]=(combo[k]||0)+1;}});
+  var topCombo=Object.entries(combo).sort(function(a,b){return b[1]-a[1];});
+  if(topCombo[0]&&topCombo[0][1]>1){var p=topCombo[0][0].split('||');F.push('&#127894; <strong>'+escH(p[0])+'</strong> in <strong>'+escH(p[1])+'</strong> zag je het vaakst: <strong>'+topCombo[0][1]+'&times;</strong>');}
+
+  // 2. langste periode zonder concert
+  var maxGap=0,gapA='',gapB='';
+  for(var gi=1;gi<sorted.length;gi++){var d=(new Date(sorted[gi].datum)-new Date(sorted[gi-1].datum))/86400000;if(d>maxGap){maxGap=d;gapA=sorted[gi-1].datum;gapB=sorted[gi].datum;}}
+  if(maxGap>0)F.push('&#9200; Langste periode zonder concert: <strong>'+Math.round(maxGap)+' dagen</strong> ('+fmt(gapA)+' &rarr; '+fmt(gapB)+')');
+
+  // 3. langste tijd tussen bezoeken aan dezelfde locatie
+  var locV={};sorted.forEach(function(c){if(c.locatie){if(!locV[c.locatie])locV[c.locatie]=[];locV[c.locatie].push(c.datum);}});
+  var mLG=0,mLN='',mLD1='',mLD2='';
+  Object.entries(locV).forEach(function(e){var loc=e[0],dates=e[1];for(var li=1;li<dates.length;li++){var d=(new Date(dates[li])-new Date(dates[li-1]))/86400000;if(d>mLG){mLG=d;mLN=loc;mLD1=dates[li-1];mLD2=dates[li];}}});
+  if(mLG>0)F.push('&#127961; Langste tijd tussen twee bezoeken aan <strong>'+escH(mLN)+'</strong>: <strong>'+Math.round(mLG/365*10)/10+' jaar</strong> ('+fmt(mLD1)+' &rarr; '+fmt(mLD2)+')');
+
+  // 4. drukste weekdag
+  var wdC=[0,0,0,0,0,0,0];sorted.forEach(function(c){wdC[new Date(c.datum).getDay()]++;});
+  var mWd=Math.max.apply(null,wdC);F.push('&#128197; Drukste dag van de week: <strong>'+wdNames[wdC.indexOf(mWd)]+'</strong> ('+mWd+' concerten)');
+
+  // 5. artiest op meeste locaties
+  var aL={};DB.forEach(function(c){if(c.artiest&&c.locatie){if(!aL[c.artiest])aL[c.artiest]=new Set();aL[c.artiest].add(c.locatie);}});
+  var tAL=Object.entries(aL).sort(function(a,b){return b[1].size-a[1].size;})[0];
+  if(tAL&&tAL[1].size>1)F.push('&#127930; <strong>'+escH(tAL[0])+'</strong> zag je op de meeste locaties: <strong>'+tAL[1].size+'</strong> verschillende zalen');
+
+  // 6. drukste jaar
+  var yC={};DB.forEach(function(c){if(c.jaar)yC[c.jaar]=(yC[c.jaar]||0)+1;});
+  var tY=Object.entries(yC).sort(function(a,b){return b[1]-a[1];})[0];
+  if(tY)F.push('&#127881; Drukste concertjaar: <strong>'+tY[0]+'</strong> met <strong>'+tY[1]+' concerten</strong>');
+
+  // 7. drukste maand ooit (absoluut)
+  var mC={};DB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mC[m]=(mC[m]||0)+1;});
+  var tM=Object.entries(mC).sort(function(a,b){return b[1]-a[1];})[0];
+  if(tM){var d=new Date(tM[0]+'-01');F.push('&#127942; Drukste maand ooit: <strong>'+d.toLocaleDateString('nl-NL',{month:'long',year:'numeric'})+'</strong> met <strong>'+tM[1]+' concerten</strong>');}
+
+  // 8. gemiddeld concerten per jaar
+  var yrs=Object.keys(yC);if(yrs.length>0){var avg=Math.round(DB.length/yrs.length*10)/10;F.push('&#128200; Gemiddeld <strong>'+avg+' concerten per jaar</strong> over '+yrs.length+' jaar');}
+
+  // 9. eerste concert
+  if(sorted.length>0){var fc=sorted[0];F.push('&#127919; Eerste concert: <strong>'+escH(fc.artiest)+'</strong> op '+fmt(fc.datum)+(fc.locatie?' in '+escH(fc.locatie):''));}
+
+  // 10. meest recente concert
+  if(sorted.length>0){var lc2=sorted[sorted.length-1];F.push('&#128336; Meest recente concert: <strong>'+escH(lc2.artiest)+'</strong> op '+fmt(lc2.datum)+(lc2.locatie?' in '+escH(lc2.locatie):''));}
+
+  // 11. totaal unieke locaties
+  var uL=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;
+  F.push('&#127968; Je bezocht <strong>'+uL+' unieke locaties</strong> in totaal');
+
+  // 12. totaal unieke plaatsen
+  var uP=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;
+  F.push('&#128205; Je bezocht concerten in <strong>'+uP+' verschillende plaatsen</strong>');
+
+  // 13. artiest met langste setlists gemiddeld
+  var artSl={};DB.forEach(function(c){if(c.artiest&&c.setlist&&c.setlist.length){if(!artSl[c.artiest])artSl[c.artiest]=[];artSl[c.artiest].push(c.setlist.length);}});
+  var artSlAvg=Object.entries(artSl).filter(function(e){return e[1].length>=3;}).map(function(e){return [e[0],Math.round(e[1].reduce(function(a,b){return a+b;},0)/e[1].length*10)/10];}).sort(function(a,b){return b[1]-a[1];})[0];
+  if(artSlAvg)F.push('&#127925; <strong>'+escH(artSlAvg[0])+'</strong> speelt gemiddeld de langste setlists: <strong>'+artSlAvg[1]+' nummers</strong> (min. 3 concerten)');
+
+  // 14. concert met meeste nummers
+  var longSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).sort(function(a,b){return b.setlist.length-a.setlist.length;})[0];
+  if(longSl)F.push('&#128191; Langste setlist: <strong>'+escH(longSl.artiest)+'</strong> op '+fmt(longSl.datum)+' &mdash; <strong>'+longSl.setlist.length+' nummers</strong>');
+
+  // 15. meest actieve maand van het jaar (over alle jaren)
+  var moC=[0,0,0,0,0,0,0,0,0,0,0,0];DB.forEach(function(c){if(c.maand)moC[c.maand-1]++;});
+  var mxMo=Math.max.apply(null,moC);F.push('&#127800; Drukste maand van het jaar: <strong>'+mNames[moC.indexOf(mxMo)]+'</strong> (totaal '+mxMo+' concerten)');
+
+  // 16. rustigste maand van het jaar
+  var mnMo=Math.min.apply(null,moC);F.push('&#10052; Rustigste maand van het jaar: <strong>'+mNames[moC.indexOf(mnMo)]+'</strong> (totaal '+mnMo+' concerten)');
+
+  // 17. aantal festivaloptredens
+  var festN=DB.filter(function(c){return c.soort==='Festivaloptreden';}).length;
+  var festPct=Math.round(festN/DB.length*100);
+  F.push('&#127914; <strong>'+festN+' festivaloptredens</strong> ('+festPct+'% van alle concerten)');
+
+  // 18. aantal voorprogrammas
+  var voorN=DB.filter(function(c){return c.soort==='Voorprogramma';}).length;
+  F.push('&#127941; <strong>'+voorN+' keer</strong> een voorprogramma bijgewoond');
+
+  // 19. top artiest per decennium
+  var dec={};DB.forEach(function(c){if(c.jaar&&c.artiest){var d=Math.floor(c.jaar/10)*10;if(!dec[d])dec[d]={};dec[d][c.artiest]=(dec[d][c.artiest]||0)+1;}});
+  Object.entries(dec).sort(function(a,b){return+a[0]-+b[0];}).forEach(function(e){
+    var d=e[0],artists=e[1];var top=Object.entries(artists).sort(function(a,b){return b[1]-a[1];})[0];
+    if(top)F.push('&#128336; Top artiest van de jaren '+d+': <strong>'+escH(top[0])+'</strong> ('+top[1]+' concerten)');
+  });
+
+  // 20. gem. gap tussen concerten
+  var gaps=[];for(var g2=1;g2<sorted.length;g2++){gaps.push((new Date(sorted[g2].datum)-new Date(sorted[g2-1].datum))/86400000);}
+  if(gaps.length){var avgGap=Math.round(gaps.reduce(function(a,b){return a+b;},0)/gaps.length);F.push('&#128344; Gemiddeld <strong>'+avgGap+' dagen</strong> tussen twee concerten');}
+
+  // 21. kortste gap tussen 2 concerten
+  if(gaps.length){var minGap=Math.min.apply(null,gaps);var mgIdx=gaps.indexOf(minGap);F.push('&#9889; Kortste tijd tussen 2 concerten: <strong>'+minGap+' dag'+(minGap===1?'':'en')+'</strong> ('+fmt(sorted[mgIdx].datum)+' en '+fmt(sorted[mgIdx+1].datum)+')');}
+
+  // 22. meest bezochte locatie
+  var topLoc=Object.entries(locV).sort(function(a,b){return b[1].length-a[1].length;})[0];
+  if(topLoc)F.push('&#127968; Meest bezochte locatie: <strong>'+escH(topLoc[0])+'</strong> (<strong>'+topLoc[1].length+' keer</strong>)');
+
+  // 23. locatie met meeste verschillende artiesten
+  var locArt={};DB.forEach(function(c){if(c.locatie&&c.artiest){if(!locArt[c.locatie])locArt[c.locatie]=new Set();locArt[c.locatie].add(c.artiest);}});
+  var topLA=Object.entries(locArt).sort(function(a,b){return b[1].size-a[1].size;})[0];
+  if(topLA)F.push('&#127917; <strong>'+escH(topLA[0])+'</strong> had de meeste verschillende artiesten: <strong>'+topLA[1].size+'</strong>');
+
+  // 24. artiest met grootste gap tussen concerten
+  var artDates={};sorted.forEach(function(c){if(c.artiest){if(!artDates[c.artiest])artDates[c.artiest]=[];artDates[c.artiest].push(c.datum);}});
+  var mAG=0,mAN='';
+  Object.entries(artDates).forEach(function(e){
+    var a=e[0],ds=e[1];if(ds.length<2)return;
+    for(var i=1;i<ds.length;i++){var d=(new Date(ds[i])-new Date(ds[i-1]))/86400000;if(d>mAG){mAG=d;mAN=a;}}
+  });
+  if(mAG>0)F.push('&#128336; Langste wachttijd voor een artiest: <strong>'+Math.round(mAG/365*10)/10+' jaar</strong> zonder <strong>'+escH(mAN)+'</strong>');
+
+  // 25. meest bezochte weekenddag vs doordeweeks
+  var weekend=0,doordeweeks=0;sorted.forEach(function(c){var wd=new Date(c.datum).getDay();if(wd===0||wd===6)weekend++;else doordeweeks++;});
+  F.push('&#128197; <strong>'+weekend+' weekendconcerten</strong> vs <strong>'+doordeweeks+' doordeweeks</strong>');
+
+  // 26. hoe vaak dezelfde artiest op hetzelfde festival
+  var artFest={};DB.forEach(function(c){if(c.artiest&&c.festival){var k=c.artiest+'||'+c.festival;artFest[k]=(artFest[k]||0)+1;}});
+  var topAF=Object.entries(artFest).sort(function(a,b){return b[1]-a[1];})[0];
+  if(topAF&&topAF[1]>1){var pAF=topAF[0].split('||');F.push('&#127914; <strong>'+escH(pAF[0])+'</strong> op <strong>'+escH(pAF[1])+'</strong>: <strong>'+topAF[1]+'&times;</strong> bijgewoond');}
+
+  // 27. totaal nummers gehoord
+  var totalSongs=DB.reduce(function(s,c){return s+(c.setlist?c.setlist.length:0);},0);
+  if(totalSongs>0)F.push('&#127925; In totaal minimaal <strong>'+totalSongs.toLocaleString('nl')+' nummers</strong> gehoord (alleen concerten met setlist)');
+
+  // 28. artiest die je jaren achter elkaar zag
+  var artYears={};DB.forEach(function(c){if(c.artiest&&c.jaar){if(!artYears[c.artiest])artYears[c.artiest]=new Set();artYears[c.artiest].add(c.jaar);}});
+  var bestStreak=0,bestStreakArt='';
+  Object.entries(artYears).forEach(function(e){
+    var yrs2=Array.from(e[1]).sort(function(a,b){return a-b;});
+    var streak2=1,best2=1;
+    for(var i=1;i<yrs2.length;i++){if(yrs2[i]-yrs2[i-1]===1)streak2++;else streak2=1;if(streak2>best2)best2=streak2;}
+    if(best2>bestStreak){bestStreak=best2;bestStreakArt=e[0];}
+  });
+  if(bestStreak>=3)F.push('&#128293; <strong>'+escH(bestStreakArt)+'</strong> zag je <strong>'+bestStreak+' jaar op rij</strong>');
+
+  // 29. meest bezochte stad
+  var stC={};DB.forEach(function(c){if(c.plaats)stC[c.plaats]=(stC[c.plaats]||0)+1;});
+  var topSt=Object.entries(stC).sort(function(a,b){return b[1]-a[1];})[0];
+  if(topSt)F.push('&#128205; Meest bezochte stad: <strong>'+escH(topSt[0])+'</strong> (<strong>'+topSt[1]+' concerten</strong>)');
+
+  // 30. concerten bijgewoond op je verjaardag of speciale datum (bijv. 31 december)
+  var oudjaarsN=DB.filter(function(c){return c.datum&&c.datum.slice(5)==='12-31';}).length;
+  if(oudjaarsN>0)F.push('&#127878; Je bezocht <strong>'+oudjaarsN+' concert'+(oudjaarsN>1?'en':'')+'</strong> op oudejaarsavond (31 december)');
+
+  // 31. procent concerten met setlist
+  var slPct=Math.round(withSl/DB.length*100);
+  F.push('&#128191; Van <strong>'+slPct+'%</strong> van de concerten heb je een setlist vastgelegd');
+
+  // 32. zomer vs winter
+  var zomer=0,winter=0;DB.forEach(function(c){if(c.maand){if(c.maand>=6&&c.maand<=8)zomer++;else if(c.maand===12||c.maand<=2)winter++;}});
+  F.push('&#127774; <strong>'+zomer+' zomerconcerten</strong> (jun-aug) vs <strong>'+winter+' winterconcerten</strong> (dec-feb)');
+
+  // 33. top 2e artiest+locatie combo
+  if(topCombo[1]&&topCombo[1][1]>1){var p2=topCombo[1][0].split('||');F.push('&#127893; Op #2: <strong>'+escH(p2[0])+'</strong> in <strong>'+escH(p2[1])+'</strong> zag je <strong>'+topCombo[1][1]+'&times;</strong>');}
+
+  // 34. gem. nummers per concert (met setlist)
+  var withSlDB=DB.filter(function(c){return c.setlist&&c.setlist.length;});
+  if(withSlDB.length>0){var avgSl=Math.round(withSlDB.reduce(function(s,c){return s+c.setlist.length;},0)/withSlDB.length*10)/10;F.push('&#127925; Gemiddeld <strong>'+avgSl+' nummers</strong> per concert (van concerten met setlist)');}
+
+  // 35. artiest die je zowel hoofd- als voorprogramma zag
+  var artTypes={};DB.forEach(function(c){if(c.artiest&&c.soort){if(!artTypes[c.artiest])artTypes[c.artiest]=new Set();artTypes[c.artiest].add(c.soort);}});
+  var bothRoles=Object.entries(artTypes).filter(function(e){return e[1].has('Hoofdprogramma')&&e[1].has('Voorprogramma');});
+  if(bothRoles.length>0)F.push('&#127908; <strong>'+bothRoles.length+' artiesten</strong> zag je zowel als hoofdact als voorprogramma (bijv. '+escH(bothRoles[0][0])+')');
+
+  // 36. concert op het vroegste datum in het jaar
+  var byDayOfYear={};sorted.forEach(function(c){if(c.datum){var doy=c.datum.slice(5);if(!byDayOfYear[doy])byDayOfYear[doy]=[];byDayOfYear[doy].push(c);}});
+  var earliestDoy=Object.keys(byDayOfYear).sort()[0];
+  if(earliestDoy){var ec=byDayOfYear[earliestDoy][0];F.push('&#127976; Vroegste concert in het jaar: <strong>'+earliestDoy+'</strong> &mdash; <strong>'+escH(ec.artiest)+'</strong>');}
+
+  // 37. hoe vaak al op dezelfde dag 2+ concerten
+  var sameDayC={};sorted.forEach(function(c){if(c.datum)sameDayC[c.datum]=(sameDayC[c.datum]||0)+1;});
+  var doubleDays=Object.values(sameDayC).filter(function(v){return v>=2;}).length;
+  if(doubleDays>0)F.push('&#9889; <strong>'+doubleDays+' keer</strong> 2 of meer concerten op dezelfde dag bijgewoond');
+
+  // 38. artiest uit meeste verschillende jaren
+  var artYrCount=Object.entries(artYears).sort(function(a,b){return b[1].size-a[1].size;})[0];
+  if(artYrCount)F.push('&#128197; <strong>'+escH(artYrCount[0])+'</strong> zag je in <strong>'+artYrCount[1].size+' verschillende jaren</strong>');
+
+  // 39. gem. concerten per maand actief
+  var activeMonths=new Set(DB.map(function(c){return c.datum&&c.datum.slice(0,7);}).filter(Boolean)).size;
+  if(activeMonths>0){var avgPerMo=Math.round(DB.length/activeMonths*10)/10;F.push('&#128200; In actieve maanden gemiddeld <strong>'+avgPerMo+' concerten</strong>');}
+
+  // 40. meeste concerten in 1 week
+  var weekCounts={};sorted.forEach(function(c){if(c.datum){var d=new Date(c.datum);var week=d.getFullYear()+'W'+Math.ceil((d-new Date(d.getFullYear(),0,1))/604800000);weekCounts[week]=(weekCounts[week]||0)+1;}});
+  var topWeek=Object.entries(weekCounts).sort(function(a,b){return b[1]-a[1];})[0];
+  if(topWeek&&topWeek[1]>=2)F.push('&#128293; Drukste week: <strong>'+topWeek[1]+' concerten</strong> in '+topWeek[0].replace('W',' week '));
+
+  // 41. locatie bezocht door meeste artiesten in 1 jaar
+  var locArtYear={};DB.forEach(function(c){if(c.locatie&&c.artiest&&c.jaar){var k=c.locatie+'||'+c.jaar;if(!locArtYear[k])locArtYear[k]=new Set();locArtYear[k].add(c.artiest);}});
+  var topLAY=Object.entries(locArtYear).sort(function(a,b){return b[1].size-a[1].size;})[0];
+  if(topLAY){var pkLAY=topLAY[0].split('||');F.push('&#127968; <strong>'+escH(pkLAY[0])+'</strong> in <strong>'+pkLAY[1]+'</strong>: <strong>'+topLAY[1].size+' verschillende artiesten</strong> gezien');}
+
+  // 42. artiest na de langste afwezigheid teruggezien
+  var mAG2=0,mAN2='',mAD2='';
+  Object.entries(artDates).forEach(function(e){
+    var a=e[0],ds=e[1];if(ds.length<2)return;
+    for(var i=1;i<ds.length;i++){var d2=(new Date(ds[i])-new Date(ds[i-1]))/86400000;if(d2>mAG2){mAG2=d2;mAN2=a;mAD2=ds[i];}}
+  });
+  if(mAG2>365)F.push('&#128258; Langste comeback: <strong>'+escH(mAN2)+'</strong> teruggezien na <strong>'+Math.round(mAG2/365*10)/10+' jaar</strong> (op '+fmt(mAD2)+')');
+
+  // 43. hoeveel artiesten slechts 1x gezien
+  var eenmalig=Object.values(artDates).filter(function(v){return v.size===1;}).length;
+  var uArt2=Object.keys(artDates).length;
+  F.push('&#128279; <strong>'+eenmalig+' artiesten</strong> ('+Math.round(eenmalig/uArt2*100)+'%) zag je maar 1 keer');
+
+  // 44. meest populaire festival
+  var festC={};DB.forEach(function(c){if(c.festival)festC[c.festival]=(festC[c.festival]||0)+1;});
+  var topFest=Object.entries(festC).sort(function(a,b){return b[1]-a[1];})[0];
+  if(topFest)F.push('&#127914; Meest bezochte festival: <strong>'+escH(topFest[0])+'</strong> (<strong>'+topFest[1]+' optredens</strong> bijgewoond)');
+
+  // 45. concert in het verre buitenland (niet-NL plaatsen)
+  var nlPlaatsen=new Set(['Amsterdam','Rotterdam','Den Haag','Utrecht','Eindhoven','Groningen','Tilburg','Breda','Nijmegen','Leiden','Haarlem','Maastricht','Arnhem','Den Bosch','Zwolle','Almere','Apeldoorn','Enschede','Amersfoort','Delft']);
+  var buitenland=DB.filter(function(c){return c.plaats&&!nlPlaatsen.has(c.plaats);});
+  if(buitenland.length>0)F.push('&#9992; <strong>'+buitenland.length+' concerten</strong> buiten de bekende NL-steden (bijv. '+escH(buitenland[0].plaats)+')');
+
+  // 46. in hoeveel jaar een concert op Koningsdag (27 april)
+  var kdC=DB.filter(function(c){return c.datum&&c.datum.slice(5)==='04-27';}).length;
+  if(kdC>0)F.push('&#127481;&#127475; <strong>'+kdC+'&times;</strong> concert op Koningsdag (27 april)');
+
+  // 47. artiest met meeste setlistnummers totaal
+  var artTotalSongs={};DB.forEach(function(c){if(c.artiest&&c.setlist)artTotalSongs[c.artiest]=(artTotalSongs[c.artiest]||0)+c.setlist.length;});
+  var topTSongs=Object.entries(artTotalSongs).sort(function(a,b){return b[1]-a[1];})[0];
+  if(topTSongs)F.push('&#127925; <strong>'+escH(topTSongs[0])+'</strong> speelde in totaal de meeste nummers voor jou: <strong>'+topTSongs[1]+'</strong>');
+
+  // 48. vroegste jaar eerste concert
+  if(sorted.length){F.push('&#128336; Je bijhoudt je concertgeschiedenis al <strong>'+span+' jaar</strong> (sinds '+sorted[0].datum.slice(0,4)+')');}
+
+  // 49. nieuwste locatie (meest recent bezocht voor het eerst)
+  var locFirst={};sorted.forEach(function(c){if(c.locatie&&!locFirst[c.locatie])locFirst[c.locatie]=c.datum;});
+  var newestLoc=Object.entries(locFirst).sort(function(a,b){return b[1]>a[1]?1:-1;})[0];
+  if(newestLoc)F.push('&#127381; Nieuwste locatie: <strong>'+escH(newestLoc[0])+'</strong> (eerste bezoek: '+fmt(newestLoc[1])+')');
+
+  // 50. hoeveel % van alle concerten in top-3 locaties
+  var locSort=Object.entries(lc).sort(function(a,b){return b[1]-a[1];});
+  if(locSort.length>=3){var top3sum=locSort[0][1]+locSort[1][1]+locSort[2][1];var top3pct=Math.round(top3sum/DB.length*100);F.push('&#127351; De top 3 locaties (<strong>'+escH(locSort[0][0])+'</strong>, <strong>'+escH(locSort[1][0])+'</strong>, <strong>'+escH(locSort[2][0])+'</strong>) zijn goed voor <strong>'+top3pct+'%</strong> van alle concerten');}
+
+  // Shuffle the facts
+  for(var si=F.length-1;si>0;si--){var sj=Math.floor(Math.random()*(si+1));var st2=F[si];F[si]=F[sj];F[sj]=st2;}
+  return F;
+}
+
+function showFact(idx) {
+  var facts = window._allFacts;
+  if (!facts || !facts.length) return;
+  _factIdx = ((idx % facts.length) + facts.length) % facts.length;
+  var el = document.getElementById('factDisplay');
+  var counter = document.getElementById('factCounter');
+  if (el) {
+    el.style.opacity = '0';
+    setTimeout(function() {
+      el.innerHTML = facts[_factIdx];
+      el.style.opacity = '1';
+    }, 150);
+  }
+  if (counter) counter.textContent = (_factIdx + 1) + ' / ' + facts.length;
+}
+function nextFact()   { showFact(_factIdx + 1); }
+function prevFact()   { showFact(_factIdx - 1); }
+function randomFact() { showFact(Math.floor(Math.random() * (window._allFacts||[]).length)); }
+
+// ── ANALYTICS CHATBOT ────────────────────────────────────────────
+
+function chatAsk(question) {
+  var input = document.getElementById('chatInput');
+  if (input) { input.value = question; }
+  chatSend();
+}
 
 async function chatSend() {
   var input = document.getElementById('chatInput');
