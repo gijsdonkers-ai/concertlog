@@ -177,6 +177,7 @@ var GIST_ID    = localStorage.getItem('giglog_gist_id')    || '';
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || '';
 var GIST_FILE  = 'concertlog.json';
 var gistStatus = 'none';
+var ANTHROPIC_KEY = localStorage.getItem('giglog_anthropic_key') || '';
 var SFKEY = 'MWb35fqHA--C4M7mzbCYrFb9n49Q-UukUyaE';
 var CAPI  = 'https://api.anthropic.com/v1/messages';
 
@@ -612,7 +613,7 @@ function buildAnalytics(){
     +'<div style="font-size:11px;color:var(--muted)">Stel vragen over jouw concertdata</div></div></div>'
     +'<div class="chat-msgs" id="chatMsgs">'
     +'<div class="chat-msg bot"><div class="chat-avatar chat-bot-avatar">&#129302;</div>'
-    +'<div class="chat-bubble">Hoi! Ik kan vragen beantwoorden over jouw '+(DB.length)+' concerten. Vraag maar raak! &#127928;</div></div>'
+    +(ANTHROPIC_KEY ? '<div class="chat-bubble">Hoi! Ik kan vragen beantwoorden over jouw '+(DB.length)+' concerten. Vraag maar raak! &#127928;</div>' : '<div class="chat-bubble">Hoi! Om de chatbot te gebruiken heb je een Anthropic API key nodig. Voeg die in bij de <strong>Admin</strong> tab. &#128272;</div>')+'</div>'
     +'</div>'
     +'<div class="chat-suggestions">'
     +'<span class="chat-sug" onclick="chatAsk(this.textContent)">Langste tijd tussen 2 concerten in dezelfde zaal?</span>'
@@ -651,6 +652,12 @@ function buildAdmin(){
     +'</div>'
     +(GIST_ID?'<div style="margin-top:10px;font-size:12px;color:var(--muted)">Gist: <code style="color:var(--accent)">'+escH(GIST_ID)+'</code></div>':'')
     +'</div>'
+    +'<div class="cbox"><div class="clbl">&#129302; Chatbot API key</div>'
+    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7">Voor de Concert Assistent op de Analytics pagina heb je een Anthropic API key nodig. Maak een gratis account aan op <a href="https://console.anthropic.com" target="_blank" style="color:var(--accent)">console.anthropic.com</a>.</p>'
+    +'<div class="fg" style="margin-bottom:10px"><label>Anthropic API Key</label><input type="password" id="anthropicKeyIn" value="'+escH(ANTHROPIC_KEY)+'" placeholder="sk-ant-xxxxxxxxxxxx"><div class="hint">Lokaal opgeslagen, nooit verstuurd naar derden.</div></div>'
+    +'<button class="btn b-sec" onclick="saveAnthropicKey()">&#128190; Opslaan</button>'
+    +(ANTHROPIC_KEY?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#10003; Key opgeslagen</span>':'')
+    +'</div>'
     +'<div class="cbox"><div class="clbl">&#128065; Read-only versie</div>'
     +'<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7">De read-only versie heeft geen toevoegen/bewerken/admin knoppen en laadt data direct uit jouw Gist. Upload <strong style="color:var(--text)">readonly.html</strong> naast index.html op GitHub.</p>'
     +'<button class="btn b-sec" onclick="downloadReadOnly()">&#11015; Download readonly.html</button>'
@@ -680,6 +687,15 @@ function saveGistConfig(){
   localStorage.setItem('giglog_gist_id',GIST_ID); localStorage.setItem('giglog_gist_token',GIST_TOKEN);
   toast('Gist instellingen opgeslagen','ok');
   if(GIST_ID) loadFromGist();
+  goPage('sync');
+}
+
+function saveAnthropicKey(){
+  var el = document.getElementById('anthropicKeyIn');
+  if (!el) return;
+  ANTHROPIC_KEY = el.value.trim();
+  localStorage.setItem('giglog_anthropic_key', ANTHROPIC_KEY);
+  toast(ANTHROPIC_KEY ? 'API key opgeslagen!' : 'API key verwijderd', 'ok');
   goPage('sync');
 }
 
@@ -896,9 +912,21 @@ async function chatSend() {
     + 'Je hebt toegang tot de volgende concertdata:\n\n' + summary;
 
   try {
+    if (!ANTHROPIC_KEY) {
+      var think3 = document.getElementById(thinkId);
+      if (think3) think3.remove();
+      chatAddMsg('bot', 'Voer eerst een Anthropic API key in bij de Admin tab om de chatbot te gebruiken.');
+      if (btn) btn.disabled = false;
+      return;
+    }
     var r = await fetch(CAPI, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 600,
