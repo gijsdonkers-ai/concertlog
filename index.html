@@ -47,8 +47,10 @@ input,select,textarea{background:var(--bg3);border:1px solid var(--border);borde
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 input::placeholder,textarea::placeholder{color:var(--muted)}
 select option{background:var(--bg2)}
-.sw{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:nowrap;overflow-x:auto}
+.sw{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
 .sw select{padding:9px 6px;font-size:13px}
+@media(min-width:640px){.sw{flex-wrap:nowrap}}
+@media(max-width:639px){.sw .si{flex:1 1 45%}.sw select{flex:1 1 auto}}
 .si{position:relative}.si input{padding-left:30px}
 .sicon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:13px}
 .grid{display:flex;flex-direction:column;gap:10px}
@@ -389,7 +391,7 @@ function buildList(){
     + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+badge+'<button class="btn b-pri b-sm" onclick="goPage(\'add\')">+ Toevoegen</button></div>'
     + '</div>'
     + '<div class="sw">'
-    + '<div class="si" style="flex:1;min-width:100px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
+    + '<div class="si" style="flex:1;min-width:140px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
     + '<div class="si" style="min-width:80px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Venue..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
     + '<select id="jaarSel" style="width:auto;min-width:68px"><option value="">Alle jaren</option>'
     + jaren.map(function(j){ return '<option value="'+j+'"'+(fJaar===String(j)?' selected':'')+'>'+j+'</option>'; }).join('')+'</select>'
