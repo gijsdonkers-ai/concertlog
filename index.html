@@ -159,6 +159,9 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .chat-sug:hover{border-color:var(--accent);color:var(--accent)}
 #factDisplay{transition:opacity .15s;min-height:40px}
 .stat-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+
+.locked #tab-add { display: none; }
+.locked #tab-sync { display: none; }
 </style>
 </head>
 <body class="theme-dark">
@@ -187,6 +190,8 @@ var srchQ = '', fJaar = '', fSoort = '', fPlaats = '', fLocatie = '';
 var curPage = 1, PER = 50;
 var FD = mkFD();
 var curTheme = localStorage.getItem('giglog_theme') || 'dark';
+var PASS_HASH = localStorage.getItem('giglog_pass_hash') || '';
+var unlocked  = !PASS_HASH || sessionStorage.getItem('giglog_unlocked') === '1';
 var GIST_ID    = localStorage.getItem('giglog_gist_id')    || '';
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || '';
 var GIST_FILE  = 'concertlog.json';
@@ -197,6 +202,47 @@ var SFKEY = 'MWb35fqHA--C4M7mzbCYrFb9n49Q-UukUyaE';
 var CAPI  = 'https://api.anthropic.com/v1/messages';
 
 function mkFD(){ return {artiest:'',locatie:'',plaats:'',datum:'',setlist:[],festival:'',soort:'Hoofdprogramma'}; }
+
+function hashStr(s){
+  // Simple djb2 hash — good enough for local access control
+  var h=5381;
+  for(var i=0;i<s.length;i++) h=((h<<5)+h)^s.charCodeAt(i);
+  return (h>>>0).toString(36);
+}
+
+function tryUnlock(){
+  var pw=prompt('Wachtwoord:');
+  if(pw===null) return;
+  if(!PASS_HASH){ toast('Stel eerst een wachtwoord in via Admin','err'); return; }
+  if(hashStr(pw)===PASS_HASH){
+    unlocked=true;
+    sessionStorage.setItem('giglog_unlocked','1');
+    render(); toast('Ontgrendeld','ok');
+  } else {
+    toast('Onjuist wachtwoord','err');
+  }
+}
+
+function lock(){
+  unlocked=false;
+  sessionStorage.removeItem('giglog_unlocked');
+  if(page==='add'||page==='sync') goPage('list');
+  else render();
+  toast('Vergrendeld','info');
+}
+
+function savePassword(){
+  var el=document.getElementById('newPassIn');
+  if(!el) return;
+  var pw=el.value.trim();
+  if(!pw){ PASS_HASH=''; localStorage.removeItem('giglog_pass_hash'); toast('Wachtwoord verwijderd','info'); goPage('sync'); return; }
+  PASS_HASH=hashStr(pw);
+  localStorage.setItem('giglog_pass_hash',PASS_HASH);
+  unlocked=true;
+  sessionStorage.setItem('giglog_unlocked','1');
+  toast('Wachtwoord opgeslagen','ok');
+  goPage('sync');
+}
 
 // ── UTILS ─────────────────────────────────────────────────────────
 function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -280,15 +326,20 @@ function afterMutate(){ persist(); if(GIST_ID&&GIST_TOKEN) saveToGist(); }
 
 // ── NAVIGATION ────────────────────────────────────────────────────
 function goPage(p){
+  if((p==='add'||p==='sync')&&!unlocked){tryUnlock();return;}
   page = p;
   if(p!=='add') editId=null;
   ['list','add','analytics','sync'].forEach(function(id){
-    document.getElementById('tab-'+id).className = 'ntab'+(id===p?' on':'');
+    var el=document.getElementById('tab-'+id); if(el) el.className='ntab'+(id===p?' on':'');
   });
   render();
 }
 
 function render(){
+  document.body.classList.toggle('locked', !unlocked);
+  // Update lock icon
+  var lb=document.getElementById('tab-lock');
+  if(lb) lb.textContent=unlocked?'🔓':'🔒';
   var el = document.getElementById('APP');
   if     (page==='list')      el.innerHTML = buildList();
   else if(page==='add')       el.innerHTML = buildForm();
@@ -401,6 +452,13 @@ function buildCard(con){
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────────────
+function modalActions(id){
+  return '<div class="modal-actions">'
+    +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\'' + id + '\')">&#9998; Bewerken</button>'
+    +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\'' + id + '\')">&#128465; Verwijderen</button>'
+    +'</div>';
+}
+
 function openDetail(id){
   var c = DB.find(function(x){ return x.id===id; });
   if(!c) return;
@@ -455,10 +513,8 @@ function openDetail(id){
           }).join('')
           +'</div></div>';
       })()
-    +'<div class="modal-actions">'
-    +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\''+c.id+'\')">&#9998; Bewerken</button>'
-    +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\''+c.id+'\')">&#128465; Verwijderen</button>'
-    +'</div></div>';
+    +(unlocked?modalActions(c.id):'')
+  +'</div>';
 
   ov.addEventListener('click', function(e){ if(e.target===ov) closeDetail(); });
   document.body.appendChild(ov);
@@ -818,7 +874,7 @@ function buildAdmin(){
     +'<button class="btn b-sec" onclick="saveAnthropicKey()">&#128190; Opslaan</button>'
     +(ANTHROPIC_KEY?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#10003; Key opgeslagen</span>':'')
     +'</div>'
-    +'<div class="cbox"><div class="clbl">&#128065; Read-only versie</div>'
+    +'<div class="cbox"><div class="clbl">&#128274; Wachtwoord</div>'    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7">Stel een wachtwoord in om bewerken en admin te beveiligen. Laat leeg om de beveiliging te verwijderen.</p>'    +'<div class="fg" style="margin-bottom:10px"><label>Nieuw wachtwoord</label><input type="password" id="newPassIn" placeholder="Laat leeg om te verwijderen"><div class="hint">Wordt lokaal opgeslagen als hash. Geldig voor de hele sessie na invoer.</div></div>'    +'<button class="btn b-sec" onclick="savePassword()">&#128190; Opslaan</button>'    +(PASS_HASH?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#128274; Wachtwoord actief</span>':'<span style="font-size:12px;color:var(--muted);margin-left:10px">Geen wachtwoord ingesteld</span>')    +'</div>'    +'<div class="cbox"><div class="clbl">&#128065; Read-only versie</div>'
     +'<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7">De read-only versie heeft geen toevoegen/bewerken/admin knoppen en laadt data direct uit jouw Gist. Upload <strong style="color:var(--text)">readonly.html</strong> naast index.html op GitHub.</p>'
     +'<button class="btn b-sec" onclick="downloadReadOnly()">&#11015; Download readonly.html</button>'
     +(GIST_ID?'':'<p style="font-size:12px;color:var(--accent2);margin-top:8px">Koppel eerst een Gist zodat de read-only versie altijd de laatste data toont.</p>')
