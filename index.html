@@ -194,7 +194,7 @@ var curPage = 1, PER = 50;
 var FD = mkFD();
 var curTheme = localStorage.getItem('giglog_theme') || 'dark';
 var PASS_HASH = localStorage.getItem('giglog_pass_hash') || '';
-var unlocked  = !PASS_HASH || sessionStorage.getItem('giglog_unlocked') === '1';
+var unlocked  = sessionStorage.getItem('giglog_unlocked') === '1';
 var GIST_ID    = localStorage.getItem('giglog_gist_id')    || '';
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || '';
 var GIST_FILE  = 'concertlog.json';
@@ -214,13 +214,18 @@ function hashStr(s){
 }
 
 function tryUnlock(){
+  if(!PASS_HASH){
+    // Geen wachtwoord ingesteld — direct ontgrendelen
+    unlocked=true;
+    sessionStorage.setItem('giglog_unlocked','1');
+    render(); return;
+  }
   var pw=prompt('Wachtwoord:');
   if(pw===null) return;
-  if(!PASS_HASH){ toast('Stel eerst een wachtwoord in via Admin','err'); return; }
   if(hashStr(pw)===PASS_HASH){
     unlocked=true;
     sessionStorage.setItem('giglog_unlocked','1');
-    render(); toast('Ontgrendeld','ok');
+    render(); toast('Ontgrendeld ✓','ok');
   } else {
     toast('Onjuist wachtwoord','err');
   }
@@ -877,7 +882,7 @@ function buildAdmin(){
     +'<button class="btn b-sec" onclick="saveAnthropicKey()">&#128190; Opslaan</button>'
     +(ANTHROPIC_KEY?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#10003; Key opgeslagen</span>':'')
     +'</div>'
-    +'<div class="cbox"><div class="clbl">&#128274; Wachtwoord</div>'    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7">Stel een wachtwoord in om bewerken en admin te beveiligen. Laat leeg om de beveiliging te verwijderen.</p>'    +'<div class="fg" style="margin-bottom:10px"><label>Nieuw wachtwoord</label><input type="password" id="newPassIn" placeholder="Laat leeg om te verwijderen"><div class="hint">Wordt lokaal opgeslagen als hash. Geldig voor de hele sessie na invoer.</div></div>'    +'<button class="btn b-sec" onclick="savePassword()">&#128190; Opslaan</button>'    +(PASS_HASH?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#128274; Wachtwoord actief</span>':'<span style="font-size:12px;color:var(--muted);margin-left:10px">Geen wachtwoord ingesteld</span>')    +'</div>'    +'<div class="cbox"><div class="clbl">&#128065; Read-only versie</div>'
+    +'<div class="cbox"><div class="clbl">&#128274; Wachtwoord</div>'    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7">Stel een wachtwoord in om bewerken en admin te beveiligen. Zolang er geen wachtwoord is, is de app voor iedereen bewerkbaar. Laat leeg om de beveiliging te verwijderen.</p>'    +'<div class="fg" style="margin-bottom:10px"><label>Nieuw wachtwoord</label><input type="password" id="newPassIn" placeholder="Laat leeg om te verwijderen"><div class="hint">Wordt lokaal opgeslagen als hash. Geldig voor de hele sessie na invoer.</div></div>'    +'<button class="btn b-sec" onclick="savePassword()">&#128190; Opslaan</button>'    +(PASS_HASH?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#128274; Wachtwoord actief</span>':'<span style="font-size:12px;color:var(--muted);margin-left:10px">Geen wachtwoord ingesteld</span>')    +'</div>'    +'<div class="cbox"><div class="clbl">&#128065; Read-only versie</div>'
     +'<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7">De read-only versie heeft geen toevoegen/bewerken/admin knoppen en laadt data direct uit jouw Gist. Upload <strong style="color:var(--text)">readonly.html</strong> naast index.html op GitHub.</p>'
     +'<button class="btn b-sec" onclick="downloadReadOnly()">&#11015; Download readonly.html</button>'
     +(GIST_ID?'':'<p style="font-size:12px;color:var(--accent2);margin-top:8px">Koppel eerst een Gist zodat de read-only versie altijd de laatste data toont.</p>')
@@ -1373,7 +1378,9 @@ function deleteAllConcerts(){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────
-document.body.className = 'theme-' + curTheme;
+document.body.className = 'theme-' + curTheme + (unlocked ? '' : ' locked');
+var _lb = document.getElementById('tab-lock');
+if(_lb) _lb.textContent = unlocked ? '🔓' : '🔒';
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDetail(); if(e.key==='Enter'&&!e.shiftKey&&document.activeElement===document.getElementById('chatInput')){e.preventDefault();chatSend();} });
 initDB();
 render();
