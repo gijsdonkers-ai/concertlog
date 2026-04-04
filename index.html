@@ -167,12 +167,15 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 <body class="theme-dark">
 <nav>
   <div class="nav-safe"></div>
-  <div class="nav-inner">
-    <div class="logo">Gijs' Concertlog</div>
-    <button class="ntab on" id="tab-list"      onclick="goPage('list')">Concerten</button>
-    <button class="ntab"    id="tab-add"       onclick="goPage('add')">+ Toevoegen</button>
-    <button class="ntab"    id="tab-analytics" onclick="goPage('analytics')">Analytics</button>
-    <button class="ntab"    id="tab-sync"      onclick="goPage('sync')">Admin</button>
+  <div style="display:flex;align-items:stretch;width:100%">
+    <div class="nav-inner" style="flex:1;min-width:0">
+      <div class="logo">Gijs' Concertlog</div>
+      <button class="ntab on" id="tab-list"      onclick="goPage('list')">Concerten</button>
+      <button class="ntab"    id="tab-add"       onclick="goPage('add')">+ Toevoegen</button>
+      <button class="ntab"    id="tab-analytics" onclick="goPage('analytics')">Analytics</button>
+      <button class="ntab"    id="tab-sync"      onclick="goPage('sync')">Admin</button>
+    </div>
+    <button id="tab-lock" onclick="unlocked?lock():tryUnlock()" title="Vergrendelen/ontgrendelen" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 14px;color:var(--muted);flex-shrink:0;border-left:1px solid var(--border)">&#128274;</button>
   </div>
 </nav>
 <div class="main" id="APP"></div>
