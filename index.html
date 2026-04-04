@@ -317,7 +317,7 @@ function getFiltered(){
 function buildList(){
   var jaren    = [...new Set(DB.map(function(c){return c.jaar;}).filter(Boolean))].sort(function(a,b){return b-a;});
   var plaatsen = [...new Set(DB.map(function(c){return c.plaats;}).filter(Boolean))].sort();
-  var soorten  = ['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater','Musical','Comedy'];
+  var soorten  = ['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater/Comedy'];
   var badge    = '<span class="sync-badge" id="syncBadge">Geen Gist</span>';
 
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">'
@@ -326,7 +326,7 @@ function buildList(){
     + '</div>'
     + '<div class="sw">'
     + '<div class="si" style="flex:1;min-width:160px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek artiest, locatie, plaats..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
-    + '<div class="si" style="min-width:100px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Venue..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
+    + '<div class="si" style="min-width:100px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Locatie/Festival..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
     + '<select id="jaarSel" style="width:auto;min-width:80px"><option value="">Alle jaren</option>'
     + jaren.map(function(j){ return '<option value="'+j+'"'+(fJaar===String(j)?' selected':'')+'>'+j+'</option>'; }).join('')+'</select>'
     + '<select id="soortSel" style="width:auto;min-width:110px"><option value="">Alle soorten</option>'
@@ -437,7 +437,24 @@ function openDetail(id){
     +'</div><button class="modal-close" onclick="closeDetail()">&#215;</button></div>'
     +'<div class="modal-body">'
     +(songs.filter(function(x){return x!=='---';}).length?'<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">&#127925; Setlist &mdash; '+songs.filter(function(x){return x!=='---';}).length+' nummers</div>':'')
-    +songHtml+'</div>'
+    +songHtml
+    +(function(){
+        var sameDayArtiesten=DB.filter(function(x){ return x.datum===c.datum && x.id!==c.id; })
+          .sort(function(a,b){ return a.artiest>b.artiest?1:-1; });
+        if(!sameDayArtiesten.length) return '</div>';
+        return '</div>'
+          +'<div style="padding:0 20px 14px">'
+          +'<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">&#127937; Ook op '+escH(c.datum.slice(8,10))+'-'+escH(c.datum.slice(5,7))+'-'+escH(c.datum.slice(0,4))+'</div>'
+          +'<div style="display:flex;flex-wrap:wrap;gap:6px">'
+          +sameDayArtiesten.map(function(x){
+            return '<button class="tag" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text);font-family:DM Sans,sans-serif" '
+              +'onclick="closeDetail();setTimeout(function(){openDetail(\''+(x.id)+'\');},50)">'
+              +escH(x.artiest)
+              +(x.soort&&x.soort!==c.soort?'<span style="font-size:10px;color:var(--muted);margin-left:4px">('+escH(x.soort)+')</span>':'')
+              +'</button>';
+          }).join('')
+          +'</div></div>';
+      })()
     +'<div class="modal-actions">'
     +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\''+c.id+'\')">&#9998; Bewerken</button>'
     +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\''+c.id+'\')">&#128465; Verwijderen</button>'
@@ -471,7 +488,7 @@ function doEdit(id){
 }
 
 // ── FORM ──────────────────────────────────────────────────────────
-var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater','Musical','Comedy'];
+var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater/Comedy'];
 var FESTS=['Pinkpop','Lowlands','Rock Werchter','Best Kept Secret','Down The Rabbit Hole','Glastonbury','Paleo Festival'];
 
 function buildForm(){
@@ -485,10 +502,10 @@ function buildForm(){
     +'<div class="fcard"><div class="fgrid">'
     +'<div class="fg"><label>Artiest *</label><input id="fA" value="'+escH(FD.artiest)+'" placeholder="Bijv. The Beths"></div>'
     +'<div class="fg"><label>Datum *</label><input type="date" id="fDat" value="'+FD.datum+'"></div>'
-    +'<div class="fg"><label>Locatie (venue)</label><input id="fL" value="'+escH(FD.locatie)+'" placeholder="Bijv. Paradiso" oninput="scheduleAI(this.value)"></div>'
+    +'<div class="fg"><label>Locatie / Festival</label><input id="fL" value="'+escH(FD.locatie)+'" placeholder="Bijv. Paradiso of Pinkpop" oninput="scheduleAI(this.value)"></div>'
     +'<div class="fg"><label>Plaats</label><input id="fP" value="'+escH(FD.plaats)+'" placeholder="Bijv. Amsterdam"><div class="hint" id="aiHint"></div></div>'
     +'<div class="fg"><label>Soort optreden</label><select id="fSo">'+soortOpts+'</select></div>'
-    +'<div class="fg"><label>Festival / andere bijz.</label><input id="fF" value="'+escH(FD.festival)+'" placeholder="Bijv. Pinkpop...">'
+    +'<div class="fg"><label>Zaal / andere bijz.</label><input id="fF" value="'+escH(FD.festival)+'" placeholder="Bijv. Mainstage, zaal 1...">'
     +'<div class="tags">'+festTags+'</div></div>'
     +'</div><div class="divr"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">'
@@ -628,8 +645,8 @@ function buildAnalytics(){
   var uArt=new Set(DB.map(function(c){return c.artiest;})).size;
   var uPl=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;
   var withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
-  var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater','Musical','Comedy'];
-  var soortColors={'Hoofdprogramma':'var(--accent)','Voorprogramma':'var(--accent3)','Festivaloptreden':'#ffa032','Theater':'#a78bfa','Musical':'#f472b6','Comedy':'#fb923c'};
+  var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater/Comedy'];
+  var soortColors={'Hoofdprogramma':'var(--accent)','Voorprogramma':'var(--accent3)','Festivaloptreden':'#ffa032','Theater/Comedy':'#a78bfa'};
   var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});
   var top10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,10);var maxA=top10[0]?top10[0][1]:1;
   var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
@@ -955,8 +972,8 @@ function buildROHtml(gid, dbData){
     var tL=Object.entries(lc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mL=tL[0]?tL[0][1]:1;
     var sc={};DB.forEach(function(c){if(c.soort)sc[c.soort]=(sc[c.soort]||0)+1;});
     var tS=Object.entries(sc).sort(function(a,b){return b[1]-a[1];});
-    var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater','Musical','Comedy'];
-    var SC={'Hoofdprogramma':'#1a1a2e','Voorprogramma':'#c84b31','Festivaloptreden':'#e5a100','Theater':'#6b3f8a','Musical':'#c06090','Comedy':'#d46a20'};
+    var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater/Comedy'];
+    var SC={'Hoofdprogramma':'#1a1a2e','Voorprogramma':'#c84b31','Festivaloptreden':'#e5a100','Theater/Comedy':'#6b3f8a'};
     var yrs=Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];}),maxY=yrs.length?Math.max.apply(null,yrs.map(function(y){return y[1];})):1;
     var yrHtml=yrs.map(function(e){var sd={};DB.filter(function(c){return String(c.jaar)===String(e[0]);}).forEach(function(c){var s=c.soort||'Hoofdprogramma';sd[s]=(sd[s]||0)+1;});var segs=SOORTEN.map(function(s){var n=sd[s]||0;if(!n)return'';var pct=Math.round(n/e[1]*100);return'<div class="yseg" style="height:'+pct+'%;background:'+(SC[s]||'#1a1a2e')+'" title="'+s+': '+n+'"></div>';}).join('');var h=Math.round(e[1]/maxY*90)+6;return'<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar ystacked" style="height:'+h+'px">'+segs+'</div><div class="ylbl">&apos;'+String(e[0]).slice(2)+'</div></div>';}).join('');
     var MAANDEN=['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1240,7 +1257,7 @@ function buildDataSummary(){
 
 function doExportXL(){
   if(!DB.length){ toast('Geen data','err'); return; }
-  var rows=DB.map(function(c){ return {'Artiest':c.artiest,'Locatie':c.locatie,'Plaats':c.plaats,'Datum':c.datum,'Setlist':(c.setlist||[]).join('\n'),'Festival/andere bijz.':c.festival,'Soort optreden':c.soort,'Maand':c.maand,'Jaar':c.jaar}; });
+  var rows=DB.map(function(c){ return {'Artiest':c.artiest,'Locatie':c.locatie,'Plaats':c.plaats,'Datum':c.datum,'Setlist':(c.setlist||[]).join('\n'),'Zaal/andere bijz.':c.festival,'Soort optreden':c.soort,'Maand':c.maand,'Jaar':c.jaar}; });
   var ws=XLSX.utils.json_to_sheet(rows); var wb=XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb,ws,'Concerten');
   XLSX.writeFile(wb,'concertlog_'+new Date().toISOString().slice(0,10)+'.xlsx');
@@ -1249,7 +1266,7 @@ function doExportXL(){
 
 function doExportCSV(){
   if(!DB.length){ toast('Geen data','err'); return; }
-  var hdr=['Artiest','Locatie','Plaats','Datum','Setlist','Festival/andere bijz.','Soort optreden','Maand','Jaar'];
+  var hdr=['Artiest','Locatie','Plaats','Datum','Setlist','Zaal/andere bijz.','Soort optreden','Maand','Jaar'];
   var rows=DB.map(function(c){ return [c.artiest,c.locatie,c.plaats,c.datum,(c.setlist||[]).join(' | '),c.festival,c.soort,c.maand,c.jaar].map(function(v){ return '"'+String(v||'').replace(/"/g,'""')+'"'; }); });
   var csv=[hdr.join(',')].concat(rows.map(function(r){ return r.join(','); })).join('\n');
   var a=document.createElement('a');
@@ -1279,7 +1296,7 @@ function doImport(input){
           locatie:String(row['Locatie']||row['locatie']||''),
           plaats:String(row['Plaats']||row['plaats']||''),
           datum:ds,setlist:songs,
-          festival:String(row['Festival/andere bijz.']||row['festival']||''),
+          festival:String(row['Zaal/andere bijz.']||row['festival']||''),
           soort:String(row['Soort optreden']||row['soort']||'Hoofdprogramma'),
           maand:ds?parseInt(ds.slice(5,7)):0,jaar:ds?parseInt(ds.slice(0,4)):0});
         added++;
