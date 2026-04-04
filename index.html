@@ -201,7 +201,9 @@ var curTheme = localStorage.getItem('giglog_theme') || 'dark';
 var DEFAULT_PASS_HASH = 'yix4mq'; // = 'gijs'
 var PASS_HASH = localStorage.getItem('giglog_pass_hash') || DEFAULT_PASS_HASH;
 var unlocked  = sessionStorage.getItem('giglog_unlocked') === '1';
-var GIST_ID    = localStorage.getItem('giglog_gist_id')    || '';
+// Vul hier je Gist ID in zodat elk apparaat automatisch synchroniseert
+var DEFAULT_GIST_ID = ''; // ← jouw Gist ID hier (bijv. 'a1b2c3d4e5f6...')
+var GIST_ID    = localStorage.getItem('giglog_gist_id')    || DEFAULT_GIST_ID;
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || '';
 var GIST_FILE  = 'concertlog.json';
 var gistStatus = 'none';
