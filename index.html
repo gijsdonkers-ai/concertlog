@@ -189,7 +189,7 @@ var RAW_B64 = "H4sIAFSTzWkC/9y963IbSZIm+ipR2p0SVUNJBCmSYpn16QV4lwiSQ1DiVE3tmgWQA
 var DB = [];
 var page = 'list';
 var editId = null;
-var srchQ = '', fJaar = '', fSoort = '', fPlaats = '', fLocatie = '';
+var srchQ = '', fJaar = '', fMaand = '', fSoort = '', fPlaats = '', fLocatie = '';
 var curPage = 1, PER = 50;
 var FD = mkFD();
 var curTheme = localStorage.getItem('giglog_theme') || 'dark';
@@ -371,6 +371,7 @@ function getFiltered(){
     var q=srchQ.trim(), lq=fLocatie.trim();
     var mq=!q||[c.artiest,c.locatie,c.plaats,c.festival,c.soort].some(function(v){ return fuzzyMatch(q,v); });
     return mq && (!lq||fuzzyMatch(lq,c.locatie)) && (!fJaar||String(c.jaar)===fJaar)
+           && (!fMaand||String(c.maand)===fMaand)
            && (!fSoort||c.soort===fSoort) && (!fPlaats||c.plaats===fPlaats);
   }).sort(function(a,b){ return b.datum>a.datum?1:-1; });
 }
@@ -391,6 +392,9 @@ function buildList(){
     + '<div class="si" style="min-width:100px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Locatie/Festival..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
     + '<select id="jaarSel" style="width:auto;min-width:80px"><option value="">Alle jaren</option>'
     + jaren.map(function(j){ return '<option value="'+j+'"'+(fJaar===String(j)?' selected':'')+'>'+j+'</option>'; }).join('')+'</select>'
+    + '<select id="maandSel" style="width:auto;min-width:90px"><option value="">Alle maanden</option>'
+    + '<option value="1"'+(fMaand==='1'?' selected':'')+'>Januari</option>'+'<option value="2"'+(fMaand==='2'?' selected':'')+'>Februari</option>'+'<option value="3"'+(fMaand==='3'?' selected':'')+'>Maart</option>'+'<option value="4"'+(fMaand==='4'?' selected':'')+'>April</option>'+'<option value="5"'+(fMaand==='5'?' selected':'')+'>Mei</option>'+'<option value="6"'+(fMaand==='6'?' selected':'')+'>Juni</option>'+'<option value="7"'+(fMaand==='7'?' selected':'')+'>Juli</option>'+'<option value="8"'+(fMaand==='8'?' selected':'')+'>Augustus</option>'+'<option value="9"'+(fMaand==='9'?' selected':'')+'>September</option>'+'<option value="10"'+(fMaand==='10'?' selected':'')+'>Oktober</option>'+'<option value="11"'+(fMaand==='11'?' selected':'')+'>November</option>'+'<option value="12"'+(fMaand==='12'?' selected':'')+'>December</option>'
+    + '</select>'
     + '<select id="soortSel" style="width:auto;min-width:110px"><option value="">Alle soorten</option>'
     + soorten.map(function(s){ return '<option value="'+s+'"'+(fSoort===s?' selected':'')+'>'+s+'</option>'; }).join('')+'</select>'
     + '<select id="plaatsSel" style="width:auto;min-width:100px"><option value="">Alle plaatsen</option>'
@@ -409,6 +413,8 @@ function buildList(){
     if(si) si.addEventListener('input',function(){ srchQ=this.value; curPage=1; updateCards(); });
     if(li) li.addEventListener('input',function(){ fLocatie=this.value; curPage=1; updateCards(); });
     if(js) js.addEventListener('change',function(){ fJaar=this.value; curPage=1; updateCards(); });
+    var ms=document.getElementById('maandSel');
+    if(ms) ms.addEventListener('change',function(){ fMaand=this.value; curPage=1; updateCards(); });
     if(ss) ss.addEventListener('change',function(){ fSoort=this.value; curPage=1; updateCards(); });
     if(ps) ps.addEventListener('change',function(){ fPlaats=this.value; curPage=1; updateCards(); });
     updateCards();
