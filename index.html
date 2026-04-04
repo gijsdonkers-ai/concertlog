@@ -76,9 +76,9 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .srem{color:var(--muted);cursor:pointer;background:none;border:none;font-size:14px;padding:0;line-height:1;font-family:'DM Sans',sans-serif}
 .srem:hover{color:var(--accent2)}
 .sgrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}@media(max-width:600px){.stat{padding:10px;border-radius:10px}}
 .stl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.stv{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);line-height:1}
+.stv{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);line-height:1}@media(max-width:600px){.stv{font-size:22px}}
 .sts{font-size:10px;color:var(--muted);margin-top:2px}
 .cbox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 .clbl{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
@@ -158,7 +158,7 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .chat-sug{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all .15s}
 .chat-sug:hover{border-color:var(--accent);color:var(--accent)}
 #factDisplay{transition:opacity .15s;min-height:40px}
-.stat-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+.stat-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}@media(max-width:600px){.stat-grid4{grid-template-columns:repeat(2,1fr);gap:6px}}
 
 .locked #tab-add { display: none; }
 .locked #tab-sync { display: none; }
@@ -193,7 +193,10 @@ var srchQ = '', fJaar = '', fSoort = '', fPlaats = '', fLocatie = '';
 var curPage = 1, PER = 50;
 var FD = mkFD();
 var curTheme = localStorage.getItem('giglog_theme') || 'dark';
-var PASS_HASH = localStorage.getItem('giglog_pass_hash') || '';
+// Standaard wachtwoord ingebakken in de HTML (wijzig DEFAULT_PASS_HASH om het aan te passen)
+// Gebruik Admin → Wachtwoord om een ander wachtwoord in te stellen (overschrijft dit)
+var DEFAULT_PASS_HASH = 'yix4mq'; // = 'gijs'
+var PASS_HASH = localStorage.getItem('giglog_pass_hash') || DEFAULT_PASS_HASH;
 var unlocked  = sessionStorage.getItem('giglog_unlocked') === '1';
 var GIST_ID    = localStorage.getItem('giglog_gist_id')    || '';
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || '';
