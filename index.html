@@ -203,10 +203,11 @@ var curTheme = localStorage.getItem('giglog_theme') || 'dark';
 var DEFAULT_PASS_HASH = 'yix4mq'; // = 'gijs'
 var PASS_HASH = localStorage.getItem('giglog_pass_hash') || DEFAULT_PASS_HASH;
 var unlocked  = sessionStorage.getItem('giglog_unlocked') === '1';
-// Vul hier je Gist ID in zodat elk apparaat automatisch synchroniseert
-var DEFAULT_GIST_ID = ''; // ← jouw Gist ID hier (bijv. 'a1b2c3d4e5f6...')
+// Vul hier je Gist ID en token in zodat elk apparaat kan lezen én schrijven
+var DEFAULT_GIST_ID    = ''; // ← jouw Gist ID hier (bijv. 'a1b2c3d4e5f6...')
+var DEFAULT_GIST_TOKEN = ''; // ← jouw GitHub token hier (ghp_xxxx) — houd dit privé!
 var GIST_ID    = localStorage.getItem('giglog_gist_id')    || DEFAULT_GIST_ID;
-var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || '';
+var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || DEFAULT_GIST_TOKEN;
 var GIST_FILE  = 'concertlog.json';
 var gistStatus = 'none';
 var ANTHROPIC_KEY = localStorage.getItem('giglog_anthropic_key') || '';
@@ -952,7 +953,7 @@ function buildAdmin(){
     +'</div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
     +'<button class="btn b-gist" onclick="saveGistConfig()">&#128190; Opslaan &amp; verbinden</button>'
-    +(GIST_ID?'<button class="btn b-sec" onclick="syncNow()">&#8635; Nu synchroniseren</button>':'')
+    +(GIST_ID?'<button class="btn b-sec" onclick="syncNow()">&#8635; Nu synchroniseren</button>':'')    +(GIST_ID&&GIST_TOKEN?'<button class="btn b-warn" onclick="forcePush()">&#8593; Forceer upload (lokaal wint)</button>':'')
     +(GIST_ID?'<button class="btn b-sec b-sm" style="color:var(--muted)" onclick="clearGistConfig()">Verbinding verwijderen</button>':'')
     +'</div>'
     +(GIST_ID?'<div style="margin-top:10px;font-size:12px;color:var(--muted)">Gist: <code style="color:var(--accent)">'+escH(GIST_ID)+'</code></div>':'')
@@ -1012,6 +1013,13 @@ function clearGistConfig(){
 function syncNow(){
   if(GIST_ID) loadFromGist();
   if(GIST_ID&&GIST_TOKEN) saveToGist();
+}
+
+function forcePush(){
+  if(!GIST_ID||!GIST_TOKEN){ toast('Geen Gist ID of token ingesteld','err'); return; }
+  if(!confirm('Lokale data uploaden naar Gist? De versie in de Gist wordt overschreven.')) return;
+  saveToGist();
+  toast('Lokale data geüpload naar Gist','ok');
 }
 
 // ── READ-ONLY DOWNLOAD ────────────────────────────────────────────
