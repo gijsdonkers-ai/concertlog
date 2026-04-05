@@ -165,6 +165,8 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 
 .locked #tab-add { display: none; }
 .locked #tab-sync { display: none; }
+.otd-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;transition:border-color .2s}
+.otd-card:hover{border-color:var(--accent)}
 </style>
 </head>
 <body class="theme-dark">
@@ -202,7 +204,7 @@ var DEFAULT_PASS_HASH = 'yix4mq'; // = 'gijs'
 var PASS_HASH = localStorage.getItem('giglog_pass_hash') || DEFAULT_PASS_HASH;
 var unlocked  = sessionStorage.getItem('giglog_unlocked') === '1';
 // Vul hier je Gist ID in zodat elk apparaat automatisch synchroniseert
-var DEFAULT_GIST_ID = '25fcd0a68131eb5eb2535d7f70135e85'; // ← jouw Gist ID hier (bijv. 'a1b2c3d4e5f6...')
+var DEFAULT_GIST_ID = ''; // ← jouw Gist ID hier (bijv. 'a1b2c3d4e5f6...')
 var GIST_ID    = localStorage.getItem('giglog_gist_id')    || DEFAULT_GIST_ID;
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || '';
 var GIST_FILE  = 'concertlog.json';
@@ -310,9 +312,37 @@ async function loadFromGist(){
     if(!file) throw new Error('Bestand niet gevonden');
     var data = JSON.parse(file.content);
     if(Array.isArray(data)){
-      DB = data;
+      // Merge: prefer newer version by 'updated' timestamp
+      var gistMap = {};
+      data.forEach(function(r){ gistMap[r.id] = r; });
+      var localMap = {};
+      DB.forEach(function(r){ localMap[r.id] = r; });
+      // Build merged set
+      var merged = [];
+      // All IDs from both sides
+      var allIds = {};
+      data.forEach(function(r){ allIds[r.id] = 1; });
+      DB.forEach(function(r){ allIds[r.id] = 1; });
+      Object.keys(allIds).forEach(function(id){
+        var g = gistMap[id], l = localMap[id];
+        if(g && l){
+          // Both have it — keep newer
+          merged.push((l.updated||0) > (g.updated||0) ? l : g);
+        } else {
+          merged.push(g || l);
+        }
+      });
+      // Sort by datum
+      merged.sort(function(a,b){ return a.datum > b.datum ? 1 : -1; });
+      var hadLocalChanges = merged.some(function(r){
+        var g = gistMap[r.id];
+        return !g || ((r.updated||0) > (g.updated||0));
+      });
+      DB = merged;
       persist();
       gistStatus = 'ok';
+      // If we had local changes newer than Gist, push them back up
+      if(hadLocalChanges && GIST_TOKEN) saveToGist();
       render();
     } else {
       gistStatus = 'ok';
@@ -590,7 +620,7 @@ function buildForm(){
     +'<div class="fg"><label>Locatie / Festival</label><input id="fL" value="'+escH(FD.locatie)+'" placeholder="Bijv. Paradiso of Pinkpop" oninput="scheduleAI(this.value)"></div>'
     +'<div class="fg"><label>Plaats</label><input id="fP" value="'+escH(FD.plaats)+'" placeholder="Bijv. Amsterdam"><div class="hint" id="aiHint"></div></div>'
     +'<div class="fg"><label>Soort optreden</label><select id="fSo">'+soortOpts+'</select></div>'
-    +'<div class="fg"><label>Zaal / andere bijz.</label><input id="fF" value="'+escH(FD.festival)+'" placeholder="Bijv. Mainstage, zaal 1...">'
+    +'<div class="fg"><label>&#127991; Zaal / andere bijz.</label><input id="fF" value="'+escH(FD.festival)+'" placeholder="Bijv. Mainstage, zaal 1...">'
     +'<div class="tags">'+festTags+'</div></div>'
     +'</div><div class="divr"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">'
@@ -707,7 +737,7 @@ function saveConcert(){
   if(!FD.artiest||!FD.datum){ toast('Artiest en datum zijn verplicht','err'); return; }
   var jaar=FD.datum?parseInt(FD.datum.slice(0,4)):0;
   var maand=FD.datum?parseInt(FD.datum.slice(5,7)):0;
-  var entry={id:editId||String(Date.now()),artiest:FD.artiest,datum:FD.datum,locatie:FD.locatie,
+  var entry={id:editId||String(Date.now()),updated:Date.now(),artiest:FD.artiest,datum:FD.datum,locatie:FD.locatie,
     plaats:FD.plaats,setlist:FD.setlist.slice(),festival:FD.festival,soort:FD.soort,maand:maand,jaar:jaar};
   if(editId){ DB=DB.map(function(c){ return c.id===editId?entry:c; }); toast('Opgeslagen!','ok'); }
   else { DB.push(entry); toast('Concert toegevoegd!','ok'); }
@@ -774,7 +804,37 @@ function buildAnalytics(){
     var segs2=SOORTEN.map(function(s){var n=md[s]||0;if(!n)return '';var pct=tot_m?Math.round(n/tot_m*100):0;return '<div class="yseg" data-s="'+escH(s)+'" style="height:'+pct+'%;background:'+(soortColors[s]||'var(--accent)')+'" title="'+escH(s)+': '+n+'"></div>';}).join('');
     mBarsHtml+='<div class="ycol"><div class="ycnt" id="mcnt_'+mi2+'">'+(tot_m||'')+'</div><div class="ybar ystacked" id="mbar_'+mi2+'" style="height:'+h2+'px">'+(tot_m?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi2-1]+'</div></div>';
   }
+  // ── ON THIS DAY ──────────────────────────────────────────────
+  var today = new Date();
+  var todayMD = (today.getMonth()+1 < 10 ? '0' : '') + (today.getMonth()+1) + '-' + (today.getDate() < 10 ? '0' : '') + today.getDate();
+  var onThisDay = DB.filter(function(c){ return c.datum && c.datum.slice(5) === todayMD; })
+    .sort(function(a,b){ return a.datum > b.datum ? 1 : -1; });
+  var todayLabel = today.toLocaleDateString('nl-NL',{day:'numeric',month:'long'});
+  var otdHtml = onThisDay.length
+    ? onThisDay.map(function(con){
+        var yr = con.datum ? con.datum.slice(0,4) : '';
+        var ago = yr ? (today.getFullYear() - parseInt(yr)) : 0;
+        return '<div class="otd-card" onclick="goPage(\'list\');setTimeout(function(){openDetail(\''+con.id+'\');},120)" style="cursor:pointer">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;color:var(--text);line-height:1.1">'+escH(con.artiest)+'</div>'
+          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--accent);flex-shrink:0">'+yr+'</div>'
+          +'</div>'
+          +'<div style="font-size:12px;color:var(--muted);margin-top:3px">'
+          +(con.locatie ? escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'') : (con.plaats?escH(con.plaats):''))
+          +(ago > 0 ? ' &nbsp;·&nbsp; '+ago+' jaar geleden' : '')
+          +'</div>'
+          +'</div>';
+      }).join('')
+    : '<div style="color:var(--muted);font-size:13px;padding:4px 0">Geen concerten op deze datum gevonden.</div>';
+
   return '<h1>ANALYTICS</h1>'
+    +'<div class="cbox" style="margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+    +'<span style="font-size:20px">&#127881;</span>'
+    +'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'
+    +'</div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div>'
+    +'</div>'
     +'<div class="stat-grid4">'
     +stEl2(total.toLocaleString('nl'),'Totaal','concerten')
     +stEl2(uArt,'Artiesten','uniek')
@@ -1377,7 +1437,7 @@ function doImport(input){
         if(d){ var dt=new Date(d); if(!isNaN(dt)) ds=dt.toISOString().slice(0,10); else ds=String(d).slice(0,10); }
         var sl=row['Setlist']||'';
         var songs=sl?String(sl).split(/[\n|]/).map(function(s){ return s.trim(); }).filter(Boolean):[];
-        DB.push({id:String(importBase + added),artiest:String(art),
+        DB.push({id:String(importBase + added),updated:Date.now(),artiest:String(art),
           locatie:String(row['Locatie']||row['locatie']||''),
           plaats:String(row['Plaats']||row['plaats']||''),
           datum:ds,setlist:songs,
