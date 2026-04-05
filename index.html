@@ -505,7 +505,7 @@ function buildCard(con){
     +'<div class="cmeta">'
     +(con.locatie?'<span>&#128205; '+escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'')+'</span>':(con.plaats?'<span>&#128205; '+escH(con.plaats)+'</span>':''))
     +(con.soort?' <span class="pill p-soort">'+escH(con.soort)+'</span>':'')
-    +(con.festival?' <span class="pill p-fest">&#127894; '+escH(con.festival)+'</span>':'')
+    +(con.festival?' <span class="pill p-fest">&#127991; '+escH(con.festival)+'</span>':'')
     +(songs.filter(function(x){return x!=='---';}).length?' <span class="pill p-sl">&#127925; '+songs.filter(function(x){return x!=='---';}).length+' nrs</span>':'')
     +'</div>';
   return el;
@@ -544,7 +544,7 @@ function openDetail(id){
   if(c.locatie) meta.push('&#128205; '+escH(c.locatie)+(c.plaats?', '+escH(c.plaats):''));
   else if(c.plaats) meta.push('&#128205; '+escH(c.plaats));
   if(c.soort) meta.push('<span class="pill p-soort">'+escH(c.soort)+'</span>');
-  if(c.festival) meta.push('<span class="pill p-fest">&#127894; '+escH(c.festival)+'</span>');
+  if(c.festival) meta.push('<span class="pill p-fest">&#127991; '+escH(c.festival)+'</span>');
 
   var ov = document.createElement('div');
   ov.className='modal-overlay'; ov.id='detailModal';
@@ -1101,7 +1101,7 @@ function buildROHtml(gid, dbData){
   lines.push('if(cg)cg.innerHTML=tot===0?"<div style=\\"text-align:center;padding:48px;color:#6b6560\\">Geen resultaten</div>":sl.map(bc).join("");');
   lines.push('if(pd)pd.innerHTML=pages>1?"<button class=\\"btn\\" "+(CP===1?"disabled":"")+" onclick=\\"CP=Math.max(1,CP-1);uc()\\">&larr;</button> <span class=\\"pi\\">"+CP+"/"+pages+"</span> <button class=\\"btn\\" "+(CP===pages?"disabled":"")+" onclick=\\"CP=Math.min("+pages+",CP+1);uc()\\">&rarr;</button>":"";}');
   lines.push('function bc(c){var d=c.datum?new Date(c.datum).toLocaleDateString("nl-NL",{day:"numeric",month:"short",year:"numeric"}):"";var s=c.setlist||[];');
-  lines.push('return"<div class=\\"card\\" onclick=\\"od(\'"+c.id+"\')\\">"+"<div class=\\"ctop\\"><div class=\\"ca\\">"+eh(c.artiest)+"</div><div class=\\"cd\\">"+d+"</div></div>"+"<div class=\\"cm\\">"+( c.locatie?"&#128205; "+eh(c.locatie)+(c.plaats?", "+eh(c.plaats):" "):c.plaats?"&#128205; "+eh(c.plaats):"")+( c.soort?" <span class=\\"pill ps\\">"+eh(c.soort)+"</span>":"")+( c.festival?" <span class=\\"pill pf\\">&#127894; "+eh(c.festival)+"</span>":"")+( s.length?" <span class=\\"pill pl\\">&#127925; "+s.length+" nrs</span>":"")+"</div></div>";}');
+  lines.push('return"<div class=\\"card\\" onclick=\\"od(\'"+c.id+"\')\\">"+"<div class=\\"ctop\\"><div class=\\"ca\\">"+eh(c.artiest)+"</div><div class=\\"cd\\">"+d+"</div></div>"+"<div class=\\"cm\\">"+( c.locatie?"&#128205; "+eh(c.locatie)+(c.plaats?", "+eh(c.plaats):" "):c.plaats?"&#128205; "+eh(c.plaats):"")+( c.soort?" <span class=\\"pill ps\\">"+eh(c.soort)+"</span>":"")+( c.festival?" <span class=\\"pill pf\\">&#127991; "+eh(c.festival)+"</span>":"")+( s.length?" <span class=\\"pill pl\\">&#127925; "+s.length+" nrs</span>":"")+"</div></div>";}');
   lines.push('function od(id){var c=DB.find(function(x){return x.id===id;});if(!c)return;var d=c.datum?new Date(c.datum).toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"}):"";var s=c.setlist||[];');
   lines.push('var ov=document.createElement("div");ov.className="mo";ov.id="dm";');
   lines.push('ov.innerHTML="<div class=\\"md\\"><div class=\\"mh\\"><div style=\\"min-width:0\\"><div class=\\"mt\\">"+eh(c.artiest)+"</div><div class=\\"mm\\">"+eh(d)+(c.locatie?" &middot; &#128205; "+eh(c.locatie)+(c.plaats?", "+eh(c.plaats):""):c.plaats?" &middot; &#128205; "+eh(c.plaats):"")+( c.soort?" <span class=\\"pill ps\\">"+eh(c.soort)+"</span>":"")+"</div></div><button class=\\"mc\\" onclick=\\"cd()\\">&#215;</button></div>"+"<div class=\\"mb\\">"+( s.length?"<div style=\\"font-size:11px;color:#6b6560;text-transform:uppercase;margin-bottom:10px\\">Setlist &mdash; "+s.length+" nummers</div>"+s.map(function(t,i){return"<div class=\\"sli\\"><span class=\\"sln\\">"+(i+1)+"</span><span class=\\"slt\\">"+eh(t)+"</span></div>";}).join(""):"<div style=\\"padding:30px;text-align:center;color:#6b6560\\">Geen setlist</div>")+"</div></div>";');
@@ -1179,7 +1179,7 @@ function buildAllFacts(){
   // 1
   var combo={};DB.forEach(function(c){if(c.artiest&&c.locatie){var k=c.artiest+'||'+c.locatie;combo[k]=(combo[k]||0)+1;}});
   var topCombo=Object.entries(combo).sort(function(a,b){return b[1]-a[1];});
-  if(topCombo[0]&&topCombo[0][1]>1){var p=topCombo[0][0].split('||');F.push('&#127894; <strong>'+escH(p[0])+'</strong> in <strong>'+escH(p[1])+'</strong> zag je het vaakst: <strong>'+topCombo[0][1]+'&times;</strong>');}
+  if(topCombo[0]&&topCombo[0][1]>1){var p=topCombo[0][0].split('||');F.push('&#127991; <strong>'+escH(p[0])+'</strong> in <strong>'+escH(p[1])+'</strong> zag je het vaakst: <strong>'+topCombo[0][1]+'&times;</strong>');}
   // 2
   var maxGap=0,gapA='',gapB='';for(var gi=1;gi<sorted.length;gi++){var dg=(new Date(sorted[gi].datum)-new Date(sorted[gi-1].datum))/86400000;if(dg>maxGap){maxGap=dg;gapA=sorted[gi-1].datum;gapB=sorted[gi].datum;}}
   if(maxGap>0)F.push('&#9200; Langste periode zonder concert: <strong>'+Math.round(maxGap)+' dagen</strong> ('+fmt(gapA)+' &rarr; '+fmt(gapB)+')');
