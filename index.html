@@ -714,7 +714,34 @@ function buildAnalytics(){
     var segs2=SOORTEN.map(function(s){var n=md[s]||0;if(!n)return '';var pct=tot_m?Math.round(n/tot_m*100):0;return '<div class="yseg" data-s="'+escH(s)+'" style="height:'+pct+'%;background:'+(soortColors[s]||'var(--accent)')+'" title="'+escH(s)+': '+n+'"></div>';}).join('');
     mBarsHtml+='<div class="ycol"><div class="ycnt" id="mcnt_'+mi2+'">'+(tot_m||'')+'</div><div class="ybar ystacked" id="mbar_'+mi2+'" style="height:'+h2+'px">'+(tot_m?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi2-1]+'</div></div>';
   }
+  // ── ON THIS DAY ───────────────────────────────────────────────
+  var today=new Date();
+  var todayMD=(today.getMonth()+1<10?'0':'')+(today.getMonth()+1)+'-'+(today.getDate()<10?'0':'')+today.getDate();
+  var onThisDay=DB.filter(function(x){ return x.datum&&x.datum.slice(5)===todayMD; })
+    .sort(function(a,b){ return a.datum>b.datum?1:-1; });
+  var todayLabel=today.toLocaleDateString('nl-NL',{day:'numeric',month:'long'});
+  var otdHtml=onThisDay.length
+    ? onThisDay.map(function(con){
+        var yr=con.datum?con.datum.slice(0,4):'';
+        var ago=yr?(today.getFullYear()-parseInt(yr)):0;
+        return '<div class="otd-card" onclick="goPage(\'list\');setTimeout(function(){openDetail(\''+con.id+'\');},120)" style="cursor:pointer">'
+          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
+          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;color:var(--text);line-height:1.1">'+escH(con.artiest)+'</div>'
+          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--accent);flex-shrink:0">'+yr+'</div>'
+          +'</div>'
+          +'<div style="font-size:12px;color:var(--muted);margin-top:3px">'
+          +(con.locatie?escH(con.locatie)+(con.plaats?', '+escH(con.plaats):''):(con.plaats?escH(con.plaats):''))
+          +(ago>0?' &nbsp;·&nbsp; '+ago+' jaar geleden':'')
+          +'</div></div>';
+      }).join('')
+    : '<div style="color:var(--muted);font-size:13px;padding:4px 0">Geen concerten op deze datum.</div>';
+
   return '<h1>ANALYTICS</h1>'
+    +'<div class="cbox" style="margin-bottom:14px">'
+    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
+    +'<span style="font-size:20px">&#127881;</span>'
+    +'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'
+    +'</div><div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div></div>'
     +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uPl,'Plaatsen','bezocht')
     +stEl2((total/uArt).toFixed(1)+'&times;','Loyalty','gem. per artiest')+stEl2(Math.round(uArt/total*100)+'%','Diversity','unieke artiesten')
     +stEl2(streak,'Record maand',streakLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
