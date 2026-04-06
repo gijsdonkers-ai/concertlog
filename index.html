@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Gijs' Concertlog</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -16,16 +16,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 body.theme-dark{--bg:#0a0a0f;--bg2:#111118;--bg3:#1a1a24;--accent:#e8ff47;--accent2:#ff4d6d;--accent3:#47c5ff;--text:#f0ede8;--muted:#777;--border:rgba(255,255,255,0.08);--card:#14141e;--nav-bg:rgba(10,10,15,0.97)}
-
-
+body.theme-midnight{--bg:#07080f;--bg2:#0d1020;--bg3:#141828;--accent:#a78bfa;--accent2:#f472b6;--accent3:#38bdf8;--text:#e2e8f0;--muted:#64748b;--border:rgba(167,139,250,0.12);--card:#0d1020;--nav-bg:rgba(7,8,15,0.97)}
+body.theme-ember{--bg:#0f0a07;--bg2:#1a1008;--bg3:#261808;--accent:#fb923c;--accent2:#f43f5e;--accent3:#fbbf24;--text:#fef3c7;--muted:#78716c;--border:rgba(251,146,60,0.12);--card:#1a1008;--nav-bg:rgba(15,10,7,0.97)}
+body.theme-neon{--bg:#020b12;--bg2:#041520;--bg3:#071e2c;--accent:#00f5d4;--accent2:#f706cf;--accent3:#fee440;--text:#e0f7fa;--muted:#4dd0e1;--border:rgba(0,245,212,0.1);--card:#041520;--nav-bg:rgba(2,11,18,0.97)}
 body.theme-chalk{--bg:#f5f0eb;--bg2:#ede8e3;--bg3:#e0dad4;--accent:#1a1a2e;--accent2:#c84b31;--accent3:#2d6a4f;--text:#1a1a2e;--muted:#6b6560;--border:rgba(26,26,46,0.12);--card:#ede8e3;--nav-bg:rgba(245,240,235,0.97)}
-
-body.theme-arctic{--bg:#f0f6fc;--bg2:#e8f0f8;--bg3:#dde8f4;--accent:#0d2240;--accent2:#0099cc;--accent3:#c84b31;--text:#0d1b2a;--muted:#5a7a94;--border:rgba(13,34,64,0.14);--card:#e8f0f8;--nav-bg:rgba(240,246,252,0.97)}
 body.theme-ys-dark{--bg:#0f1e25;--bg2:#1a313b;--bg3:#233d49;--accent:#FDC300;--accent2:#ff6b35;--accent3:#E5A100;--text:#f0ece2;--muted:#748595;--border:rgba(253,195,0,0.15);--card:#1a313b;--nav-bg:rgba(15,30,37,0.97)}
 body.theme-ys-night{--bg:#080f12;--bg2:#111e24;--bg3:#182830;--accent:#FDC300;--accent2:#d49600;--accent3:#f0ece2;--text:#e8e4d8;--muted:#748595;--border:rgba(253,195,0,0.12);--card:#111e24;--nav-bg:rgba(8,15,18,0.97)}
 body.theme-ys-petrol{--bg:#1a2830;--bg2:#233240;--bg3:#2d3e4e;--accent:#FDC300;--accent2:#E5A100;--accent3:#96b8c8;--text:#ddeaf0;--muted:#748595;--border:rgba(253,195,0,0.14);--card:#233240;--nav-bg:rgba(26,40,48,0.97)}
 body.theme-ys-slate{--bg:#1e2c38;--bg2:#273848;--bg3:#374e5c;--accent:#FDC300;--accent2:#E5A100;--accent3:#a8bfcc;--text:#e4eef4;--muted:#8fa4b4;--border:rgba(253,195,0,0.13);--card:#273848;--nav-bg:rgba(30,44,56,0.97)}
 body.theme-ys-light{--bg:#f7f4ee;--bg2:#eeeae0;--bg3:#e3ddd0;--accent:#1a313b;--accent2:#d49600;--accent3:#374e5c;--text:#1a313b;--muted:#748595;--border:rgba(26,49,59,0.14);--card:#eeeae0;--nav-bg:rgba(247,244,238,0.97)}
+body.theme-chalk{--bg:#f5f0eb;--bg2:#ede8e3;--bg3:#e0dad4;--accent:#1a1a2e;--accent2:#c84b31;--accent3:#2d6a4f;--text:#1a1a2e;--muted:#6b6560;--border:rgba(26,26,46,0.12);--card:#ede8e3;--nav-bg:rgba(245,240,235,0.97)}
+body.theme-arctic{--bg:#f0f6fc;--bg2:#e8f0f8;--bg3:#dde8f4;--accent:#0d2240;--accent2:#0099cc;--accent3:#c84b31;--text:#0d1b2a;--muted:#5a7a94;--border:rgba(13,34,64,0.14);--card:#e8f0f8;--nav-bg:rgba(240,246,252,0.97)}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;min-height:100vh;transition:background .3s}
 nav{background:var(--nav-bg);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;display:flex;flex-direction:column}
 .nav-safe{height:env(safe-area-inset-top);background:var(--nav-bg)}
@@ -43,7 +44,7 @@ h1{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px;margin-
 .b-gist{background:rgba(71,197,255,.12);color:var(--accent3);border:1px solid rgba(71,197,255,.2)}.b-gist:hover{background:rgba(71,197,255,.22)}
 .b-sm{padding:5px 10px;font-size:11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-input,select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;width:100%;transition:border-color .2s}
+input,select,textarea{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;width:100%;transition:border-color .2s}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 input::placeholder,textarea::placeholder{color:var(--muted)}
 select option{background:var(--bg2)}
@@ -79,9 +80,9 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .srem{color:var(--muted);cursor:pointer;background:none;border:none;font-size:14px;padding:0;line-height:1;font-family:'DM Sans',sans-serif}
 .srem:hover{color:var(--accent2)}
 .sgrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
-.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}@media(max-width:600px){.stat{padding:10px;border-radius:10px}}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px}
 .stl{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
-.stv{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);line-height:1}@media(max-width:600px){.stv{font-size:22px}}
+.stv{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);line-height:1}
 .sts{font-size:10px;color:var(--muted);margin-top:2px}
 .cbox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 .clbl{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
@@ -90,11 +91,10 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
-.ybars{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding:4px 0 2px}
-.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:28px;flex:1}
-.ybar{border-radius:3px 3px 0 0;width:100%;min-height:3px;transition:height .25s ease}
-.ylbl{font-size:9px;color:var(--muted);margin-top:1px}
-.ycnt{font-size:10px;color:var(--accent);font-weight:600;white-space:nowrap}
+.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto;padding-bottom:2px}
+.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}
+.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px}
+.ylbl{font-size:9px;color:var(--muted)}.ycnt{font-size:10px;color:var(--accent);font-weight:600}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:540px){.two{grid-template-columns:1fr}}
 .dz{background:var(--card);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px}
@@ -141,6 +141,11 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .ybtn:hover{border-color:var(--accent)}
 .ybar.ystacked{display:flex;flex-direction:column-reverse;overflow:hidden}
 .yseg{width:100%;flex-shrink:0}
+.ybars{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding:4px 0 2px}
+.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:28px;flex:1}
+.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:3px}
+.ylbl{font-size:9px;color:var(--muted);margin-top:1px}
+.ycnt{font-size:10px;color:var(--accent);font-weight:600;white-space:nowrap}
 .chat-box{background:var(--card);border:1px solid var(--border);border-radius:16px;margin-top:14px;display:flex;flex-direction:column;overflow:hidden}
 .chat-msgs{padding:16px;display:flex;flex-direction:column;gap:10px;max-height:380px;overflow-y:auto}
 .chat-msg{display:flex;gap:8px;align-items:flex-start}
@@ -161,12 +166,9 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .chat-sug{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--muted);cursor:pointer;font-family:DM Sans,sans-serif;transition:all .15s}
 .chat-sug:hover{border-color:var(--accent);color:var(--accent)}
 #factDisplay{transition:opacity .15s;min-height:40px}
-.stat-grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}@media(max-width:600px){.stat-grid4{grid-template-columns:repeat(2,1fr);gap:6px}}
 
 .locked #tab-add { display: none; }
 .locked #tab-sync { display: none; }
-.locked #nav-sync-btn { display: none !important; }
-.locked #nav-push-btn { display: none !important; }
 .otd-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;transition:border-color .2s}
 .otd-card:hover{border-color:var(--accent)}
 </style>
@@ -183,10 +185,10 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
       <button class="ntab"    id="tab-sync"      onclick="goPage('sync')">Admin</button>
     </div>
     <div style="display:flex;align-items:center;flex-shrink:0;border-left:1px solid var(--border)">
-      <button id="nav-sync-btn" onclick="syncNow()" title="Synchroniseren met Gist" style="display:none;background:none;border:none;font-size:15px;cursor:pointer;padding:0 10px;color:var(--muted);height:100%">&#8635;</button>
-      <button id="nav-push-btn" onclick="forcePush()" title="Forceer upload naar Gist" style="display:none;background:none;border:none;font-size:15px;cursor:pointer;padding:0 8px;color:var(--muted);height:100%">&#8593;</button>
-      <button id="nav-theme-btn" onclick="toggleDayNight()" title="Wissel thema" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 10px;color:var(--muted);height:100%">&#9728;</button>
-      <button id="tab-lock" onclick="unlocked?lock():tryUnlock()" title="Vergrendelen/ontgrendelen" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 14px;color:var(--muted);height:100%">&#128274;</button>
+      <button id="nav-sync-btn" onclick="syncNow()" title="Synchroniseren" style="display:none;background:none;border:none;font-size:15px;cursor:pointer;padding:0 10px;color:var(--muted);height:100%">&#8635;</button>
+      <button id="nav-push-btn" onclick="forcePush()" title="Forceer upload" style="display:none;background:none;border:none;font-size:15px;cursor:pointer;padding:0 8px;color:var(--muted);height:100%">&#8593;</button>
+      <button id="nav-theme-btn" onclick="toggleDayNight()" title="Wissel thema" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 10px;color:var(--muted);height:100%">🌙</button>
+      <button id="tab-lock" onclick="unlocked?lock():tryUnlock()" title="Vergrendelen/ontgrendelen" style="background:none;border:none;font-size:18px;cursor:pointer;padding:0 14px;color:var(--muted);height:100%">🔒</button>
     </div>
   </div>
 </nav>
@@ -205,14 +207,11 @@ var srchQ = '', fJaar = '', fMaand = '', fSoort = '', fPlaats = '', fLocatie = '
 var curPage = 1, PER = 50;
 var FD = mkFD();
 var curTheme = localStorage.getItem('giglog_theme') || 'dark';
-// Standaard wachtwoord ingebakken in de HTML (wijzig DEFAULT_PASS_HASH om het aan te passen)
-// Gebruik Admin → Wachtwoord om een ander wachtwoord in te stellen (overschrijft dit)
 var DEFAULT_PASS_HASH = 'yix4mq'; // = 'gijs'
 var PASS_HASH = localStorage.getItem('giglog_pass_hash') || DEFAULT_PASS_HASH;
 var unlocked  = sessionStorage.getItem('giglog_unlocked') === '1';
-// Vul hier je Gist ID en token in zodat elk apparaat kan lezen én schrijven
-var DEFAULT_GIST_ID    = ''; // ← jouw Gist ID hier (bijv. 'a1b2c3d4e5f6...')
-var DEFAULT_GIST_TOKEN = ''; // ← jouw GitHub token hier (ghp_xxxx) — houd dit privé!
+var DEFAULT_GIST_ID    = ''; // ← jouw Gist ID hier
+var DEFAULT_GIST_TOKEN = ''; // ← jouw GitHub token hier
 var GIST_ID    = localStorage.getItem('giglog_gist_id')    || DEFAULT_GIST_ID;
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || DEFAULT_GIST_TOKEN;
 var GIST_FILE  = 'concertlog.json';
@@ -222,58 +221,49 @@ var _factIdx = 0;
 var SFKEY = 'MWb35fqHA--C4M7mzbCYrFb9n49Q-UukUyaE';
 var CAPI  = 'https://api.anthropic.com/v1/messages';
 
-function mkFD(){ return {artiest:'',locatie:'',plaats:'',datum:'',setlist:[],festival:'',soort:'Hoofdprogramma'}; }
-
-function toggleDayNight(){
-  var isDark = ['dark','ys-dark','ys-night','ys-petrol','ys-slate'].indexOf(curTheme) > -1;
-  setTheme(isDark ? 'ys-light' : 'ys-dark');
-}
-
 function hashStr(s){
-  // Simple djb2 hash — good enough for local access control
   var h=5381;
   for(var i=0;i<s.length;i++) h=((h<<5)+h)^s.charCodeAt(i);
   return (h>>>0).toString(36);
 }
-
 function tryUnlock(){
   if(!PASS_HASH){
-    // Geen wachtwoord ingesteld — direct ontgrendelen
-    unlocked=true;
-    sessionStorage.setItem('giglog_unlocked','1');
-    render(); return;
+    unlocked=true; sessionStorage.setItem('giglog_unlocked','1'); render(); return;
   }
   var pw=prompt('Wachtwoord:');
   if(pw===null) return;
   if(hashStr(pw)===PASS_HASH){
-    unlocked=true;
-    sessionStorage.setItem('giglog_unlocked','1');
-    render(); toast('Ontgrendeld ✓','ok');
-  } else {
-    toast('Onjuist wachtwoord','err');
-  }
+    unlocked=true; sessionStorage.setItem('giglog_unlocked','1'); render(); toast('Ontgrendeld ✓','ok');
+  } else { toast('Onjuist wachtwoord','err'); }
 }
-
 function lock(){
-  unlocked=false;
-  sessionStorage.removeItem('giglog_unlocked');
-  if(page==='add'||page==='sync') goPage('list');
-  else render();
+  unlocked=false; sessionStorage.removeItem('giglog_unlocked');
+  if(page==='add'||page==='sync') goPage('list'); else render();
   toast('Vergrendeld','info');
 }
-
 function savePassword(){
-  var el=document.getElementById('newPassIn');
-  if(!el) return;
+  var el=document.getElementById('newPassIn'); if(!el) return;
   var pw=el.value.trim();
   if(!pw){ PASS_HASH=''; localStorage.removeItem('giglog_pass_hash'); toast('Wachtwoord verwijderd','info'); goPage('sync'); return; }
-  PASS_HASH=hashStr(pw);
-  localStorage.setItem('giglog_pass_hash',PASS_HASH);
-  unlocked=true;
-  sessionStorage.setItem('giglog_unlocked','1');
-  toast('Wachtwoord opgeslagen','ok');
-  goPage('sync');
+  PASS_HASH=hashStr(pw); localStorage.setItem('giglog_pass_hash',PASS_HASH);
+  unlocked=true; sessionStorage.setItem('giglog_unlocked','1'); toast('Wachtwoord opgeslagen','ok'); goPage('sync');
 }
+function modalActions(id){
+  return '<div class="modal-actions">'
+    +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\''+id+'\')">&#9998; Bewerken</button>'
+    +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\''+id+'\')">&#128465; Verwijderen</button>'
+    +'</div>';
+}
+function toggleDayNight(){
+  var dark=['dark','ys-dark','ys-night','ys-petrol','ys-slate'];
+  setTheme(dark.indexOf(curTheme)>-1 ? 'ys-light' : 'ys-dark');
+}
+function forcePush(){
+  if(!GIST_ID||!GIST_TOKEN){ toast('Geen Gist ID of token','err'); return; }
+  if(!confirm('Lokale data uploaden? Gist wordt overschreven.')) return;
+  saveToGist(); toast('Geüpload naar Gist','ok');
+}
+function mkFD(){ return {artiest:'',locatie:'',plaats:'',datum:'',setlist:[],festival:'',soort:'Hoofdprogramma'}; }
 
 // ── UTILS ─────────────────────────────────────────────────────────
 function escH(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -288,11 +278,16 @@ function toast(msg, type){
 
 function setTheme(t){
   curTheme = t;
-  document.body.className = 'theme-' + t;
+  document.body.className = 'theme-'+t+(unlocked?'':' locked');
   localStorage.setItem('giglog_theme', t);
   document.querySelectorAll('.tswatch').forEach(function(sw){
-    sw.classList.toggle('active', sw.dataset.theme === t);
+    sw.classList.toggle('active', sw.dataset.theme===t);
   });
+  var tb=document.getElementById('nav-theme-btn');
+  if(tb){ var dk=['dark','ys-dark','ys-night','ys-petrol','ys-slate'].indexOf(t)>-1; tb.textContent=dk?'☀️':'🌙'; tb.title=dk?'Naar licht thema':'Naar donker thema'; }
+  var nsb=document.getElementById('nav-sync-btn'), npb=document.getElementById('nav-push-btn');
+  if(nsb) nsb.style.display=(GIST_ID&&unlocked)?'block':'none';
+  if(npb) npb.style.display=(GIST_ID&&GIST_TOKEN&&unlocked)?'block':'none';
 }
 
 // ── DB ────────────────────────────────────────────────────────────
@@ -325,41 +320,20 @@ async function loadFromGist(){
     if(!file) throw new Error('Bestand niet gevonden');
     var data = JSON.parse(file.content);
     if(Array.isArray(data)){
-      // Merge: prefer newer version by 'updated' timestamp
-      var gistMap = {};
-      data.forEach(function(r){ gistMap[r.id] = r; });
-      var localMap = {};
-      DB.forEach(function(r){ localMap[r.id] = r; });
-      // Build merged set
-      var merged = [];
-      // All IDs from both sides
-      var allIds = {};
-      data.forEach(function(r){ allIds[r.id] = 1; });
-      DB.forEach(function(r){ allIds[r.id] = 1; });
+      var gistMap={},localMap={},allIds={};
+      data.forEach(function(r){gistMap[r.id]=r;allIds[r.id]=1;});
+      DB.forEach(function(r){localMap[r.id]=r;allIds[r.id]=1;});
+      var merged=[];
       Object.keys(allIds).forEach(function(id){
-        var g = gistMap[id], l = localMap[id];
-        if(g && l){
-          // Both have it — keep newer
-          merged.push((l.updated||0) > (g.updated||0) ? l : g);
-        } else {
-          merged.push(g || l);
-        }
+        var g=gistMap[id],l=localMap[id];
+        merged.push((g&&l)?((l.updated||0)>(g.updated||0)?l:g):(g||l));
       });
-      // Sort by datum
-      merged.sort(function(a,b){ return a.datum > b.datum ? 1 : -1; });
-      var hadLocalChanges = merged.some(function(r){
-        var g = gistMap[r.id];
-        return !g || ((r.updated||0) > (g.updated||0));
-      });
-      DB = merged;
-      persist();
-      gistStatus = 'ok';
-      // If we had local changes newer than Gist, push them back up
-      if(hadLocalChanges && GIST_TOKEN) saveToGist();
+      merged.sort(function(a,b){return a.datum>b.datum?1:-1;});
+      var hadLocal=merged.some(function(r){var g=gistMap[r.id];return !g||((r.updated||0)>(g.updated||0));});
+      DB=merged; persist(); gistStatus='ok';
+      if(hadLocal&&GIST_TOKEN) saveToGist();
       render();
-    } else {
-      gistStatus = 'ok';
-    }
+    } else { gistStatus='ok'; }
     updateSyncBadge();
   } catch(e){ console.warn('Gist load:',e.message); gistStatus='err'; updateSyncBadge(); }
 }
@@ -384,7 +358,7 @@ function updateSyncBadge(){
   if(!el) return;
   if(!GIST_ID){ el.className='sync-badge'; el.textContent='Geen Gist'; }
   else if(gistStatus==='ok'){ el.className='sync-badge sync-ok'; el.textContent='Gesynchroniseerd'; }
-  else if(gistStatus==='syncing'){ el.className='sync-badge'; el.textContent='↻ Laden...'; }
+  else if(gistStatus==='syncing'){ el.className='sync-badge sync-ok'; el.textContent='Bezig...'; }
   else { el.className='sync-badge sync-err'; el.textContent='Gist fout'; }
 }
 
@@ -403,25 +377,16 @@ function goPage(p){
 
 function render(){
   document.body.classList.toggle('locked', !unlocked);
-  // Update lock icon
-  var lb=document.getElementById('tab-lock');
-  if(lb) lb.textContent=unlocked?'🔓':'🔒';
-  // Update theme toggle icon
+  var lb=document.getElementById('tab-lock'); if(lb) lb.textContent=unlocked?'🔓':'🔒';
   var tb=document.getElementById('nav-theme-btn');
-  if(tb){
-    var isDark=['dark','ys-dark','ys-night','ys-petrol','ys-slate'].indexOf(curTheme)>-1;
-    tb.textContent=isDark?'☀':'🌙';
-    tb.title=isDark?'Naar licht thema':'Naar donker thema';
-  }
-  // Show/hide nav sync buttons
-  var nsb=document.getElementById('nav-sync-btn');
-  var npb=document.getElementById('nav-push-btn');
-  if(nsb) nsb.style.display=GIST_ID?'block':'none';
-  if(npb) npb.style.display=(GIST_ID&&GIST_TOKEN)?'block':'none';
+  if(tb){ var dk=['dark','ys-dark','ys-night','ys-petrol','ys-slate'].indexOf(curTheme)>-1; tb.textContent=dk?'☀️':'🌙'; tb.title=dk?'Naar licht thema':'Naar donker thema'; }
+  var nsb=document.getElementById('nav-sync-btn'), npb=document.getElementById('nav-push-btn');
+  if(nsb) nsb.style.display=(GIST_ID&&unlocked)?'block':'none';
+  if(npb) npb.style.display=(GIST_ID&&GIST_TOKEN&&unlocked)?'block':'none';
   var el = document.getElementById('APP');
   if     (page==='list')      el.innerHTML = buildList();
   else if(page==='add')       el.innerHTML = buildForm();
-  else if(page==='analytics') { el.innerHTML = buildAnalytics(); window._allFacts = buildAllFacts(); setTimeout(function(){ showFact(0); }, 0); }
+  else if(page==='analytics') { el.innerHTML = buildAnalytics(); window._allFacts = buildAllFacts(); showFact(0); }
   else if(page==='sync')      el.innerHTML = buildAdmin();
 }
 
@@ -455,16 +420,16 @@ function buildList(){
     + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+badge+'<button class="btn b-pri b-sm" onclick="goPage(\'add\')">+ Toevoegen</button></div>'
     + '</div>'
     + '<div class="sw">'
-    + '<div class="si" style="flex:1;min-width:140px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
-    + '<div class="si" style="min-width:80px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Venue..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
-    + '<select id="jaarSel" style="width:auto;min-width:68px"><option value="">Alle jaren</option>'
+    + '<div class="si" style="flex:1;min-width:160px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
+    + '<div class="si" style="min-width:100px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Locatie/Festival..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
+    + '<select id="jaarSel" style="width:auto;min-width:80px"><option value="">Alle jaren</option>'
     + jaren.map(function(j){ return '<option value="'+j+'"'+(fJaar===String(j)?' selected':'')+'>'+j+'</option>'; }).join('')+'</select>'
     + '<select id="maandSel" style="width:auto;min-width:80px"><option value="">Alle maanden</option>'
-    + '<option value="1"'+(fMaand==='1'?' selected':'')+'>Jan</option>'+'<option value="2"'+(fMaand==='2'?' selected':'')+'>Feb</option>'+'<option value="3"'+(fMaand==='3'?' selected':'')+'>Mrt</option>'+'<option value="4"'+(fMaand==='4'?' selected':'')+'>Apr</option>'+'<option value="5"'+(fMaand==='5'?' selected':'')+'>Mei</option>'+'<option value="6"'+(fMaand==='6'?' selected':'')+'>Jun</option>'+'<option value="7"'+(fMaand==='7'?' selected':'')+'>Jul</option>'+'<option value="8"'+(fMaand==='8'?' selected':'')+'>Aug</option>'+'<option value="9"'+(fMaand==='9'?' selected':'')+'>Sep</option>'+'<option value="10"'+(fMaand==='10'?' selected':'')+'>Okt</option>'+'<option value="11"'+(fMaand==='11'?' selected':'')+'>Nov</option>'+'<option value="12"'+(fMaand==='12'?' selected':'')+'>Dec</option>'
+    +'<option value="1"'+(fMaand==='1'?' selected':'')+'>Jan</option>'+'<option value="2"'+(fMaand==='2'?' selected':'')+'>Feb</option>'+'<option value="3"'+(fMaand==='3'?' selected':'')+'>Mrt</option>'+'<option value="4"'+(fMaand==='4'?' selected':'')+'>Apr</option>'+'<option value="5"'+(fMaand==='5'?' selected':'')+'>Mei</option>'+'<option value="6"'+(fMaand==='6'?' selected':'')+'>Jun</option>'+'<option value="7"'+(fMaand==='7'?' selected':'')+'>Jul</option>'+'<option value="8"'+(fMaand==='8'?' selected':'')+'>Aug</option>'+'<option value="9"'+(fMaand==='9'?' selected':'')+'>Sep</option>'+'<option value="10"'+(fMaand==='10'?' selected':'')+'>Okt</option>'+'<option value="11"'+(fMaand==='11'?' selected':'')+'>Nov</option>'+'<option value="12"'+(fMaand==='12'?' selected':'')+'>Dec</option>'
     + '</select>'
-    + '<select id="soortSel" style="width:auto;min-width:90px"><option value="">Alle soorten</option>'
+    + '<select id="soortSel" style="width:auto;min-width:110px"><option value="">Alle soorten</option>'
     + soorten.map(function(s){ return '<option value="'+s+'"'+(fSoort===s?' selected':'')+'>'+s+'</option>'; }).join('')+'</select>'
-    + '<select id="plaatsSel" style="width:auto;min-width:80px"><option value="">Alle plaatsen</option>'
+    + '<select id="plaatsSel" style="width:auto;min-width:100px"><option value="">Alle plaatsen</option>'
     + plaatsen.map(function(p){ return '<option value="'+p+'"'+(fPlaats===p?' selected':'')+'>'+p+'</option>'; }).join('')+'</select>'
     + '</div>'
     + '<div id="resultInfo" style="font-size:12px;color:var(--muted);margin-bottom:8px"></div>'
@@ -480,8 +445,7 @@ function buildList(){
     if(si) si.addEventListener('input',function(){ srchQ=this.value; curPage=1; updateCards(); });
     if(li) li.addEventListener('input',function(){ fLocatie=this.value; curPage=1; updateCards(); });
     if(js) js.addEventListener('change',function(){ fJaar=this.value; curPage=1; updateCards(); });
-    var ms=document.getElementById('maandSel');
-    if(ms) ms.addEventListener('change',function(){ fMaand=this.value; curPage=1; updateCards(); });
+    var ms=document.getElementById('maandSel'); if(ms) ms.addEventListener('change',function(){ fMaand=this.value; curPage=1; updateCards(); });
     if(ss) ss.addEventListener('change',function(){ fSoort=this.value; curPage=1; updateCards(); });
     if(ps) ps.addEventListener('change',function(){ fPlaats=this.value; curPage=1; updateCards(); });
     updateCards();
@@ -505,12 +469,9 @@ function updateCards(){
   if(!cg) return;
   if(tc) tc.textContent = total.toLocaleString('nl')+' concerten';
   if(ri) ri.textContent = total+' resultaten \u00b7 pagina '+curPage+' van '+pages;
-  if(total===0){
-    cg.innerHTML='<div class="empty"><div style="font-size:36px;margin-bottom:10px">&#127928;</div><div class="emtitle">Geen resultaten</div></div>';
-  } else {
-    cg.innerHTML='';
-    slice.forEach(function(con){ cg.appendChild(buildCard(con)); });
-  }
+  cg.innerHTML = total===0
+    ? '<div class="empty"><div style="font-size:36px;margin-bottom:10px">&#127928;</div><div class="emtitle">Geen resultaten</div></div>'
+    : slice.map(buildCard).join('');
   if(pd) pd.innerHTML = pages>1
     ? '<button class="btn b-sec b-sm"'+(curPage===1?' disabled':'')+' onclick="curPage=Math.max(1,curPage-1);updateCards()">&larr; Vorige</button>'
       +'<span class="pinfo">'+curPage+' / '+pages+'</span>'
@@ -518,50 +479,28 @@ function updateCards(){
     : '';
 }
 
-function buildCard(con){
-  var d = con.datum ? new Date(con.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}) : '';
-  var songs = con.setlist||[];
-  var el = document.createElement('div');
-  el.className = 'card';
-  el.dataset.cid = con.id;
-  el.addEventListener('click', function(){ openDetail(this.dataset.cid); });
-  el.innerHTML = '<div class="ctop"><div class="cartist">'+escH(con.artiest)+'</div><div class="cdate">'+d+'</div></div>'
+function buildCard(c){
+  var d = c.datum ? new Date(c.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}) : '';
+  var songs = c.setlist||[];
+  return '<div class="card" onclick="openDetail(\''+c.id+'\')">'
+    +'<div class="ctop"><div class="cartist">'+escH(c.artiest)+'</div><div class="cdate">'+d+'</div></div>'
     +'<div class="cmeta">'
-    +(con.locatie?'<span>&#128205; '+escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'')+'</span>':(con.plaats?'<span>&#128205; '+escH(con.plaats)+'</span>':''))
-    +(con.soort?' <span class="pill p-soort">'+escH(con.soort)+'</span>':'')
-    +(con.festival?' <span class="pill p-fest">&#127991; '+escH(con.festival)+'</span>':'')
-    +(songs.filter(function(x){return x!=='---';}).length?' <span class="pill p-sl">&#127925; '+songs.filter(function(x){return x!=='---';}).length+' nrs</span>':'')
-    +'</div>';
-  return el;
+    +(c.locatie?'<span>&#128205; '+escH(c.locatie)+(c.plaats?', '+escH(c.plaats):'')+' </span>':(c.plaats?'<span>&#128205; '+escH(c.plaats)+'</span>':''))
+    +(c.soort?' <span class="pill p-soort">'+escH(c.soort)+'</span>':'')
+    +(c.festival?' <span class="pill p-fest">&#127991; '+escH(c.festival)+'</span>':'')
+    +(songs.length?' <span class="pill p-sl">&#127925; '+songs.length+' nrs</span>':'')
+    +'</div></div>';
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────────────
-function modalActions(id){
-  return '<div class="modal-actions">'
-    +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\'' + id + '\')">&#9998; Bewerken</button>'
-    +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\'' + id + '\')">&#128465; Verwijderen</button>'
-    +'</div>';
-}
-
 function openDetail(id){
   var c = DB.find(function(x){ return x.id===id; });
   if(!c) return;
   var d = c.datum ? new Date(c.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'}) : '';
   var songs = c.setlist||[];
 
-  var realNum=0;
   var songHtml = songs.length
-    ? songs.map(function(s,i){
-        if(s==='---'){
-          return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0">'
-            +'<div style="flex:1;height:1px;background:var(--border)"></div>'
-            +'<span style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.5px">ENCORE</span>'
-            +'<div style="flex:1;height:1px;background:var(--border)"></div>'
-            +'</div>';
-        }
-        realNum++;
-        return '<div class="setlist-item"><span class="setlist-num">'+realNum+'</span><span class="setlist-name">'+escH(s)+'</span></div>';
-      }).join('')
+    ? songs.map(function(s,i){ return '<div class="setlist-item"><span class="setlist-num">'+(i+1)+'</span><span class="setlist-name">'+escH(s)+'</span></div>'; }).join('')
     : '<div style="text-align:center;padding:30px;color:var(--muted)">Geen setlist beschikbaar</div>';
 
   var meta = [];
@@ -578,27 +517,21 @@ function openDetail(id){
     +'<div class="modal-meta">'+escH(d)+(meta.length?' &nbsp;&middot;&nbsp; '+meta.join(' &nbsp;&middot;&nbsp; '):'')+'</div>'
     +'</div><button class="modal-close" onclick="closeDetail()">&#215;</button></div>'
     +'<div class="modal-body">'
-    +(songs.filter(function(x){return x!=='---';}).length?'<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">&#127925; Setlist &mdash; '+songs.filter(function(x){return x!=='---';}).length+' nummers</div>':'')
+    +(songs.length?'<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">&#127925; Setlist &mdash; '+songs.length+' nummers</div>':'')
     +songHtml
     +(function(){
-        var sameDayArtiesten=DB.filter(function(x){ return x.datum===c.datum && x.id!==c.id; })
-          .sort(function(a,b){ return a.artiest>b.artiest?1:-1; });
-        if(!sameDayArtiesten.length) return '</div>';
-        return '</div>'
-          +'<div style="padding:0 20px 14px">'
+        var same=DB.filter(function(x){return x.datum===c.datum&&x.id!==c.id;}).sort(function(a,b){return a.artiest>b.artiest?1:-1;});
+        if(!same.length) return '</div>';
+        return '</div><div style="padding:0 20px 14px">'
           +'<div style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">&#127937; Ook op '+escH(c.datum.slice(8,10))+'-'+escH(c.datum.slice(5,7))+'-'+escH(c.datum.slice(0,4))+'</div>'
           +'<div style="display:flex;flex-wrap:wrap;gap:6px">'
-          +sameDayArtiesten.map(function(x){
-            return '<button class="tag" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text);font-family:DM Sans,sans-serif" '
-              +'onclick="closeDetail();setTimeout(function(){openDetail(\''+(x.id)+'\');},50)">'
-              +escH(x.artiest)
-              +(x.soort&&x.soort!==c.soort?'<span style="font-size:10px;color:var(--muted);margin-left:4px">('+escH(x.soort)+')</span>':'')
-              +'</button>';
-          }).join('')
+          +same.map(function(x){return '<button class="tag" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text);font-family:DM Sans,sans-serif" onclick="closeDetail();setTimeout(function(){openDetail(\''+x.id+'\');},50)">'+escH(x.artiest)+'</button>';}).join('')
           +'</div></div>';
       })()
-    +(unlocked?modalActions(c.id):'')
-  +'</div>';
+    +'<div class="modal-actions">'
+    +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\''+c.id+'\')">&#9998; Bewerken</button>'
+    +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\''+c.id+'\')">&#128465; Verwijderen</button>'
+    +'</div></div>';
 
   ov.addEventListener('click', function(e){ if(e.target===ov) closeDetail(); });
   document.body.appendChild(ov);
@@ -651,14 +584,13 @@ function buildForm(){
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">'
     +'<span style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">&#127925; Setlist ('+songs.length+' nrs)</span>'
     +'<a class="btn b-sec b-sm" href="https://www.setlist.fm/search?query='+encodeURIComponent(FD.artiest||'')+'" target="_blank" rel="noopener">&#128269; Zoek op Setlist.fm</a>'
-    +(FD.setlist.length ? '<button class="btn b-del b-sm" onclick="clearSetlist()">&#128465; Wis setlist</button>' : '')
     +'</div>'
     +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">Zoek het concert op Setlist.fm, kopieer de setlist en plak hieronder.</div>'
     +songHtml
     +'<div style="margin-bottom:8px"><label style="margin-bottom:5px;display:block">Plak volledige setlist (één nummer per regel)</label>'
     +'<textarea class="paste-area" id="pasteArea" placeholder="01. Song name&#10;02. Another song..." rows="3"></textarea>'
     +'<button class="btn b-sec b-sm" style="margin-top:6px" onclick="parseAndAddPaste()">&#10003; Verwerk geplakte lijst</button></div>'
-    +'<div style="display:flex;gap:8px;margin-top:4px"><input id="newSong" placeholder="Nummer, of typ - voor encore-scheiding" style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addSong()}"><button class="btn b-sec b-sm" onclick="addSong()">+</button></div>'
+    +'<div style="display:flex;gap:8px;margin-top:4px"><input id="newSong" placeholder="Of voeg één nummer toe..." style="flex:1" onkeydown="if(event.key===\'Enter\'){event.preventDefault();addSong()}"><button class="btn b-sec b-sm" onclick="addSong()">+</button></div>'
     +'<div class="divr"></div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
     +'<button class="btn b-pri" style="flex:1;justify-content:center" onclick="saveConcert()">&#128190; '+(editId?'Opslaan':'Toevoegen')+'</button>'
@@ -688,64 +620,19 @@ async function callAI(venue){
 async function fetchSetlist(){
   toast('Gebruik de zoekknop om Setlist.fm te openen en plak de setlist hieronder.','info');
 }
-function addSong(){
-  var el=document.getElementById('newSong');
-  if(!el||!el.value.trim()) return;
-  syncFDFromForm();
-  var val=el.value.trim();
-  // '-' of '--' als invoer = encore-scheidingsteken
-  if(val==='-'||val==='--'||/^encore$/i.test(val)){
-    if(FD.setlist.length && FD.setlist[FD.setlist.length-1]!=='---'){
-      FD.setlist.push('---');
-    }
-  } else {
-    FD.setlist.push(val);
-  }
-  el.value=''; refreshSongArea();
-}
+function addSong(){ var el=document.getElementById('newSong'); if(el&&el.value.trim()){ syncFDFromForm(); FD.setlist.push(el.value.trim()); el.value=''; refreshSongArea(); } }
 function rmSong(i){ syncFDFromForm(); FD.setlist.splice(i,1); refreshSongArea(); }
 
 function parseAndAddPaste(){
   var ta=document.getElementById('pasteArea'); if(!ta||!ta.value.trim()){ toast('Geen tekst','err'); return; }
   syncFDFromForm(); var added=0;
-  ta.value.split('\n').forEach(function(line){
-    line=line.trim(); if(!line) return;
-    // Herken encore-scheidingstekens: "Encore", "Encore:", "---", "***"
-    if(/^[-=*]{2,}$/.test(line) || /^encore\b/i.test(line) || /^e:/i.test(line)){
-      if(FD.setlist.length && FD.setlist[FD.setlist.length-1]!=='---'){ FD.setlist.push('---'); }
-      return;
-    }
-    // Strip nummering vooraan
-    var cleaned=line.replace(/^[\d]+[\s]*[\.\-\)][\s]*/,'').trim();
-    // Strip Setlist.fm artefacten
-    if(/^play video$/i.test(cleaned)) return;
-    // Regel die alleen haakjes-tekst is -> plak aan vorig nummer
-    if(/^\(.*\)$/.test(cleaned)){
-      if(FD.setlist.length && FD.setlist[FD.setlist.length-1]!=='---'){
-        FD.setlist[FD.setlist.length-1] += ' ' + cleaned;
-      }
-      return;
-    }
-    if(cleaned){ FD.setlist.push(cleaned); added++; }
-  });
+  ta.value.split('\n').forEach(function(line){ line=line.trim(); if(!line) return; var c=line.replace(/^[\d]+[\s]*[\.\-\)]\s*/,'').trim(); if(c){ FD.setlist.push(c); added++; } });
   ta.value=''; refreshSongArea(); toast(added+' nummers toegevoegd!','ok');
 }
 
 function refreshSongArea(){
   var songs=FD.setlist;
-  var num=0;
-  var html=songs.length?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+songs.map(function(s,i){
-    if(s==='---'){
-      return '<div style="width:100%;display:flex;align-items:center;gap:6px;margin:2px 0">'
-        +'<div style="flex:1;height:1px;background:var(--border)"></div>'
-        +'<span style="font-size:10px;color:var(--muted);flex-shrink:0">ENCORE</span>'
-        +'<div style="flex:1;height:1px;background:var(--border)"></div>'
-        +'<button class="srem" onclick="rmSong('+i+')" title="Verwijder scheiding">&#215;</button>'
-        +'</div>';
-    }
-    num++;
-    return '<div class="schip"><span class="snum">'+num+'</span><span>'+escH(s)+'</span><button class="srem" onclick="rmSong('+i+')">&#215;</button></div>';
-  }).join('')+'</div>':'';
+  var html=songs.length?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+songs.map(function(s,i){ return '<div class="schip"><span class="snum">'+(i+1)+'</span><span>'+escH(s)+'</span><button class="srem" onclick="rmSong('+i+')">&#215;</button></div>'; }).join('')+'</div>':'';
   var existing=document.querySelector('.fcard div[style*="flex-wrap:wrap"][style*="gap:6px"]');
   var sfSt=document.getElementById('sfSt');
   if(existing) existing.outerHTML=html;
@@ -768,14 +655,6 @@ function saveConcert(){
   else { DB.push(entry); toast('Concert toegevoegd!','ok'); }
   editId=null; FD=mkFD(); afterMutate(); goPage('list');
 }
-function clearSetlist(){
-  if(!FD.setlist.length) return;
-  if(!confirm('Hele setlist verwijderen?')) return;
-  syncFDFromForm();
-  FD.setlist = [];
-  refreshSongArea();
-}
-
 function cancelEdit(){ editId=null; FD=mkFD(); goPage('list'); }
 
 // ── ANALYTICS ─────────────────────────────────────────────────────
@@ -801,13 +680,8 @@ function buildAnalytics(){
   var mc={};DB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mc[m]=(mc[m]||0)+1;});
   var bm=Object.entries(mc).sort(function(a,b){return b[1]-a[1];})[0];
   var streak=bm?bm[1]:0,streakLbl=bm?new Date(bm[0]+'-01').toLocaleDateString('nl-NL',{month:'short',year:'numeric'}):'';
-  var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
-  var recordYrEntry=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0];
-  var recordJaar=recordYrEntry?recordYrEntry[0]:'';
-  var recordJaarN=recordYrEntry?recordYrEntry[1]:0;
-  var uLoc=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;
   function stEl2(v,l,s){return '<div class="stat"><div class="stl">'+l+'</div><div class="stv">'+v+'</div><div class="sts">'+s+'</div></div>';}
   function bar2(entries,mx){return entries.map(function(e){return '<div class="brow"><div class="bname">'+escH(e[0])+'</div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div><div class="bcnt">'+e[1]+'</div></div>';}).join('');}
   var soortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="yToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
@@ -829,55 +703,15 @@ function buildAnalytics(){
     var segs2=SOORTEN.map(function(s){var n=md[s]||0;if(!n)return '';var pct=tot_m?Math.round(n/tot_m*100):0;return '<div class="yseg" data-s="'+escH(s)+'" style="height:'+pct+'%;background:'+(soortColors[s]||'var(--accent)')+'" title="'+escH(s)+': '+n+'"></div>';}).join('');
     mBarsHtml+='<div class="ycol"><div class="ycnt" id="mcnt_'+mi2+'">'+(tot_m||'')+'</div><div class="ybar ystacked" id="mbar_'+mi2+'" style="height:'+h2+'px">'+(tot_m?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi2-1]+'</div></div>';
   }
-  // ── ON THIS DAY ──────────────────────────────────────────────
-  var today = new Date();
-  var todayMD = (today.getMonth()+1 < 10 ? '0' : '') + (today.getMonth()+1) + '-' + (today.getDate() < 10 ? '0' : '') + today.getDate();
-  var onThisDay = DB.filter(function(c){ return c.datum && c.datum.slice(5) === todayMD; })
-    .sort(function(a,b){ return a.datum > b.datum ? 1 : -1; });
-  var todayLabel = today.toLocaleDateString('nl-NL',{day:'numeric',month:'long'});
-  var otdHtml = onThisDay.length
-    ? onThisDay.map(function(con){
-        var yr = con.datum ? con.datum.slice(0,4) : '';
-        var ago = yr ? (today.getFullYear() - parseInt(yr)) : 0;
-        return '<div class="otd-card" onclick="goPage(\'list\');setTimeout(function(){openDetail(\''+con.id+'\');},120)" style="cursor:pointer">'
-          +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">'
-          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:18px;color:var(--text);line-height:1.1">'+escH(con.artiest)+'</div>'
-          +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:22px;color:var(--accent);flex-shrink:0">'+yr+'</div>'
-          +'</div>'
-          +'<div style="font-size:12px;color:var(--muted);margin-top:3px">'
-          +(con.locatie ? escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'') : (con.plaats?escH(con.plaats):''))
-          +(ago > 0 ? ' &nbsp;·&nbsp; '+ago+' jaar geleden' : '')
-          +'</div>'
-          +'</div>';
-      }).join('')
-    : '<div style="color:var(--muted);font-size:13px;padding:4px 0">Geen concerten op deze datum gevonden.</div>';
-
   return '<h1>ANALYTICS</h1>'
-    +'<div class="cbox" style="margin-bottom:14px">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
-    +'<span style="font-size:20px">&#127881;</span>'
-    +'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'
-    +'</div>'
-    +'<div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div>'
-    +'</div>'
-    +'<div class="stat-grid4">'
-    +stEl2(total.toLocaleString('nl'),'Totaal','concerten')
-    +stEl2(uArt,'Artiesten','uniek')
-    +stEl2(uPl,'Plaatsen','bezocht')
-    +stEl2(uLoc,'Locaties','unieke venues')
-    +stEl2(span,'Jaren actief','jaar bijgehouden')
-    +stEl2(streak,'Record maand',streakLbl)
-    +stEl2(recordJaar,'Record jaar',recordJaarN+' concerten')
-    +stEl2(withSl,'Met setlist','concerten')
-    +'</div>'
-    +'<div class="stat-grid4">'
-    +topS.map(function(e){var n=e[1];var pct=Math.round(n/total*100);return stEl2(n,escH(e[0]),pct+'% van totaal');}).join('')
-    +'</div>'
+    +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uPl,'Plaatsen','bezocht')
+    +stEl2((total/uArt).toFixed(1)+'&times;','Loyalty','gem. per artiest')+stEl2(Math.round(uArt/total*100)+'%','Diversity','unieke artiesten')
+    +stEl2(streak,'Record maand',streakLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA)+'</div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per maand (alle jaren)</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="mfilters">'+mSoortBtns+'</div></div><div class="ybars" id="mBars">'+mBarsHtml+'</div></div>'
     +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar2(topP,maxP)+'</div><div class="cbox"><div class="clbl">Top locaties</div>'+bar2(topL,maxL)+'</div></div>'
-    
+    +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'+topS.map(function(e){return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>';}).join('')+'</div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div class="clbl" style="margin-bottom:0">&#10024; Leuke weetjes</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)" id="factCounter"></span><button class="btn b-sec b-sm" onclick="prevFact()">&#8592;</button><button class="btn b-sec b-sm" onclick="nextFact()">&#8594;</button><button class="btn b-pri b-sm" onclick="randomFact()">&#127922; Willekeurig</button></div></div><div id="factDisplay" style="font-size:14px;color:var(--text);line-height:1.8"></div></div>'
     +'<div class="chat-box"><div style="padding:16px 16px 8px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">&#129302;</span><div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:.5px;color:var(--text)">Concert Assistent</div><div style="font-size:11px;color:var(--muted)">Stel vragen over jouw concertdata</div></div></div>'
     +'<div class="chat-msgs" id="chatMsgs"><div class="chat-msg bot"><div class="chat-avatar chat-bot-avatar">&#129302;</div>'
@@ -889,73 +723,15 @@ function buildAnalytics(){
 
 function yToggle(btn){btn.classList.toggle('ybtn-on');yApplyFilter();}
 function yApplyFilter(){
-  var active=[];
-  document.querySelectorAll('#yfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
-  // show/hide segments
-  document.querySelectorAll('#yrBars .yseg').forEach(function(s){
-    s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';
-  });
-  // recalc totals and rescale segment heights within each bar
-  var totals=[];
-  document.querySelectorAll('#yrBars .ycol').forEach(function(col){
-    var tot=0;
-    var visSegs=[];
-    col.querySelectorAll('.yseg').forEach(function(s){
-      if(s.style.display!=='none'){
-        var m=(s.getAttribute('title')||'').match(/: (\d+)$/);
-        var n=m?parseInt(m[1]):0;
-        tot+=n;
-        visSegs.push({el:s,n:n});
-      }
-    });
-    totals.push(tot);
-    var cnt=col.querySelector('.ycnt'); if(cnt) cnt.textContent=tot||'';
-    // Rescale segment % heights to fill the bar correctly
-    visSegs.forEach(function(seg){
-      seg.el.style.height=tot?Math.round(seg.n/tot*100)+'%':'0%';
-    });
-  });
-  // Rescale bar heights relative to new max
-  var maxTot=Math.max.apply(null,totals.concat([1]));
-  document.querySelectorAll('#yrBars .ycol').forEach(function(col,i){
-    var ybar=col.querySelector('.ybar');
-    if(!ybar)return;
-    var h=totals[i]?Math.round(totals[i]/maxTot*90)+6:4;
-    ybar.style.height=h+'px';
-  });
+  var active=[];document.querySelectorAll('#yfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
+  document.querySelectorAll('#yrBars .yseg').forEach(function(s){s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';});
+  document.querySelectorAll('#yrBars .ycol').forEach(function(col){var cnt=col.querySelector('.ycnt');if(!cnt)return;var tot=0;col.querySelectorAll('.yseg').forEach(function(s){if(s.style.display!=='none'){var m=(s.getAttribute('title')||'').match(/: (\d+)$/);if(m)tot+=parseInt(m[1]);}});cnt.textContent=tot||'';});
 }
 function mToggle(btn){btn.classList.toggle('ybtn-on');mApplyFilter();}
 function mApplyFilter(){
-  var active=[];
-  document.querySelectorAll('#mfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
-  document.querySelectorAll('#mBars .yseg').forEach(function(s){
-    s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';
-  });
-  var totals=[];
-  document.querySelectorAll('#mBars .ycol').forEach(function(col){
-    var tot=0;
-    var visSegs=[];
-    col.querySelectorAll('.yseg').forEach(function(s){
-      if(s.style.display!=='none'){
-        var m=(s.getAttribute('title')||'').match(/: (\d+)$/);
-        var n=m?parseInt(m[1]):0;
-        tot+=n;
-        visSegs.push({el:s,n:n});
-      }
-    });
-    totals.push(tot);
-    var cnt=col.querySelector('.ycnt'); if(cnt) cnt.textContent=tot||'';
-    visSegs.forEach(function(seg){
-      seg.el.style.height=tot?Math.round(seg.n/tot*100)+'%':'0%';
-    });
-  });
-  var maxTot=Math.max.apply(null,totals.concat([1]));
-  document.querySelectorAll('#mBars .ycol').forEach(function(col,i){
-    var ybar=col.querySelector('.ybar');
-    if(!ybar)return;
-    var h=totals[i]?Math.round(totals[i]/maxTot*90)+6:4;
-    ybar.style.height=h+'px';
-  });
+  var active=[];document.querySelectorAll('#mfilters .ybtn-on').forEach(function(b){active.push(b.dataset.s);});
+  document.querySelectorAll('#mBars .yseg').forEach(function(s){s.style.display=active.indexOf(s.dataset.s)>-1?'':'none';});
+  document.querySelectorAll('#mBars .ycol').forEach(function(col){var cnt=col.querySelector('.ycnt');if(!cnt)return;var tot=0;col.querySelectorAll('.yseg').forEach(function(s){if(s.style.display!=='none'){var m=(s.getAttribute('title')||'').match(/: (\d+)$/);if(m)tot+=parseInt(m[1]);}});cnt.textContent=tot||'';});
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────
@@ -977,7 +753,8 @@ function buildAdmin(){
     +'</div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
     +'<button class="btn b-gist" onclick="saveGistConfig()">&#128190; Opslaan &amp; verbinden</button>'
-    +(GIST_ID?'<button class="btn b-sec" onclick="syncNow()">&#8635; Nu synchroniseren</button>':'')    +(GIST_ID&&GIST_TOKEN?'<button class="btn b-warn" onclick="forcePush()">&#8593; Forceer upload (lokaal wint)</button>':'')
+    +(GIST_ID?'<button class="btn b-sec" onclick="syncNow()">&#8635; Nu synchroniseren</button>':'')
+    +(GIST_ID&&GIST_TOKEN?'<button class="btn b-warn" onclick="forcePush()">&#8593; Forceer upload (lokaal wint)</button>':'')
     +(GIST_ID?'<button class="btn b-sec b-sm" style="color:var(--muted)" onclick="clearGistConfig()">Verbinding verwijderen</button>':'')
     +'</div>'
     +(GIST_ID?'<div style="margin-top:10px;font-size:12px;color:var(--muted)">Gist: <code style="color:var(--accent)">'+escH(GIST_ID)+'</code></div>':'')
@@ -988,7 +765,7 @@ function buildAdmin(){
     +'<button class="btn b-sec" onclick="saveAnthropicKey()">&#128190; Opslaan</button>'
     +(ANTHROPIC_KEY?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#10003; Key opgeslagen</span>':'')
     +'</div>'
-    +'<div class="cbox"><div class="clbl">&#128274; Wachtwoord</div>'    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7">Stel een wachtwoord in om bewerken en admin te beveiligen. Zolang er geen wachtwoord is, is de app voor iedereen bewerkbaar. Laat leeg om de beveiliging te verwijderen.</p>'    +'<div class="fg" style="margin-bottom:10px"><label>Nieuw wachtwoord</label><input type="password" id="newPassIn" placeholder="Laat leeg om te verwijderen"><div class="hint">Wordt lokaal opgeslagen als hash. Geldig voor de hele sessie na invoer.</div></div>'    +'<button class="btn b-sec" onclick="savePassword()">&#128190; Opslaan</button>'    +(PASS_HASH?'<span style="font-size:12px;color:var(--accent);margin-left:10px">&#128274; Wachtwoord actief</span>':'<span style="font-size:12px;color:var(--muted);margin-left:10px">Geen wachtwoord ingesteld</span>')    +'</div>'    +'<div class="cbox"><div class="clbl">&#128065; Read-only versie</div>'
+    +'<div class="cbox"><div class="clbl">&#128065; Read-only versie</div>'
     +'<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7">De read-only versie heeft geen toevoegen/bewerken/admin knoppen en laadt data direct uit jouw Gist. Upload <strong style="color:var(--text)">readonly.html</strong> naast index.html op GitHub.</p>'
     +'<button class="btn b-sec" onclick="downloadReadOnly()">&#11015; Download readonly.html</button>'
     +(GIST_ID?'':'<p style="font-size:12px;color:var(--accent2);margin-top:8px">Koppel eerst een Gist zodat de read-only versie altijd de laatste data toont.</p>')
@@ -1039,24 +816,17 @@ function syncNow(){
   if(GIST_ID&&GIST_TOKEN) saveToGist();
 }
 
-function forcePush(){
-  if(!GIST_ID||!GIST_TOKEN){ toast('Geen Gist ID of token ingesteld','err'); return; }
-  if(!confirm('Lokale data uploaden naar Gist? De versie in de Gist wordt overschreven.')) return;
-  saveToGist();
-  toast('Lokale data geüpload naar Gist','ok');
-}
-
 // ── READ-ONLY DOWNLOAD ────────────────────────────────────────────
 function downloadReadOnly(){
   var gid = GIST_ID || '';
-  var ro = buildROHtml(gid, DB);
+  var ro = buildROHtml(gid);
   var a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([ro],{type:'text/html;charset=utf-8'}));
   a.download='readonly.html'; a.click();
   toast('readonly.html gedownload!','ok');
 }
 
-function buildROHtml(gid, dbData){
+function buildROHtml(gid){
   // Build as an array and join to avoid any <script> parsing issues
   var lines = [];
   lines.push('<!DOCTYPE html>');
@@ -1066,113 +836,87 @@ function buildROHtml(gid, dbData){
   lines.push('<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">');
   lines.push('<title>Gijs Concertlog</title>');
   lines.push('<meta name="apple-mobile-web-app-capable" content="yes">');
-  lines.push('<meta name="theme-color" content="#f5f0eb">');
+  lines.push('<meta name="theme-color" content="#0a0a0f">');
   lines.push('<style>');
   lines.push("@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');");
-  lines.push('*{box-sizing:border-box;margin:0;padding:0}body{background:#f5f0eb;color:#1a1a2e;font-family:DM Sans,sans-serif;font-size:14px}');
-  lines.push('nav{background:rgba(245,240,235,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;display:flex;flex-direction:column}');
-  lines.push('.ns{height:env(safe-area-inset-top);background:rgba(245,240,235,.97)}.ni{display:flex;align-items:center;padding:0 12px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));overflow-x:auto;width:100%}');
-  lines.push('.logo{font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:1.5px;color:#1a1a2e;padding:12px 0;margin-right:12px;flex-shrink:0}');
-  lines.push('.ntab{padding:13px 10px;font-size:12px;font-weight:500;color:#6b6560;cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;font-family:DM Sans,sans-serif;white-space:nowrap}.ntab.on{color:#1a1a2e;border-bottom-color:#1a1a2e}');
+  lines.push('*{box-sizing:border-box;margin:0;padding:0}body{background:#0a0a0f;color:#f0ede8;font-family:DM Sans,sans-serif;font-size:14px}');
+  lines.push('nav{background:rgba(10,10,15,.97);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:100;display:flex;flex-direction:column}');
+  lines.push('.ns{height:env(safe-area-inset-top);background:rgba(10,10,15,.97)}.ni{display:flex;align-items:center;padding:0 12px;padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right));overflow-x:auto;width:100%}');
+  lines.push('.logo{font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:1.5px;color:#e8ff47;padding:12px 0;margin-right:12px;flex-shrink:0}');
+  lines.push('.ntab{padding:13px 10px;font-size:12px;font-weight:500;color:#777;cursor:pointer;border:none;border-bottom:2px solid transparent;background:none;font-family:DM Sans,sans-serif;white-space:nowrap}.ntab.on{color:#e8ff47;border-bottom-color:#e8ff47}');
   lines.push('.main{padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom));max-width:960px;margin:0 auto}');
   lines.push('h1{font-family:Bebas Neue,sans-serif;font-size:24px;letter-spacing:1px;margin-bottom:14px}');
-  lines.push('input,select{background:#e0dad4;border:1px solid rgba(26,26,46,.1);border-radius:8px;padding:9px 12px;color:#1a1a2e;font-family:DM Sans,sans-serif;font-size:13px;width:100%}');
-  lines.push('input:focus,select:focus{outline:none;border-color:#1a1a2e}input::placeholder{color:#6b6560}select option{background:#f5f0eb}');
-  lines.push('.sw{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:nowrap;overflow-x:auto}.si{position:relative}.si input{padding-left:30px}.ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#6b6560;pointer-events:none}');
-  lines.push('.grid{display:flex;flex-direction:column;gap:10px}.card{background:#ede8e3;border:1px solid rgba(26,26,46,.1);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .2s}.card:hover{border-color:rgba(26,26,46,.25)}');
-  lines.push('.ctop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}.ca{font-family:Bebas Neue,sans-serif;font-size:20px;color:#1a1a2e;line-height:1.1}.cd{background:#e0dad4;border:1px solid rgba(26,26,46,.1);border-radius:6px;padding:3px 8px;font-size:11px;color:#6b6560;white-space:nowrap;flex-shrink:0}');
-  lines.push('.cm{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:#6b6560}.pill{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500}.ps{background:rgba(26,26,46,.1);color:#1a1a2e}.pf{background:rgba(200,75,49,.1);color:#c84b31}.pl{background:rgba(45,106,79,.1);color:#2d6a4f}');
-  lines.push('.pag{display:flex;align-items:center;gap:8px;margin-top:14px;justify-content:center}.pi{font-size:12px;color:#6b6560}.btn{padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.08);font-family:DM Sans,sans-serif;font-size:11px;cursor:pointer;background:#e0dad4;color:#1a1a2e}.btn:disabled{opacity:.4;cursor:not-allowed}');
-  lines.push('.mo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center}.md{background:#f5f0eb;border:1px solid rgba(255,255,255,.08);border-radius:20px 20px 0 0;max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column}');
-  lines.push('.mh{padding:20px 20px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}.mt{font-family:Bebas Neue,sans-serif;font-size:26px;color:#1a1a2e;line-height:1.1}.mm{font-size:12px;color:#6b6560;margin-top:4px;display:flex;flex-wrap:wrap;gap:6px}.mc{background:#e0dad4;border:1px solid rgba(26,26,46,.1);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;color:#6b6560;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}');
-  lines.push('.mb{overflow-y:auto;padding:16px 20px 32px;flex:1}.sli{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}.sli:last-child{border-bottom:none}.sln{font-family:Bebas Neue,sans-serif;font-size:16px;color:#1a1a2e;min-width:28px;text-align:right}.slt{color:#1a1a2e}');
-  lines.push('.stat{background:#ede8e3;border:1px solid rgba(26,26,46,.1);border-radius:12px;padding:14px}.stl{font-size:10px;color:#6b6560;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}.stv{font-family:Bebas Neue,sans-serif;font-size:28px;color:#1a1a2e;line-height:1}.sts{font-size:10px;color:#6b6560;margin-top:2px}');
-  lines.push('.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}.cb{background:#ede8e3;border:1px solid rgba(26,26,46,.1);border-radius:14px;padding:18px;margin-bottom:14px}.cl{font-size:11px;font-weight:500;color:#6b6560;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}');
-  lines.push('.br{display:flex;align-items:center;gap:8px;margin-bottom:8px}.bn{font-size:12px;min-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1a1a2e}.bt{flex:1;height:7px;background:#e0dad4;border-radius:4px;overflow:hidden}.bf{height:100%;background:#1a1a2e;border-radius:4px}.bc{font-size:12px;font-weight:600;color:#1a1a2e;min-width:24px;text-align:right}');
-  lines.push('.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:540px){.two{grid-template-columns:1fr}}.ybars{display:flex;align-items:flex-end;gap:3px;overflow-x:auto;padding:4px 0 2px}.ybar.ystacked{display:flex;flex-direction:column-reverse;overflow:hidden}.yseg{width:100%;flex-shrink:0}.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}.ybar{background:#1a1a2e;border-radius:3px 3px 0 0;width:100%;min-height:2px}.ylbl{font-size:9px;color:#6b6560}.ycnt{font-size:10px;color:#1a1a2e;font-weight:600}');
+  lines.push('input,select{background:#1a1a24;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:9px 12px;color:#f0ede8;font-family:DM Sans,sans-serif;font-size:13px;width:100%}');
+  lines.push('input:focus,select:focus{outline:none;border-color:#e8ff47}input::placeholder{color:#777}select option{background:#111118}');
+  lines.push('.sw{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap}.si{position:relative}.si input{padding-left:30px}.ic{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#777;pointer-events:none}');
+  lines.push('.grid{display:flex;flex-direction:column;gap:10px}.card{background:#14141e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px 16px;cursor:pointer;transition:border-color .2s}.card:hover{border-color:rgba(232,255,71,.25)}');
+  lines.push('.ctop{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}.ca{font-family:Bebas Neue,sans-serif;font-size:20px;color:#f0ede8;line-height:1.1}.cd{background:#1a1a24;border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:3px 8px;font-size:11px;color:#777;white-space:nowrap;flex-shrink:0}');
+  lines.push('.cm{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:#777}.pill{font-size:11px;padding:2px 7px;border-radius:20px;font-weight:500}.ps{background:rgba(71,197,255,.12);color:#47c5ff}.pf{background:rgba(255,160,50,.12);color:#ffa032}.pl{background:rgba(255,77,109,.12);color:#ff4d6d}');
+  lines.push('.pag{display:flex;align-items:center;gap:8px;margin-top:14px;justify-content:center}.pi{font-size:12px;color:#777}.btn{padding:5px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.08);font-family:DM Sans,sans-serif;font-size:11px;cursor:pointer;background:#1a1a24;color:#f0ede8}.btn:disabled{opacity:.4;cursor:not-allowed}');
+  lines.push('.mo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:flex;align-items:flex-end;justify-content:center}.md{background:#111118;border:1px solid rgba(255,255,255,.08);border-radius:20px 20px 0 0;max-width:680px;width:100%;max-height:85vh;display:flex;flex-direction:column}');
+  lines.push('.mh{padding:20px 20px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0}.mt{font-family:Bebas Neue,sans-serif;font-size:26px;color:#f0ede8;line-height:1.1}.mm{font-size:12px;color:#777;margin-top:4px;display:flex;flex-wrap:wrap;gap:6px}.mc{background:#1a1a24;border:1px solid rgba(255,255,255,.08);border-radius:50%;width:32px;height:32px;cursor:pointer;font-size:18px;color:#777;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1}');
+  lines.push('.mb{overflow-y:auto;padding:16px 20px 32px;flex:1}.sli{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.08);font-size:13px}.sli:last-child{border-bottom:none}.sln{font-family:Bebas Neue,sans-serif;font-size:16px;color:#e8ff47;min-width:28px;text-align:right}.slt{color:#f0ede8}');
+  lines.push('.stat{background:#14141e;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px}.stl{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}.stv{font-family:Bebas Neue,sans-serif;font-size:28px;color:#e8ff47;line-height:1}.sts{font-size:10px;color:#777;margin-top:2px}');
+  lines.push('.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}.cb{background:#14141e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;margin-bottom:14px}.cl{font-size:11px;font-weight:500;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}');
+  lines.push('.br{display:flex;align-items:center;gap:8px;margin-bottom:8px}.bn{font-size:12px;min-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f0ede8}.bt{flex:1;height:7px;background:#1a1a24;border-radius:4px;overflow:hidden}.bf{height:100%;background:#e8ff47;border-radius:4px}.bc{font-size:12px;font-weight:600;color:#e8ff47;min-width:24px;text-align:right}');
+  lines.push('.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:540px){.two{grid-template-columns:1fr}}.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto}.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}.ybar{background:#e8ff47;border-radius:3px 3px 0 0;width:100%;min-height:2px}.ylbl{font-size:9px;color:#777}.ycnt{font-size:10px;color:#e8ff47;font-weight:600}');
   lines.push('</style></head><body>');
   lines.push('<nav><div class="ns"></div><div class="ni">');
   lines.push('<div class="logo">Gijs Concertlog</div>');
   lines.push('<button class="ntab on" id="tl" onclick="gp(0)">Concerten</button>');
   lines.push('<button class="ntab" id="ta" onclick="gp(1)">Analytics</button>');
   lines.push('</div></nav>');
-  lines.push('<div class="main" id="A"><p style="padding:40px;text-align:center;color:#6b6560">Data laden...</p></div>');
+  lines.push('<div class="main" id="A"><p style="padding:40px;text-align:center;color:#777">Data laden...</p></div>');
   // Use SCRTAG to prevent browser treating it as a real script tag
   var SCRTAG = 'scr'+'ipt';
   lines.push('<'+SCRTAG+'>');
   lines.push('var DB=[],pg=0,Q="",FJ="",FS="",FP="",FL="",CP=1,PP=50;');
-  var dbJson = JSON.stringify(dbData||[]);
-  lines.push('var EMBEDDED_DB='+dbJson+';');
   lines.push('var GID="'+gid+'",GF="concertlog.json";');
   lines.push('function eh(s){return String(s||"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}');
   lines.push('function fm(q,t){if(!q)return true;if(!t)return false;var tl=t.toLowerCase(),ql=q.toLowerCase().trim();if(tl.includes(ql))return true;return ql.split(/\\s+/).filter(Boolean).every(function(w){return tl.includes(w);});}');
   lines.push('function gp(p){pg=p;var ids=["tl","ta"];ids.forEach(function(id,i){var el=document.getElementById(id);if(el)el.className="ntab"+(i===p?" on":"");});re();}');
   lines.push('function re(){var el=document.getElementById("A");el.innerHTML=pg===0?bL():bA();}');
   lines.push('function gf(){return DB.filter(function(c){var q=Q.trim(),lq=FL.trim();return(!q||[c.artiest,c.locatie,c.plaats,c.festival,c.soort].some(function(v){return fm(q,v);}))&&(!lq||fm(lq,c.locatie))&&(!FJ||String(c.jaar)===FJ)&&(!FS||c.soort===FS)&&(!FP||c.plaats===FP);}).sort(function(a,b){return b.datum>a.datum?1:-1;});}');
-  lines.push('function bL(){var jr=[...new Set(DB.map(function(c){return c.jaar;}).filter(Boolean))].sort(function(a,b){return b-a;});var pl=[...new Set(DB.map(function(c){return c.plaats;}).filter(Boolean))].sort();var so=["Hoofdprogramma","Voorprogramma","Festivaloptreden","Theater","Musical","Comedy"];');
-  lines.push('var h="<div style=\\"display:flex;align-items:center;justify-content:space-between;margin-bottom:14px\\"><h1>CONCERTLOG <span style=\\"font-size:14px;color:#6b6560\\" id=\\"tc\\"></span></h1></div>";');
+  lines.push('function bL(){var jr=[...new Set(DB.map(function(c){return c.jaar;}).filter(Boolean))].sort(function(a,b){return b-a;});var pl=[...new Set(DB.map(function(c){return c.plaats;}).filter(Boolean))].sort();var so=["Hoofdprogramma","Voorprogramma","Festivaloptreden","Theater/Comedy"];');
+  lines.push('var h="<div style=\\"display:flex;align-items:center;justify-content:space-between;margin-bottom:14px\\"><h1>CONCERTLOG <span style=\\"font-size:14px;color:#777\\" id=\\"tc\\"></span></h1></div>";');
   lines.push('h+="<div class=\\"sw\\"><div class=\\"si\\" style=\\"flex:1;min-width:160px\\"><span class=\\"ic\\">&#128269;</span><input id=\\"si\\" placeholder=\\"Zoek artiest, locatie, plaats...\\"></div>";');
   lines.push('h+="<div class=\\"si\\" style=\\"min-width:100px\\"><span class=\\"ic\\">&#128205;</span><input id=\\"li\\" placeholder=\\"Venue...\\"></div>";');
   lines.push('h+="<select id=\\"js\\" style=\\"width:auto;min-width:80px\\"><option value=\\"\\">Alle jaren</option>"+jr.map(function(j){return"<option value=\\""+j+"\\">"+j+"</option>";}).join("")+"</select>";');
   lines.push('h+="<select id=\\"ss\\" style=\\"width:auto;min-width:110px\\"><option value=\\"\\">Alle soorten</option>"+so.map(function(s){return"<option value=\\""+s+"\\">"+s+"</option>";}).join("")+"</select>";');
   lines.push('h+="<select id=\\"ps\\" style=\\"width:auto;min-width:100px\\"><option value=\\"\\">Alle plaatsen</option>"+pl.map(function(p){return"<option value=\\""+p+"\\">"+p+"</option>";}).join("")+"</select></div>";');
-  lines.push('h+="<div id=\\"ri\\" style=\\"font-size:12px;color:#6b6560;margin-bottom:8px\\"></div><div id=\\"cg\\" class=\\"grid\\"></div><div id=\\"pd\\" class=\\"pag\\"></div>";');
+  lines.push('h+="<div id=\\"ri\\" style=\\"font-size:12px;color:#777;margin-bottom:8px\\"></div><div id=\\"cg\\" class=\\"grid\\"></div><div id=\\"pd\\" class=\\"pag\\"></div>";');
   lines.push('setTimeout(function(){var si=document.getElementById("si"),li=document.getElementById("li"),js=document.getElementById("js"),ss=document.getElementById("ss"),ps=document.getElementById("ps");');
   lines.push('if(si)si.addEventListener("input",function(){Q=this.value;CP=1;uc();});if(li)li.addEventListener("input",function(){FL=this.value;CP=1;uc();});');
   lines.push('if(js)js.addEventListener("change",function(){FJ=this.value;CP=1;uc();});if(ss)ss.addEventListener("change",function(){FS=this.value;CP=1;uc();});if(ps)ps.addEventListener("change",function(){FP=this.value;CP=1;uc();});uc();},0);return h;}');
   lines.push('function uc(){var f=gf(),tot=f.length,pages=Math.max(1,Math.ceil(tot/PP));if(CP>pages)CP=pages;var sl=f.slice((CP-1)*PP,CP*PP);var tc=document.getElementById("tc"),ri=document.getElementById("ri"),cg=document.getElementById("cg"),pd=document.getElementById("pd");');
   lines.push('if(tc)tc.textContent=tot.toLocaleString("nl")+" concerten";if(ri)ri.textContent=tot+" resultaten \\u00b7 pagina "+CP+" van "+pages;');
-  lines.push('if(cg)cg.innerHTML=tot===0?"<div style=\\"text-align:center;padding:48px;color:#6b6560\\">Geen resultaten</div>":sl.map(bc).join("");');
+  lines.push('if(cg)cg.innerHTML=tot===0?"<div style=\\"text-align:center;padding:48px;color:#777\\">Geen resultaten</div>":sl.map(bc).join("");');
   lines.push('if(pd)pd.innerHTML=pages>1?"<button class=\\"btn\\" "+(CP===1?"disabled":"")+" onclick=\\"CP=Math.max(1,CP-1);uc()\\">&larr;</button> <span class=\\"pi\\">"+CP+"/"+pages+"</span> <button class=\\"btn\\" "+(CP===pages?"disabled":"")+" onclick=\\"CP=Math.min("+pages+",CP+1);uc()\\">&rarr;</button>":"";}');
   lines.push('function bc(c){var d=c.datum?new Date(c.datum).toLocaleDateString("nl-NL",{day:"numeric",month:"short",year:"numeric"}):"";var s=c.setlist||[];');
   lines.push('return"<div class=\\"card\\" onclick=\\"od(\'"+c.id+"\')\\">"+"<div class=\\"ctop\\"><div class=\\"ca\\">"+eh(c.artiest)+"</div><div class=\\"cd\\">"+d+"</div></div>"+"<div class=\\"cm\\">"+( c.locatie?"&#128205; "+eh(c.locatie)+(c.plaats?", "+eh(c.plaats):" "):c.plaats?"&#128205; "+eh(c.plaats):"")+( c.soort?" <span class=\\"pill ps\\">"+eh(c.soort)+"</span>":"")+( c.festival?" <span class=\\"pill pf\\">&#127991; "+eh(c.festival)+"</span>":"")+( s.length?" <span class=\\"pill pl\\">&#127925; "+s.length+" nrs</span>":"")+"</div></div>";}');
   lines.push('function od(id){var c=DB.find(function(x){return x.id===id;});if(!c)return;var d=c.datum?new Date(c.datum).toLocaleDateString("nl-NL",{day:"numeric",month:"long",year:"numeric"}):"";var s=c.setlist||[];');
   lines.push('var ov=document.createElement("div");ov.className="mo";ov.id="dm";');
-  lines.push('ov.innerHTML="<div class=\\"md\\"><div class=\\"mh\\"><div style=\\"min-width:0\\"><div class=\\"mt\\">"+eh(c.artiest)+"</div><div class=\\"mm\\">"+eh(d)+(c.locatie?" &middot; &#128205; "+eh(c.locatie)+(c.plaats?", "+eh(c.plaats):""):c.plaats?" &middot; &#128205; "+eh(c.plaats):"")+( c.soort?" <span class=\\"pill ps\\">"+eh(c.soort)+"</span>":"")+"</div></div><button class=\\"mc\\" onclick=\\"cd()\\">&#215;</button></div>"+"<div class=\\"mb\\">"+( s.length?"<div style=\\"font-size:11px;color:#6b6560;text-transform:uppercase;margin-bottom:10px\\">Setlist &mdash; "+s.length+" nummers</div>"+s.map(function(t,i){return"<div class=\\"sli\\"><span class=\\"sln\\">"+(i+1)+"</span><span class=\\"slt\\">"+eh(t)+"</span></div>";}).join(""):"<div style=\\"padding:30px;text-align:center;color:#6b6560\\">Geen setlist</div>")+"</div></div>";');
+  lines.push('ov.innerHTML="<div class=\\"md\\"><div class=\\"mh\\"><div style=\\"min-width:0\\"><div class=\\"mt\\">"+eh(c.artiest)+"</div><div class=\\"mm\\">"+eh(d)+(c.locatie?" &middot; &#128205; "+eh(c.locatie)+(c.plaats?", "+eh(c.plaats):""):c.plaats?" &middot; &#128205; "+eh(c.plaats):"")+( c.soort?" <span class=\\"pill ps\\">"+eh(c.soort)+"</span>":"")+"</div></div><button class=\\"mc\\" onclick=\\"cd()\\">&#215;</button></div>"+"<div class=\\"mb\\">"+( s.length?"<div style=\\"font-size:11px;color:#777;text-transform:uppercase;margin-bottom:10px\\">Setlist &mdash; "+s.length+" nummers</div>"+s.map(function(t,i){return"<div class=\\"sli\\"><span class=\\"sln\\">"+(i+1)+"</span><span class=\\"slt\\">"+eh(t)+"</span></div>";}).join(""):"<div style=\\"padding:30px;text-align:center;color:#777\\">Geen setlist</div>")+"</div></div>";');
   lines.push('ov.addEventListener("click",function(e){if(e.target===ov)cd();});document.body.appendChild(ov);document.body.style.overflow="hidden";}');
   lines.push('function cd(){var m=document.getElementById("dm");if(m){m.remove();document.body.style.overflow="";}}');
-    var _bA_src = function(){
-    var tot=DB.length,uA=new Set(DB.map(function(c){return c.artiest;})).size,uP=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size,uL=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size,withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
-    var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
-    var jArr=DB.map(function(c){return c.jaar;}).filter(Boolean),span=jArr.length?Math.max.apply(null,jArr)-Math.min.apply(null,jArr)+1:0;
-    var mc2={};DB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mc2[m]=(mc2[m]||0)+1;});
-    var bm2=Object.entries(mc2).sort(function(a,b){return b[1]-a[1];})[0];
-    var streak=bm2?bm2[1]:0,streakLbl=bm2?new Date(bm2[0]+'-01').toLocaleDateString('nl-NL',{month:'short',year:'numeric'}):'';
-    var rye=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0],rJaar=rye?rye[0]:'',rN=rye?rye[1]:0;
-    function st(v,l,s){return'<div class="stat"><div class="stl">'+l+'</div><div class="stv">'+v+'</div><div class="sts">'+s+'</div></div>';}
-    function bar(e,mx){return e.map(function(x){return'<div class="br"><div class="bn">'+eh(x[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(x[1]/mx*100)+'%"></div></div><div class="bc">'+x[1]+'</div></div>';}).join('');}
-    var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});
-    var t10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,10),mA=t10[0]?t10[0][1]:1;
-    var pc={};DB.forEach(function(c){if(c.plaats)pc[c.plaats]=(pc[c.plaats]||0)+1;});
-    var tP=Object.entries(pc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mP=tP[0]?tP[0][1]:1;
-    var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});
-    var tL=Object.entries(lc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mL=tL[0]?tL[0][1]:1;
-    var sc={};DB.forEach(function(c){if(c.soort)sc[c.soort]=(sc[c.soort]||0)+1;});
-    var tS=Object.entries(sc).sort(function(a,b){return b[1]-a[1];});
-    var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater/Comedy'];
-    var SC={'Hoofdprogramma':'#1a1a2e','Voorprogramma':'#c84b31','Festivaloptreden':'#e5a100','Theater/Comedy':'#6b3f8a'};
-    var yrs=Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];}),maxY=yrs.length?Math.max.apply(null,yrs.map(function(y){return y[1];})):1;
-    var yrHtml=yrs.map(function(e){var sd={};DB.filter(function(c){return String(c.jaar)===String(e[0]);}).forEach(function(c){var s=c.soort||'Hoofdprogramma';sd[s]=(sd[s]||0)+1;});var segs=SOORTEN.map(function(s){var n=sd[s]||0;if(!n)return'';var pct=Math.round(n/e[1]*100);return'<div class="yseg" style="height:'+pct+'%;background:'+(SC[s]||'#1a1a2e')+'" title="'+s+': '+n+'"></div>';}).join('');var h=Math.round(e[1]/maxY*90)+6;return'<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar ystacked" style="height:'+h+'px">'+segs+'</div><div class="ylbl">&apos;'+String(e[0]).slice(2)+'</div></div>';}).join('');
-    var MAANDEN=['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    var maandData={};DB.forEach(function(c){if(c.maand){var s=c.soort||'Hoofdprogramma';if(!maandData[c.maand])maandData[c.maand]={};maandData[c.maand][s]=(maandData[c.maand][s]||0)+1;}});
-    var mTotals=[];for(var mi=1;mi<=12;mi++){var mt=Object.values(maandData[mi]||{}).reduce(function(a,b){return a+b;},0);mTotals.push(mt);}
-    var maxM=Math.max.apply(null,mTotals)||1,mHtml='';
-    for(var mi2=1;mi2<=12;mi2++){var md=maandData[mi2]||{},tm=mTotals[mi2-1],h2=tm?Math.round(tm/maxM*90)+6:4,segs2=SOORTEN.map(function(s){var n=md[s]||0;if(!n)return'';var pct=tm?Math.round(n/tm*100):0;return'<div class="yseg" style="height:'+pct+'%;background:'+(SC[s]||'#1a1a2e')+'" title="'+s+': '+n+'"></div>';}).join('');mHtml+='<div class="ycol"><div class="ycnt">'+(tm||'')+'</div><div class="ybar ystacked" style="height:'+h2+'px">'+(tm?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi2-1]+'</div></div>';}
-    var sg='<div class="sg">',s2='<div class="sg">'+tS.map(function(e){var p=Math.round(e[1]/tot*100);return st(e[1],e[0],p+'% van totaal');}).join('')+'</div>';
-    return'<h1>ANALYTICS</h1>'+sg+st(tot.toLocaleString('nl'),'Totaal','concerten')+st(uA,'Artiesten','uniek')+st(uP,'Plaatsen','bezocht')+st(uL,'Locaties','venues')+st(span,'Jaren actief','jaar')+st(streak,'Record maand',streakLbl)+st(rJaar,'Record jaar',rN+' concerten')+st(withSl,'Met setlist','concerten')+'</div>'+s2+'<div class="cb"><div class="cl">Top 10 artiesten</div>'+bar(t10,mA)+'</div>'+'<div class="cb"><div class="cl">Concerten per jaar</div><div class="ybars">'+yrHtml+'</div></div>'+'<div class="cb"><div class="cl">Concerten per maand</div><div class="ybars">'+mHtml+'</div></div>'+'<div class="two"><div class="cb"><div class="cl">Top plaatsen</div>'+bar(tP,mP)+'</div><div class="cb"><div class="cl">Top locaties</div>'+bar(tL,mL)+'</div></div>';
-  };
-  var _bA_str = 'function bA(){if(!DB.length)return"<em>Geen data</em>";' + _bA_src.toString().replace(/^function[^{]+\{/, '').replace(/\}[^}]*$/, '') + '}';
-  lines.push(_bA_str);
-
+  lines.push('function bA(){if(!DB.length)return"<p style=\\"padding:40px;text-align:center;color:#777\\">Geen data</p>";');
+  lines.push('var tot=DB.length,uA=new Set(DB.map(function(c){return c.artiest;})).size,uP=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;');
+  lines.push('function st(v,l,s){return"<div class=\\"stat\\"><div class=\\"stl\\">"+l+"</div><div class=\\"stv\\">"+v+"</div><div class=\\"sts\\">"+s+"</div></div>";}');
+  lines.push('var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});var t10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,10),mA=t10[0]?t10[0][1]:1;');
+  lines.push('var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});var yrs=Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];}),mY=yrs.length?Math.max.apply(null,yrs.map(function(y){return y[1];})):1;');
+  lines.push('var pc={};DB.forEach(function(c){if(c.plaats)pc[c.plaats]=(pc[c.plaats]||0)+1;});var tP=Object.entries(pc).sort(function(a,b){return b[1]-a[1];}).slice(0,8),mP=tP[0]?tP[0][1]:1;');
+  lines.push('function bar(e,m){return e.map(function(x){return"<div class=\\"br\\"><div class=\\"bn\\">"+eh(x[0])+"</div><div class=\\"bt\\"><div class=\\"bf\\" style=\\"width:"+Math.round(x[1]/m*100)+"%\\"></div></div><div class=\\"bc\\">"+x[1]+"</div></div>";}).join("");}');
+  lines.push('return"<h1>ANALYTICS</h1><div class=\\"sg\\">"+st(tot.toLocaleString("nl"),"Totaal","concerten")+st(uA,"Artiesten","uniek")+st(uP,"Plaatsen","bezocht")+st((tot/uA).toFixed(1)+"&times;","Loyalty","gem. per artiest")+st(Math.round(uA/tot*100)+"%","Diversity","unieke artiesten")+"</div>"+"<div class=\\"cb\\"><div class=\\"cl\\">Top 10 artiesten</div>"+bar(t10,mA)+"</div>"+"<div class=\\"cb\\"><div class=\\"cl\\">Concerten per jaar</div><div class=\\"ybars\\">"+yrs.map(function(e){var h=Math.round(e[1]/mY*72)+4;return"<div class=\\"ycol\\"><div class=\\"ycnt\\">"+e[1]+"</div><div class=\\"ybar\\" style=\\"height:"+h+"px\\"></div><div class=\\"ylbl\\">&apos;"+String(e[0]).slice(2)+"</div></div>";}).join("")+"</div></div>"+"<div class=\\"cb\\"><div class=\\"cl\\">Top plaatsen</div>"+bar(tP,mP)+"</div>";}');
   lines.push('document.addEventListener("keydown",function(e){if(e.key==="Escape")cd();});');
-  lines.push('function init(){');
-  lines.push('  DB=EMBEDDED_DB||[];re();');
-  lines.push('  if(GID){');
-  lines.push('    fetch("https://api.github.com/gists/"+GID,{headers:{"Accept":"application/vnd.github+json"}})');
-  lines.push('      .then(function(r){return r.json();})');
-  lines.push('      .then(function(g){var f=g.files&&g.files[GF];if(f){DB=JSON.parse(f.content);re();}})');
-  lines.push('      .catch(function(){});');
-  lines.push('  }');
+  lines.push('async function init(){');
+  lines.push('  if(!GID){document.getElementById("A").innerHTML="<p style=\\"padding:40px;text-align:center;color:#777\\">Geen Gist ID geconfigureerd.</p>";return;}');
+  lines.push('  try{');
+  lines.push('    var r=await fetch("https://api.github.com/gists/"+GID,{headers:{"Accept":"application/vnd.github+json"}});');
+  lines.push('    if(!r.ok)throw new Error("HTTP "+r.status);');
+  lines.push('    var g=await r.json(),f=g.files&&g.files[GF];');
+  lines.push('    if(!f)throw new Error("Bestand niet gevonden");');
+  lines.push('    DB=JSON.parse(f.content);re();');
+  lines.push('  }catch(e){document.getElementById("A").innerHTML="<p style=\\"padding:40px;text-align:center;color:#ff4d6d\\">Laden mislukt: "+eh(e.message)+"</p>";}');
   lines.push('}');
   lines.push('init();');
   lines.push('</'+ SCRTAG +'>');
@@ -1187,13 +931,8 @@ function buildAllFacts(){
   var sorted=DB.filter(function(c){return c.datum;}).sort(function(a,b){return a.datum>b.datum?1:-1;});
   var wdNames=['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
   var mNames=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
-  var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
-  var recordYrEntry=Object.entries(yc).sort(function(a,b){return b[1]-a[1];})[0];
-  var recordJaar=recordYrEntry?recordYrEntry[0]:'';
-  var recordJaarN=recordYrEntry?recordYrEntry[1]:0;
-  var uLoc=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;
   var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});
   var withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
   var locV={};sorted.forEach(function(c){if(c.locatie){if(!locV[c.locatie])locV[c.locatie]=[];locV[c.locatie].push(c.datum);}});
@@ -1443,7 +1182,7 @@ function doExportXL(){
 
 function doExportCSV(){
   if(!DB.length){ toast('Geen data','err'); return; }
-  var hdr=['Artiest','Locatie','Plaats','Datum','Setlist','Zaal/andere bijz.','Soort optreden','Maand','Jaar'];
+  var hdr=['Artiest','Locatie','Plaats','Datum','Setlist','Festival/andere bijz.','Soort optreden','Maand','Jaar'];
   var rows=DB.map(function(c){ return [c.artiest,c.locatie,c.plaats,c.datum,(c.setlist||[]).join(' | '),c.festival,c.soort,c.maand,c.jaar].map(function(v){ return '"'+String(v||'').replace(/"/g,'""')+'"'; }); });
   var csv=[hdr.join(',')].concat(rows.map(function(r){ return r.join(','); })).join('\n');
   var a=document.createElement('a');
@@ -1460,20 +1199,18 @@ function doImport(input){
       var wb=XLSX.read(e.target.result,{type:'array'});
       var ws=wb.Sheets[wb.SheetNames[0]];
       var data=XLSX.utils.sheet_to_json(ws,{defval:''});
-      DB = [];
       var added=0;
-      var importBase=Date.now();
       data.forEach(function(row){
         var art=row['Artiest']||row['artiest']||''; if(!art) return;
         var d=row['Datum ']||row['Datum']||row['datum']||''; var ds='';
         if(d){ var dt=new Date(d); if(!isNaN(dt)) ds=dt.toISOString().slice(0,10); else ds=String(d).slice(0,10); }
         var sl=row['Setlist']||'';
         var songs=sl?String(sl).split(/[\n|]/).map(function(s){ return s.trim(); }).filter(Boolean):[];
-        DB.push({id:String(importBase + added),updated:Date.now(),artiest:String(art),
+        DB.push({id:String(Date.now()+Math.random()),artiest:String(art),
           locatie:String(row['Locatie']||row['locatie']||''),
           plaats:String(row['Plaats']||row['plaats']||''),
           datum:ds,setlist:songs,
-          festival:String(row['Zaal/andere bijz.']||row['festival']||''),
+          festival:String(row['Festival/andere bijz.']||row['Zaal/andere bijz.']||row['festival']||''),
           soort:String(row['Soort optreden']||row['soort']||'Hoofdprogramma'),
           maand:ds?parseInt(ds.slice(5,7)):0,jaar:ds?parseInt(ds.slice(0,4)):0});
         added++;
@@ -1491,19 +1228,12 @@ function deleteAllConcerts(){
 }
 
 // ── BOOT ──────────────────────────────────────────────────────────
-document.body.className = 'theme-' + curTheme + (unlocked ? '' : ' locked');
-var _lb = document.getElementById('tab-lock');
-if(_lb) _lb.textContent = unlocked ? '🔓' : '🔒';
-var _tb = document.getElementById('nav-theme-btn');
-if(_tb){
-  var _isDark = ['dark','ys-dark','ys-night','ys-petrol','ys-slate'].indexOf(curTheme) > -1;
-  _tb.textContent = _isDark ? '☀' : '🌙';
-  _tb.title = _isDark ? 'Naar licht thema' : 'Naar donker thema';
-}
-var _nsb = document.getElementById('nav-sync-btn');
-var _npb = document.getElementById('nav-push-btn');
-if(_nsb) _nsb.style.display = GIST_ID ? 'block' : 'none';
-if(_npb) _npb.style.display = (GIST_ID && GIST_TOKEN) ? 'block' : 'none';
+document.body.className = 'theme-'+curTheme+(unlocked?'':' locked');
+var _lb=document.getElementById('tab-lock'); if(_lb) _lb.textContent=unlocked?'🔓':'🔒';
+var _tb=document.getElementById('nav-theme-btn');
+if(_tb){ var _dk=['dark','ys-dark','ys-night','ys-petrol','ys-slate'].indexOf(curTheme)>-1; _tb.textContent=_dk?'☀️':'🌙'; _tb.title=_dk?'Naar licht thema':'Naar donker thema'; }
+var _nsb=document.getElementById('nav-sync-btn'); if(_nsb) _nsb.style.display=(GIST_ID&&unlocked)?'block':'none';
+var _npb=document.getElementById('nav-push-btn'); if(_npb) _npb.style.display=(GIST_ID&&GIST_TOKEN&&unlocked)?'block':'none';
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeDetail(); if(e.key==='Enter'&&!e.shiftKey&&document.activeElement===document.getElementById('chatInput')){e.preventDefault();chatSend();} });
 initDB();
 render();
