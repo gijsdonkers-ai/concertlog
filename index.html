@@ -91,10 +91,10 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
-.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto;padding-bottom:2px}
-.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}
-.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px}
-.ylbl{font-size:9px;color:var(--muted)}.ycnt{font-size:10px;color:var(--accent);font-weight:600}
+.ybars{display:flex;align-items:stretch;gap:3px;height:120px;overflow-x:auto;padding-bottom:2px}
+.ycol{display:grid;grid-template-rows:16px 1fr 14px;align-items:end;gap:1px;min-width:26px;flex:1;text-align:center}
+.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px;align-self:end}
+.ylbl{font-size:9px;color:var(--muted);text-align:center;align-self:end}.ycnt{font-size:10px;color:var(--accent);font-weight:600;text-align:center;white-space:nowrap;align-self:center}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:540px){.two{grid-template-columns:1fr}}
 .dz{background:var(--card);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px}
@@ -897,7 +897,7 @@ function buildROHtml(gid){
   lines.push('.stat{background:#14141e;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px}.stl{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}.stv{font-family:Bebas Neue,sans-serif;font-size:28px;color:#e8ff47;line-height:1}.sts{font-size:10px;color:#777;margin-top:2px}');
   lines.push('.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}.cb{background:#14141e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;margin-bottom:14px}.cl{font-size:11px;font-weight:500;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}');
   lines.push('.br{display:flex;align-items:center;gap:8px;margin-bottom:8px}.bn{font-size:12px;min-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f0ede8}.bt{flex:1;height:7px;background:#1a1a24;border-radius:4px;overflow:hidden}.bf{height:100%;background:#e8ff47;border-radius:4px}.bc{font-size:12px;font-weight:600;color:#e8ff47;min-width:24px;text-align:right}');
-  lines.push('.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:540px){.two{grid-template-columns:1fr}}.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto}.ycol{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:26px;flex:1}.ybar{background:#e8ff47;border-radius:3px 3px 0 0;width:100%;min-height:2px}.ylbl{font-size:9px;color:#777}.ycnt{font-size:10px;color:#e8ff47;font-weight:600}');
+  lines.push('.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:540px){.two{grid-template-columns:1fr}}.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto}.ycol{display:grid;grid-template-rows:16px 1fr 14px;align-items:end;gap:1px;min-width:26px;flex:1;text-align:center}.ybar{background:#e8ff47;border-radius:3px 3px 0 0;width:100%;min-height:2px}.ylbl{font-size:9px;color:#777}.ycnt{font-size:10px;color:#e8ff47;font-weight:600}');
   lines.push('</style></head><body>');
   lines.push('<nav><div class="ns"></div><div class="ni">');
   lines.push('<div class="logo">Gijs Concertlog</div>');
