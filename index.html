@@ -205,7 +205,10 @@ var DB = [];
 var page = 'list';
 var editId = null;
 var upcomingDB = JSON.parse(localStorage.getItem('giglog_upcoming')||'[]');
-function persistUpcoming(){ try{ localStorage.setItem('giglog_upcoming', JSON.stringify(upcomingDB)); }catch(e){} }
+function persistUpcoming(){
+  try{ localStorage.setItem('giglog_upcoming', JSON.stringify(upcomingDB)); }catch(e){}
+  if(GIST_ID&&GIST_TOKEN) saveToGist();
+}
 var srchQ = '', fJaar = '', fMaand = '', fSoort = '', fPlaats = '', fLocatie = '';
 var curPage = 1, PER = 50;
 var FD = mkFD();
@@ -322,6 +325,8 @@ async function loadFromGist(){
     var file = gist.files && gist.files[GIST_FILE];
     if(!file) throw new Error('Bestand niet gevonden');
     var data = JSON.parse(file.content);
+    var upFile = gist.files && gist.files['upcoming.json'];
+    if(upFile){ try{ upcomingDB=JSON.parse(upFile.content); persistUpcoming(); }catch(e){} }
     if(Array.isArray(data)){
       var gistMap={},localMap={},allIds={};
       data.forEach(function(r){gistMap[r.id]=r;allIds[r.id]=1;});
@@ -345,7 +350,9 @@ async function saveToGist(){
   if(!GIST_ID||!GIST_TOKEN){ toast('Voer eerst Gist ID en token in bij Admin','err'); return; }
   gistStatus='syncing'; updateSyncBadge();
   try {
-    var body={files:{}}; body.files[GIST_FILE]={content:JSON.stringify(DB)};
+    var body={files:{}};
+    body.files[GIST_FILE]={content:JSON.stringify(DB)};
+    body.files['upcoming.json']={content:JSON.stringify(upcomingDB)};
     var r=await fetch('https://api.github.com/gists/'+GIST_ID,{
       method:'PATCH',
       headers:{'Authorization':'Bearer '+GIST_TOKEN,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
