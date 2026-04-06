@@ -91,10 +91,10 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
-.ybars{display:flex;align-items:stretch;gap:3px;height:120px;overflow-x:auto;padding-bottom:2px}
-.ycol{display:grid;grid-template-rows:16px 1fr 14px;align-items:end;gap:1px;min-width:26px;flex:1;text-align:center}
-.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px;align-self:end}
-.ylbl{font-size:9px;color:var(--muted);text-align:center;align-self:end}.ycnt{font-size:10px;color:var(--accent);font-weight:600;text-align:center;white-space:nowrap;align-self:center}
+.ybars{display:flex;align-items:flex-end;gap:3px;height:160px;overflow-x:auto;overflow-y:visible;padding-top:20px;box-sizing:content-box}
+.ycol{display:flex;flex-direction:column;align-items:center;min-width:26px;flex:1}
+.ybar{background:var(--accent);border-radius:3px 3px 0 0;width:100%;min-height:2px;margin-top:auto;flex-shrink:0}
+.ylbl{font-size:9px;color:var(--muted);text-align:center;flex-shrink:0}.ycnt{font-size:10px;color:var(--accent);font-weight:600;text-align:center;white-space:nowrap;line-height:1.4}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:540px){.two{grid-template-columns:1fr}}
 .dz{background:var(--card);border:2px dashed var(--border);border-radius:14px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:14px}
@@ -308,6 +308,11 @@ function initDB(){
       DB = JSON.parse(pako.inflate(bytes,{to:'string'}));
       persist();
     }
+    // Normalize old soort values
+    DB = DB.map(function(c){
+      if(c.soort==='Theater'||c.soort==='Musical'||c.soort==='Comedy') c.soort='Theater/Comedy';
+      return c;
+    });
     if(GIST_ID) loadFromGist();
   } catch(e){ console.error('initDB',e); DB=[]; }
 }
@@ -700,7 +705,7 @@ function buildAnalytics(){
   var yrBarsHtml=yrs.map(function(e){
     var sd={};DB.filter(function(c){return String(c.jaar)===String(e[0]);}).forEach(function(c){var s=c.soort||'Hoofdprogramma';sd[s]=(sd[s]||0)+1;});
     var segs=SOORTEN.map(function(s){var n=sd[s]||0;if(!n)return '';var pct=Math.round(n/e[1]*100);return '<div class="yseg" data-s="'+escH(s)+'" style="height:'+pct+'%;background:'+(soortColors[s]||'var(--accent)')+'" title="'+escH(s)+': '+n+'"></div>';}).join('');
-    var h=Math.round(e[1]/maxY*90)+6;
+    var h=Math.round(e[1]/maxY*110)+6;
     return '<div class="ycol"><div class="ycnt" id="ycnt_'+e[0]+'">'+e[1]+'</div><div class="ybar ystacked" id="ybar_'+e[0]+'" style="height:'+h+'px">'+segs+'</div><div class="ylbl">\''+String(e[0]).slice(2)+'</div></div>';
   }).join('');
   var MAANDEN=['Jan','Feb','Mrt','Apr','Mei','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -746,8 +751,8 @@ function buildAnalytics(){
     +stEl2((total/uArt).toFixed(1)+'&times;','Loyalty','gem. per artiest')+stEl2(Math.round(uArt/total*100)+'%','Diversity','unieke artiesten')
     +stEl2(streak,'Record maand',streakLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA)+'</div>'
-    +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div>'
-    +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per maand (alle jaren)</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="mfilters">'+mSoortBtns+'</div></div><div class="ybars" id="mBars">'+mBarsHtml+'</div></div>'
+    +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div></div>'
+    +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per maand (alle jaren)</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="mfilters">'+mSoortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="mBars">'+mBarsHtml+'</div></div></div>'
     +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar2(topP,maxP)+'</div><div class="cbox"><div class="clbl">Top locaties</div>'+bar2(topL,maxL)+'</div></div>'
     +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'+topS.map(function(e){return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>';}).join('')+'</div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div class="clbl" style="margin-bottom:0">&#10024; Leuke weetjes</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)" id="factCounter"></span><button class="btn b-sec b-sm" onclick="prevFact()">&#8592;</button><button class="btn b-sec b-sm" onclick="nextFact()">&#8594;</button><button class="btn b-pri b-sm" onclick="randomFact()">&#127922; Willekeurig</button></div></div><div id="factDisplay" style="font-size:14px;color:var(--text);line-height:1.8"></div></div>'
@@ -777,7 +782,7 @@ function yApplyFilter(){
   var maxTot=Math.max.apply(null,totals.concat([1]));
   document.querySelectorAll('#yrBars .ycol').forEach(function(col,i){
     var ybar=col.querySelector('.ybar'); if(!ybar)return;
-    ybar.style.height=(totals[i]?Math.round(totals[i]/maxTot*120)+6:4)+'px';
+    ybar.style.height=(totals[i]?Math.round(totals[i]/maxTot*110)+6:4)+'px';
   });
 }
 function mToggle(btn){btn.classList.toggle('ybtn-on');mApplyFilter();}
@@ -798,7 +803,7 @@ function mApplyFilter(){
   var maxTot=Math.max.apply(null,totals.concat([1]));
   document.querySelectorAll('#mBars .ycol').forEach(function(col,i){
     var ybar=col.querySelector('.ybar'); if(!ybar)return;
-    ybar.style.height=(totals[i]?Math.round(totals[i]/maxTot*120)+6:4)+'px';
+    ybar.style.height=(totals[i]?Math.round(totals[i]/maxTot*110)+6:4)+'px';
   });
 }
 
@@ -927,7 +932,7 @@ function buildROHtml(gid){
   lines.push('.stat{background:#14141e;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px}.stl{font-size:10px;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}.stv{font-family:Bebas Neue,sans-serif;font-size:28px;color:#e8ff47;line-height:1}.sts{font-size:10px;color:#777;margin-top:2px}');
   lines.push('.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}.cb{background:#14141e;border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:18px;margin-bottom:14px}.cl{font-size:11px;font-weight:500;color:#777;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}');
   lines.push('.br{display:flex;align-items:center;gap:8px;margin-bottom:8px}.bn{font-size:12px;min-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#f0ede8}.bt{flex:1;height:7px;background:#1a1a24;border-radius:4px;overflow:hidden}.bf{height:100%;background:#e8ff47;border-radius:4px}.bc{font-size:12px;font-weight:600;color:#e8ff47;min-width:24px;text-align:right}');
-  lines.push('.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:540px){.two{grid-template-columns:1fr}}.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto}.ycol{display:grid;grid-template-rows:16px 1fr 14px;align-items:end;gap:1px;min-width:26px;flex:1;text-align:center}.ybar{background:#e8ff47;border-radius:3px 3px 0 0;width:100%;min-height:2px}.ylbl{font-size:9px;color:#777}.ycnt{font-size:10px;color:#e8ff47;font-weight:600}');
+  lines.push('.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:540px){.two{grid-template-columns:1fr}}.ybars{display:flex;align-items:flex-end;gap:3px;height:90px;overflow-x:auto}.ycol{display:flex;flex-direction:column;align-items:center;min-width:26px;flex:1}.ybar{background:#e8ff47;border-radius:3px 3px 0 0;width:100%;min-height:2px}.ylbl{font-size:9px;color:#777}.ycnt{font-size:10px;color:#e8ff47;font-weight:600}');
   lines.push('</style></head><body>');
   lines.push('<nav><div class="ns"></div><div class="ni">');
   lines.push('<div class="logo">Gijs Concertlog</div>');
