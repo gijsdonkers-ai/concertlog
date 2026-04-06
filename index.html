@@ -182,6 +182,7 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
       <button class="ntab on" id="tab-list"      onclick="goPage('list')">Concerten</button>
       <button class="ntab"    id="tab-add"       onclick="goPage('add')">+ Toevoegen</button>
       <button class="ntab"    id="tab-analytics" onclick="goPage('analytics')">Analytics</button>
+      <button class="ntab"    id="tab-upcoming"  onclick="goPage('upcoming')">Binnenkort</button>
       <button class="ntab"    id="tab-sync"      onclick="goPage('sync')">Admin</button>
     </div>
     <div style="display:flex;align-items:center;flex-shrink:0;border-left:1px solid var(--border)">
@@ -203,6 +204,8 @@ var RAW_B64 = "H4sIAFSTzWkC/9y963IbSZIm+ipR2p0SVUNJBCmSYpn16QV4lwiSQ1DiVE3tmgWQA
 var DB = [];
 var page = 'list';
 var editId = null;
+var upcomingDB = JSON.parse(localStorage.getItem('giglog_upcoming')||'[]');
+function persistUpcoming(){ try{ localStorage.setItem('giglog_upcoming', JSON.stringify(upcomingDB)); }catch(e){} }
 var srchQ = '', fJaar = '', fMaand = '', fSoort = '', fPlaats = '', fLocatie = '';
 var curPage = 1, PER = 50;
 var FD = mkFD();
@@ -369,7 +372,7 @@ function goPage(p){
   if((p==='add'||p==='sync')&&!unlocked){tryUnlock();return;}
   page = p;
   if(p!=='add') editId=null;
-  ['list','add','analytics','sync'].forEach(function(id){
+  ['list','add','analytics','upcoming','sync'].forEach(function(id){
     var el=document.getElementById('tab-'+id); if(el) el.className='ntab'+(id===p?' on':'');
   });
   render();
@@ -387,6 +390,7 @@ function render(){
   if     (page==='list')      el.innerHTML = buildList();
   else if(page==='add')       el.innerHTML = buildForm();
   else if(page==='analytics') { el.innerHTML = buildAnalytics(); window._allFacts = buildAllFacts(); showFact(0); }
+  else if(page==='upcoming')   el.innerHTML = buildUpcoming();
   else if(page==='sync')      el.innerHTML = buildAdmin();
 }
 
@@ -1226,6 +1230,84 @@ function deleteAllConcerts(){
   if(!confirm('Laatste waarschuwing: '+DB.length+' concerten worden permanent verwijderd.')) return;
   DB=[]; afterMutate(); toast('Alle concerten verwijderd','err'); goPage('sync');
 }
+
+// ── UPCOMING ────────────────────────────────────────────────────────
+function buildUpcoming(){
+  var items = upcomingDB.slice().sort(function(a,b){ return a.datum > b.datum ? 1 : (a.datum < b.datum ? -1 : 0); });
+  var today = new Date(); today.setHours(0,0,0,0);
+
+  var listHtml = items.length === 0
+    ? '<div style="text-align:center;padding:48px;color:var(--muted)">Geen aankomende concerten. Voeg er een toe!</div>'
+    : items.map(function(item, i){
+        var d = item.datum ? new Date(item.datum) : null;
+        var isPast = d && d < today;
+        var dStr = d ? d.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short",year:"numeric"}) : "";
+        var daysLeft = d ? Math.ceil((d - today) / 86400000) : null;
+        var badge = "";
+        if(daysLeft !== null){
+          if(daysLeft < 0)      badge = "<span style=\"font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(255,77,109,0.12);color:#ff4d6d\">Geweest</span>";
+          else if(daysLeft===0) badge = "<span style=\"font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(253,195,0,0.15);color:var(--accent)\">Vandaag!</span>";
+          else if(daysLeft<=7)  badge = "<span style=\"font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(253,195,0,0.12);color:var(--accent)\">Over "+daysLeft+" dag"+(daysLeft===1?"":"en")+"</span>";
+        }
+        return "<div style=\"display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)"+(isPast?";opacity:0.45":"")+";\">"
+          + "<div style=\"flex:1;min-width:0;\">"
+          + "<div style=\"font-family:\'Bebas Neue\',sans-serif;font-size:19px;color:var(--text);line-height:1.1\">"+escH(item.artiest)+"</div>"
+          + "<div style=\"font-size:12px;color:var(--muted);margin-top:2px\">"
+          + (dStr ? "&#128197; "+dStr : "")
+          + (item.locatie ? " &nbsp;·&nbsp; &#128205; "+escH(item.locatie)+(item.plaats?", "+escH(item.plaats):"") : "")
+          + (item.notitie ? "<br><span style=\"color:var(--muted)\">"+escH(item.notitie)+"</span>" : "")
+          + "</div></div>"
+          + badge
+          + (unlocked
+            ? "<button onclick=\"delUpcoming("+i+")\" style=\"background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px;flex-shrink:0\" title=\"Verwijderen\">&#10005;</button>"
+            : "")
+          + "</div>";
+      }).join("");
+
+  var formHtml = unlocked ? (
+    "<div class=\"cbox\" style=\"margin-top:16px\">"
+    + "<div class=\"clbl\">Toevoegen</div>"
+    + "<div class=\"fgrid\" style=\"margin-bottom:10px\">"
+    + "<div class=\"fg\"><label>Artiest *</label><input id=\"upArtiest\" placeholder=\"Bijv. The Beths\"></div>"
+    + "<div class=\"fg\"><label>Datum</label><input type=\"date\" id=\"upDatum\"></div>"
+    + "<div class=\"fg\"><label>Locatie</label><input id=\"upLocatie\" placeholder=\"Bijv. Paradiso\"></div>"
+    + "<div class=\"fg\"><label>Plaats</label><input id=\"upPlaats\" placeholder=\"Bijv. Amsterdam\"></div>"
+    + "<div class=\"fg\" style=\"grid-column:1/-1\"><label>Notitie</label><input id=\"upNotitie\" placeholder=\"Bijv. met vrienden, zaal 2...\"></div>"
+    + "</div>"
+    + "<button class=\"btn b-pri\" onclick=\"addUpcoming()\">+ Toevoegen</button>"
+    + "</div>"
+  ) : "";
+
+  return "<h1>BINNENKORT</h1>"
+    + "<div class=\"cbox\">" + listHtml + "</div>"
+    + formHtml;
+}
+
+function addUpcoming(){
+  var a = document.getElementById("upArtiest");
+  if(!a || !a.value.trim()){ toast("Artiest is verplicht","err"); return; }
+  var item = {
+    id: String(Date.now()),
+    artiest: a.value.trim(),
+    datum:   (document.getElementById("upDatum")   ||{value:""}).value,
+    locatie: (document.getElementById("upLocatie") ||{value:""}).value.trim(),
+    plaats:  (document.getElementById("upPlaats")  ||{value:""}).value.trim(),
+    notitie: (document.getElementById("upNotitie") ||{value:""}).value.trim()
+  };
+  upcomingDB.push(item);
+  persistUpcoming();
+  render();
+  toast("Toegevoegd!","ok");
+}
+
+function delUpcoming(i){
+  if(!confirm("Verwijderen?")) return;
+  upcomingDB.splice(i,1);
+  persistUpcoming();
+  render();
+  toast("Verwijderd","info");
+}
+
 
 // ── BOOT ──────────────────────────────────────────────────────────
 document.body.className = 'theme-'+curTheme+(unlocked?'':' locked');
