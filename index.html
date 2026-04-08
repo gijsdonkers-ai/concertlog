@@ -298,14 +298,18 @@ function setTheme(t){
 
 // ── DB ────────────────────────────────────────────────────────────
 function initDB(){
-  // Always load from Gist as single source of truth
-  // localStorage is never read on startup — Gist always wins
-  DB = [];
-  upcomingDB = [];
   if(GIST_ID){
+    // Show localStorage data immediately while Gist loads in background
+    try {
+      var saved = localStorage.getItem('giglog_v4');
+      if(saved){ DB = JSON.parse(saved); normalize(); }
+      var savedUp = localStorage.getItem('giglog_upcoming');
+      if(savedUp){ upcomingDB = JSON.parse(savedUp); }
+    } catch(e){}
+    // Always fetch Gist — it overwrites localStorage completely when it arrives
     loadFromGist();
   } else {
-    // No Gist configured — fall back to embedded data
+    // No Gist — use embedded data as fallback
     try {
       var bin = atob(RAW_B64);
       var bytes = new Uint8Array(bin.length);
@@ -323,7 +327,7 @@ function normalize(){
   });
 }
 
-function persist(){ localStorage.setItem('giglog_v4', JSON.stringify(DB)); }
+function persist(){ if(DB.length>0) localStorage.setItem('giglog_v4', JSON.stringify(DB)); }
 
 // ── GIST ──────────────────────────────────────────────────────────
 async function loadFromGist(){
