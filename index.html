@@ -298,23 +298,29 @@ function setTheme(t){
 
 // ── DB ────────────────────────────────────────────────────────────
 function initDB(){
-  try {
-    var saved = localStorage.getItem('giglog_v4');
-    if(saved){ DB = JSON.parse(saved); }
-    else {
+  // Always load from Gist as single source of truth
+  // localStorage is never read on startup — Gist always wins
+  DB = [];
+  upcomingDB = [];
+  if(GIST_ID){
+    loadFromGist();
+  } else {
+    // No Gist configured — fall back to embedded data
+    try {
       var bin = atob(RAW_B64);
       var bytes = new Uint8Array(bin.length);
       for(var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
       DB = JSON.parse(pako.inflate(bytes,{to:'string'}));
-      persist();
-    }
-    // Normalize old soort values
-    DB = DB.map(function(c){
-      if(c.soort==='Theater'||c.soort==='Musical'||c.soort==='Comedy') c.soort='Theater/Comedy';
-      return c;
-    });
-    if(GIST_ID) loadFromGist();
-  } catch(e){ console.error('initDB',e); DB=[]; }
+      normalize();
+    } catch(e){ console.error('initDB',e); DB=[]; }
+  }
+}
+
+function normalize(){
+  DB = DB.map(function(r){
+    if(r.soort==='Theater'||r.soort==='Musical'||r.soort==='Comedy') r.soort='Theater/Comedy';
+    return r;
+  });
 }
 
 function persist(){ localStorage.setItem('giglog_v4', JSON.stringify(DB)); }
@@ -333,18 +339,10 @@ async function loadFromGist(){
     var upFile = gist.files && gist.files['upcoming.json'];
     if(upFile){ try{ upcomingDB=JSON.parse(upFile.content); persistUpcoming(); }catch(e){} }
     if(Array.isArray(data)){
-      var gistMap={},localMap={},allIds={};
-      data.forEach(function(r){gistMap[r.id]=r;allIds[r.id]=1;});
-      DB.forEach(function(r){localMap[r.id]=r;allIds[r.id]=1;});
-      var merged=[];
-      Object.keys(allIds).forEach(function(id){
-        var g=gistMap[id],l=localMap[id];
-        merged.push((g&&l)?((l.updated||0)>(g.updated||0)?l:g):(g||l));
-      });
-      merged.sort(function(a,b){return a.datum>b.datum?1:-1;});
-      var hadLocal=merged.some(function(r){var g=gistMap[r.id];return !g||((r.updated||0)>(g.updated||0));});
-      DB=merged; persist(); gistStatus='ok';
-      if(hadLocal&&GIST_TOKEN) saveToGist();
+      DB = data;
+      normalize();
+      persist();
+      gistStatus = 'ok';
       render();
     } else { gistStatus='ok'; }
     updateSyncBadge();
