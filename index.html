@@ -428,6 +428,7 @@ function buildList(){
   var html = '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px">'
     + '<h1>CONCERTLOG <span style="font-size:14px;color:var(--muted);font-family:DM Sans,sans-serif" id="totalCount"></span></h1>'
     + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+(unlocked?badge+'<button class="btn b-pri b-sm" onclick="goPage(\'add\')">+ Toevoegen</button>':'')+'</div>'
+    + '</div>'
     + '<div class="sw">'
     + '<div class="si" style="flex:1;min-width:160px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
     + '<div class="si" style="min-width:100px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Locatie/Festival..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
