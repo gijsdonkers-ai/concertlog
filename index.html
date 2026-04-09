@@ -549,10 +549,13 @@ function openDetail(id){
           +same.map(function(x){return '<button class="tag" style="cursor:pointer;background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text);font-family:DM Sans,sans-serif" onclick="closeDetail();setTimeout(function(){openDetail(\''+x.id+'\');},50)">'+escH(x.artiest)+'</button>';}).join('')
           +'</div></div>';
       })()
-    +'<div class="modal-actions">'
-    +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\''+c.id+'\')">&#9998; Bewerken</button>'
-    +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\''+c.id+'\')">&#128465; Verwijderen</button>'
-    +'</div></div>';
+    +(unlocked
+      ? '<div class="modal-actions">'
+        +'<button class="btn b-sec b-sm" style="flex:1;justify-content:center" onclick="closeDetail();doEdit(\''+c.id+'\')">✎ Bewerken</button>'
+        +'<button class="btn b-del b-sm" onclick="closeDetail();doDel(\''+c.id+'\')">🗑 Verwijderen</button>'
+        +'</div>'
+      : '')
+    +'</div>';
 
   ov.addEventListener('click', function(e){ if(e.target===ov) closeDetail(); });
   document.body.appendChild(ov);
