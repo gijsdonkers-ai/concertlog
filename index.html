@@ -494,7 +494,7 @@ function buildCard(con){
   var el = document.createElement('div');
   el.className = 'card';
   el.dataset.cid = con.id;
-  el.addEventListener('click', function(){ openDetail(this.dataset.cid); });
+  el.addEventListener('click', function(){ console.log('card clicked, cid='+this.dataset.cid+' artiest='+con.artiest); openDetail(this.dataset.cid); });
   el.innerHTML = '<div class="ctop"><div class="cartist">'+escH(con.artiest)+'</div><div class="cdate">'+d+'</div></div>'
     +'<div class="cmeta">'
     +(con.locatie?'<span>&#128205; '+escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'')+' </span>':(con.plaats?'<span>&#128205; '+escH(con.plaats)+'</span>':''))
@@ -508,7 +508,12 @@ function buildCard(con){
 // ── DETAIL MODAL ──────────────────────────────────────────────────
 function openDetail(id){
   var c = DB.find(function(x){ return x.id===id; });
-  if(!c) return;
+  if(!c){
+    console.warn('openDetail: geen record gevonden voor id='+JSON.stringify(id));
+    console.log('Beschikbare IDs (eerste 5):', DB.slice(0,5).map(function(r){return r.id+'='+r.artiest;}));
+    return;
+  }
+  console.log('openDetail: id='+id+' artiest='+c.artiest);
   var d = c.datum ? new Date(c.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'}) : '';
   var songs = c.setlist||[];
 
