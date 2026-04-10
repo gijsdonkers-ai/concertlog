@@ -309,10 +309,24 @@ function initDB(){
 }
 
 function normalize(){
+  // Fix soort values
   DB = DB.map(function(r){
     if(r.soort==='Theater'||r.soort==='Musical'||r.soort==='Comedy') r.soort='Theater/Comedy';
     return r;
   });
+  // Deduplicate by ID — keep last occurrence (most recently added/edited)
+  var seen = {};
+  var deduped = [];
+  for(var i = DB.length-1; i >= 0; i--){
+    if(!seen[DB[i].id]){
+      seen[DB[i].id] = true;
+      deduped.unshift(DB[i]);
+    }
+  }
+  if(deduped.length < DB.length){
+    console.warn('Duplicates removed:', DB.length - deduped.length);
+  }
+  DB = deduped;
 }
 
 function persist(){ if(DB.length>0) localStorage.setItem('giglog_v4', JSON.stringify(DB)); }
@@ -494,7 +508,7 @@ function buildCard(con){
   var el = document.createElement('div');
   el.className = 'card';
   el.dataset.cid = con.id;
-  el.addEventListener('click', function(){ console.log('card clicked, cid='+this.dataset.cid+' artiest='+con.artiest); openDetail(this.dataset.cid); });
+  el.addEventListener('click', function(){ openDetail(this.dataset.cid); });
   el.innerHTML = '<div class="ctop"><div class="cartist">'+escH(con.artiest)+'</div><div class="cdate">'+d+'</div></div>'
     +'<div class="cmeta">'
     +(con.locatie?'<span>&#128205; '+escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'')+' </span>':(con.plaats?'<span>&#128205; '+escH(con.plaats)+'</span>':''))
@@ -508,12 +522,7 @@ function buildCard(con){
 // ── DETAIL MODAL ──────────────────────────────────────────────────
 function openDetail(id){
   var c = DB.find(function(x){ return x.id===id; });
-  if(!c){
-    console.warn('openDetail: geen record gevonden voor id='+JSON.stringify(id));
-    console.log('Beschikbare IDs (eerste 5):', DB.slice(0,5).map(function(r){return r.id+'='+r.artiest;}));
-    return;
-  }
-  console.log('openDetail: id='+id+' artiest='+c.artiest);
+  if(!c) return;
   var d = c.datum ? new Date(c.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'}) : '';
   var songs = c.setlist||[];
 
@@ -681,7 +690,7 @@ function saveConcert(){
   if(!FD.artiest||!FD.datum){ toast('Artiest en datum zijn verplicht','err'); return; }
   var jaar=FD.datum?parseInt(FD.datum.slice(0,4)):0;
   var maand=FD.datum?parseInt(FD.datum.slice(5,7)):0;
-  var entry={id:editId||String(Date.now()),updated:Date.now(),artiest:FD.artiest,datum:FD.datum,locatie:FD.locatie,
+  var entry={id:editId||(String(Date.now())+String(Math.floor(Math.random()*1e6))),updated:Date.now(),artiest:FD.artiest,datum:FD.datum,locatie:FD.locatie,
     plaats:FD.plaats,setlist:FD.setlist.slice(),festival:FD.festival,soort:FD.soort,maand:maand,jaar:jaar};
   if(editId){ DB=DB.map(function(c){ return c.id===editId?entry:c; }); toast('Opgeslagen!','ok'); }
   else { DB.push(entry); toast('Concert toegevoegd!','ok'); }
@@ -1295,7 +1304,7 @@ function doImport(input){
         if(d){ var dt=new Date(d); if(!isNaN(dt)) ds=dt.toISOString().slice(0,10); else ds=String(d).slice(0,10); }
         var sl=row['Setlist']||'';
         var songs=sl?String(sl).split(/[\n|]/).map(function(s){ return s.trim(); }).filter(Boolean):[];
-        DB.push({id:String(Date.now())+'-'+String(added),artiest:String(art),
+        DB.push({id:String(Date.now()+added),artiest:String(art),
           locatie:String(row['Locatie']||row['locatie']||''),
           plaats:String(row['Plaats']||row['plaats']||''),
           datum:ds,setlist:songs,
