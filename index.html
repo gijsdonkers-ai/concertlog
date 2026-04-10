@@ -294,14 +294,7 @@ function setTheme(t){
 // ── DB ────────────────────────────────────────────────────────────
 function initDB(){
   if(GIST_ID){
-    // Show localStorage data immediately while Gist loads in background
-    try {
-      var saved = localStorage.getItem('giglog_v4');
-      if(saved){ DB = JSON.parse(saved); normalize(); }
-      var savedUp = localStorage.getItem('giglog_upcoming');
-      if(savedUp){ upcomingDB = JSON.parse(savedUp); }
-    } catch(e){}
-    // Always fetch Gist — it overwrites localStorage completely when it arrives
+    // Don't render stale localStorage data — wait for Gist to avoid ID mismatches
     loadFromGist();
   } else {
     // No Gist — use embedded data as fallback
