@@ -343,7 +343,7 @@ async function loadFromGist(){
     if(!file) throw new Error('Bestand niet gevonden');
     var data = JSON.parse(file.content);
     var upFile = gist.files && gist.files['upcoming.json'];
-    if(upFile){ try{ upcomingDB=JSON.parse(upFile.content); persistUpcoming(); }catch(e){} }
+    if(upFile){ try{ upcomingDB=JSON.parse(upFile.content); localStorage.setItem('giglog_upcoming', JSON.stringify(upcomingDB)); }catch(e){} }
     if(Array.isArray(data)){
       DB = data;
       normalize();
@@ -357,6 +357,7 @@ async function loadFromGist(){
 
 async function saveToGist(){
   if(!GIST_ID||!GIST_TOKEN){ toast('Voer eerst Gist ID en token in bij Admin','err'); return; }
+  if(!DB.length){ console.warn('saveToGist: DB is leeg, niet opgeslagen'); return; }
   gistStatus='syncing'; updateSyncBadge();
   try {
     var body={files:{}};
