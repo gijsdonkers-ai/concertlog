@@ -481,7 +481,13 @@ function updateCards(){
   if(ri) ri.textContent = total+' resultaten \u00b7 pagina '+curPage+' van '+pages;
   cg.innerHTML = total===0
     ? '<div class="empty"><div style="font-size:36px;margin-bottom:10px">&#127928;</div><div class="emtitle">Geen resultaten</div></div>'
-    : slice.map(buildCard).join('');
+    : '';
+  if(total > 0){
+    var frag = document.createDocumentFragment();
+    slice.forEach(function(rec){ frag.appendChild(buildCard(rec)); });
+    cg.appendChild(frag);
+  }
+  var _dummy = null; // prevent dead code
   if(pd) pd.innerHTML = pages>1
     ? '<button class="btn b-sec b-sm"'+(curPage===1?' disabled':'')+' onclick="curPage=Math.max(1,curPage-1);updateCards()">&larr; Vorige</button>'
       +'<span class="pinfo">'+curPage+' / '+pages+'</span>'
@@ -489,17 +495,21 @@ function updateCards(){
     : '';
 }
 
-function buildCard(c){
-  var d = c.datum ? new Date(c.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}) : '';
-  var songs = c.setlist||[];
-  return '<div class="card" onclick="openDetail(\''+c.id+'\')">'
-    +'<div class="ctop"><div class="cartist">'+escH(c.artiest)+'</div><div class="cdate">'+d+'</div></div>'
+function buildCard(con){
+  var d = con.datum ? new Date(con.datum).toLocaleDateString('nl-NL',{day:'numeric',month:'short',year:'numeric'}) : '';
+  var songs = con.setlist||[];
+  var el = document.createElement('div');
+  el.className = 'card';
+  el.dataset.cid = con.id;
+  el.addEventListener('click', function(){ openDetail(this.dataset.cid); });
+  el.innerHTML = '<div class="ctop"><div class="cartist">'+escH(con.artiest)+'</div><div class="cdate">'+d+'</div></div>'
     +'<div class="cmeta">'
-    +(c.locatie?'<span>&#128205; '+escH(c.locatie)+(c.plaats?', '+escH(c.plaats):'')+' </span>':(c.plaats?'<span>&#128205; '+escH(c.plaats)+'</span>':''))
-    +(c.soort?' <span class="pill p-soort">'+escH(c.soort)+'</span>':'')
-    +(c.festival?' <span class="pill p-fest">&#127991; '+escH(c.festival)+'</span>':'')
+    +(con.locatie?'<span>&#128205; '+escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'')+' </span>':(con.plaats?'<span>&#128205; '+escH(con.plaats)+'</span>':''))
+    +(con.soort?' <span class="pill p-soort">'+escH(con.soort)+'</span>':'')
+    +(con.festival?' <span class="pill p-fest">&#127991; '+escH(con.festival)+'</span>':'')
     +(songs.length?' <span class="pill p-sl">&#127925; '+songs.length+' nrs</span>':'')
-    +'</div></div>';
+    +'</div>';
+  return el;
 }
 
 // ── DETAIL MODAL ──────────────────────────────────────────────────
@@ -1287,7 +1297,7 @@ function doImport(input){
         if(d){ var dt=new Date(d); if(!isNaN(dt)) ds=dt.toISOString().slice(0,10); else ds=String(d).slice(0,10); }
         var sl=row['Setlist']||'';
         var songs=sl?String(sl).split(/[\n|]/).map(function(s){ return s.trim(); }).filter(Boolean):[];
-        DB.push({id:String(Date.now()+Math.random()),artiest:String(art),
+        DB.push({id:String(Date.now())+'-'+String(added),artiest:String(art),
           locatie:String(row['Locatie']||row['locatie']||''),
           plaats:String(row['Plaats']||row['plaats']||''),
           datum:ds,setlist:songs,
