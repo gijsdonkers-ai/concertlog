@@ -1333,10 +1333,15 @@ function buildUpcoming(){
   var listHtml = items.length === 0
     ? '<div style="text-align:center;padding:48px;color:var(--muted)">Geen aankomende concerten. Voeg er een toe!</div>'
     : items.map(function(item, i){
-        var d = item.datum ? new Date(item.datum) : null;
+        var d = null;
+        if(item.datum){
+          // Parse as local date to avoid UTC offset issues
+          var dp = item.datum.split('-');
+          d = new Date(parseInt(dp[0]), parseInt(dp[1])-1, parseInt(dp[2]));
+        }
         var isPast = d && d < today;
         var dStr = d ? d.toLocaleDateString("nl-NL",{weekday:"short",day:"numeric",month:"short",year:"numeric"}) : "";
-        var daysLeft = d ? Math.ceil((d - today) / 86400000) : null;
+        var daysLeft = d ? Math.round((d - today) / 86400000) : null;
         var badge = "";
         if(daysLeft !== null){
           if(daysLeft < 0)      badge = "<span style=\"font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(255,77,109,0.12);color:#ff4d6d\">Geweest</span>";
