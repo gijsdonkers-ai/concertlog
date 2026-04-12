@@ -668,7 +668,26 @@ function rmSong(i){ syncFDFromForm(); FD.setlist.splice(i,1); refreshSongArea();
 function parseAndAddPaste(){
   var ta=document.getElementById('pasteArea'); if(!ta||!ta.value.trim()){ toast('Geen tekst','err'); return; }
   syncFDFromForm(); var added=0;
-  ta.value.split('\n').forEach(function(line){ line=line.trim(); if(!line) return; var c=line.replace(/^[\d]+[\s]*[\.\-\)]\s*/,'').trim(); if(c){ FD.setlist.push(c); added++; } });
+  ta.value.split('\n').forEach(function(line){
+    line=line.trim(); if(!line) return;
+    // Herken encore-scheidingstekens
+    if(/^[-=*]{2,}$/.test(line) || /^encore\b/i.test(line) || /^e:/i.test(line)){
+      if(FD.setlist.length && FD.setlist[FD.setlist.length-1]!=='---'){ FD.setlist.push('---'); }
+      return;
+    }
+    // Strip nummering vooraan
+    var cleaned=line.replace(/^[\d]+[\s]*[\.\-\)][\s]*/,'').trim();
+    // Verwijder Setlist.fm artefacten
+    if(/^play video$/i.test(cleaned)) return;
+    // Regel die alleen haakjes-tekst is → plak aan vorig nummer
+    if(/^\(.*\)$/.test(cleaned)){
+      if(FD.setlist.length && FD.setlist[FD.setlist.length-1]!=='---'){
+        FD.setlist[FD.setlist.length-1] += ' ' + cleaned;
+      }
+      return;
+    }
+    if(cleaned){ FD.setlist.push(cleaned); added++; }
+  });
   ta.value=''; refreshSongArea(); toast(added+' nummers toegevoegd!','ok');
 }
 
