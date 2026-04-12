@@ -515,7 +515,7 @@ function buildCard(con){
     +(con.locatie?'<span>&#128205; '+escH(con.locatie)+(con.plaats?', '+escH(con.plaats):'')+' </span>':(con.plaats?'<span>&#128205; '+escH(con.plaats)+'</span>':''))
     +(con.soort?' <span class="pill p-soort">'+escH(con.soort)+'</span>':'')
     +(con.festival?' <span class="pill p-fest">&#127991; '+escH(con.festival)+'</span>':'')
-    +(songs.length?' <span class="pill p-sl">&#127925; '+songs.length+' nrs</span>':'')
+    +(songs.filter(function(x){return x!=='---';}).length?' <span class="pill p-sl">&#127925; '+songs.filter(function(x){return x!=='---';}).length+' nrs</span>':'')
     +'</div>';
   return el;
 }
@@ -624,7 +624,7 @@ function buildForm(){
     +'<div class="tags">'+festTags+'</div></div>'
     +'</div><div class="divr"></div>'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">'
-    +'<span style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">&#127925; Setlist ('+songs.length+' nrs)</span>'
+    +'<span style="font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">&#127925; Setlist ('+songs.filter(function(x){return x!=='---';}).length+' nrs)</span>'
     +'<a class="btn b-sec b-sm" href="https://www.setlist.fm/search?query='+encodeURIComponent(FD.artiest||'')+'" target="_blank" rel="noopener">&#128269; Zoek op Setlist.fm</a>'
     +'</div>'
     +'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;padding:8px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)">Zoek het concert op Setlist.fm, kopieer de setlist en plak hieronder.</div>'
@@ -1093,12 +1093,12 @@ function buildAllFacts(){
   // 12
   var uP=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;F.push('&#128205; Je bezocht concerten in <strong>'+uP+' verschillende plaatsen</strong>');
   // 13
-  var artSl={};DB.forEach(function(c){if(c.artiest&&c.setlist&&c.setlist.length){if(!artSl[c.artiest])artSl[c.artiest]=[];artSl[c.artiest].push(c.setlist.length);}});
+  var artSl={};DB.forEach(function(c){if(c.artiest&&c.setlist&&c.setlist.length){if(!artSl[c.artiest])artSl[c.artiest]=[];artSl[c.artiest].push(c.setlist.filter(function(x){return x!=='---';}).length);}});
   var artSlAvg=Object.entries(artSl).filter(function(e){return e[1].length>=3;}).map(function(e){return [e[0],Math.round(e[1].reduce(function(a,b){return a+b;},0)/e[1].length*10)/10];}).sort(function(a,b){return b[1]-a[1];})[0];
   if(artSlAvg)F.push('&#127925; <strong>'+escH(artSlAvg[0])+'</strong> speelt gemiddeld de langste setlists: <strong>'+artSlAvg[1]+' nummers</strong>');
   // 14
   var longSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).sort(function(a,b){return b.setlist.length-a.setlist.length;})[0];
-  if(longSl)F.push('&#128191; Langste setlist: <strong>'+escH(longSl.artiest)+'</strong> op '+fmt(longSl.datum)+' &mdash; <strong>'+longSl.setlist.length+' nummers</strong>');
+  if(longSl)F.push('&#128191; Langste setlist: <strong>'+escH(longSl.artiest)+'</strong> op '+fmt(longSl.datum)+' &mdash; <strong>'+longSl.setlist.filter(function(x){return x!=='---';}).length+' nummers</strong>');
   // 15
   var moC=[0,0,0,0,0,0,0,0,0,0,0,0];DB.forEach(function(c){if(c.maand)moC[c.maand-1]++;});
   var mxMo=Math.max.apply(null,moC);F.push('&#127800; Drukste maand van het jaar: <strong>'+mNames[moC.indexOf(mxMo)]+'</strong> (totaal '+mxMo+' concerten)');
@@ -1134,7 +1134,7 @@ function buildAllFacts(){
   var topAF=Object.entries(artFest).sort(function(a,b){return b[1]-a[1];})[0];
   if(topAF&&topAF[1]>1){var pAF=topAF[0].split('||');F.push('&#127914; <strong>'+escH(pAF[0])+'</strong> op <strong>'+escH(pAF[1])+'</strong>: <strong>'+topAF[1]+'&times;</strong> bijgewoond');}
   // 27
-  var totalSongs=DB.reduce(function(s,c){return s+(c.setlist?c.setlist.length:0);},0);
+  var totalSongs=DB.reduce(function(s,c){return s+(c.setlist?c.setlist.filter(function(x){return x!=='---';}).length:0);},0);
   if(totalSongs>0)F.push('&#127925; In totaal minimaal <strong>'+totalSongs.toLocaleString('nl')+' nummers</strong> gehoord');
   // 28
   var bestStreak=0,bestStreakArt='';Object.entries(artYears).forEach(function(e){var yrs3=Array.from(e[1]).sort(function(a,b){return a-b;});var s2=1,b2=1;for(var i=1;i<yrs3.length;i++){if(yrs3[i]-yrs3[i-1]===1)s2++;else s2=1;if(s2>b2)b2=s2;}if(b2>bestStreak){bestStreak=b2;bestStreakArt=e[0];}});
@@ -1155,7 +1155,7 @@ function buildAllFacts(){
   if(topCombo[1]&&topCombo[1][1]>1){var p2=topCombo[1][0].split('||');F.push('&#127893; #2 combo: <strong>'+escH(p2[0])+'</strong> in <strong>'+escH(p2[1])+'</strong> &mdash; <strong>'+topCombo[1][1]+'&times;</strong>');}
   // 34
   var withSlDB=DB.filter(function(c){return c.setlist&&c.setlist.length;});
-  if(withSlDB.length>0){var avgSl=Math.round(withSlDB.reduce(function(s,c){return s+c.setlist.length;},0)/withSlDB.length*10)/10;F.push('&#127925; Gemiddeld <strong>'+avgSl+' nummers</strong> per concert');}
+  if(withSlDB.length>0){var avgSl=Math.round(withSlDB.reduce(function(s,c){return s+c.setlist.filter(function(x){return x!=='---';}).length;},0)/withSlDB.length*10)/10;F.push('&#127925; Gemiddeld <strong>'+avgSl+' nummers</strong> per concert');}
   // 35
   var artTypes={};DB.forEach(function(c){if(c.artiest&&c.soort){if(!artTypes[c.artiest])artTypes[c.artiest]=new Set();artTypes[c.artiest].add(c.soort);}});
   var bothRoles=Object.entries(artTypes).filter(function(e){return e[1].has('Hoofdprogramma')&&e[1].has('Voorprogramma');});
@@ -1189,7 +1189,7 @@ function buildAllFacts(){
   var topFest=Object.entries(festC).sort(function(a,b){return b[1]-a[1];})[0];
   if(topFest)F.push('&#127914; Meest bezochte festival: <strong>'+escH(topFest[0])+'</strong> (<strong>'+topFest[1]+' optredens</strong>)');
   // 44
-  var artTotalSongs={};DB.forEach(function(c){if(c.artiest&&c.setlist)artTotalSongs[c.artiest]=(artTotalSongs[c.artiest]||0)+c.setlist.length;});
+  var artTotalSongs={};DB.forEach(function(c){if(c.artiest&&c.setlist)artTotalSongs[c.artiest]=(artTotalSongs[c.artiest]||0)+c.setlist.filter(function(x){return x!=='---';}).length;});
   var topTSongs=Object.entries(artTotalSongs).sort(function(a,b){return b[1]-a[1];})[0];
   if(topTSongs)F.push('&#127925; <strong>'+escH(topTSongs[0])+'</strong> speelde de meeste nummers voor jou: <strong>'+topTSongs[1]+'</strong>');
   // 45
