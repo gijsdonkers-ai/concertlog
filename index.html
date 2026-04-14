@@ -210,7 +210,7 @@ function persistUpcoming(){
 var srchQ = '', fJaar = '', fMaand = '', fSoort = '', fPlaats = '', fLocatie = '';
 var curPage = 1, PER = 50;
 var FD = mkFD();
-var curTheme = localStorage.getItem('giglog_theme') || 'dark';
+var curTheme = localStorage.getItem('giglog_theme') || 'ys-light';
 var DEFAULT_PASS_HASH = '1tassqe'; // = 'siemensgsm'
 var PASS_HASH = DEFAULT_PASS_HASH; // Altijd het ingebakken wachtwoord gebruiken
 var unlocked  = sessionStorage.getItem('giglog_unlocked') === '1';
@@ -419,8 +419,8 @@ function fuzzyMatch(q, t){
 function getFiltered(){
   return DB.filter(function(c){
     var q=srchQ.trim(), lq=fLocatie.trim();
-    var mq=!q||[c.artiest,c.locatie,c.plaats,c.festival,c.soort].some(function(v){ return fuzzyMatch(q,v); });
-    return mq && (!lq||fuzzyMatch(lq,c.locatie)) && (!fJaar||String(c.jaar)===fJaar)
+    var mq=!q||[c.artiest,c.festival].some(function(v){ return fuzzyMatch(q,v); });
+    return mq && (!lq||(fuzzyMatch(lq,c.locatie)||fuzzyMatch(lq,c.plaats))) && (!fJaar||String(c.jaar)===fJaar)
            && (!fMaand||String(c.maand)===fMaand)
            && (!fSoort||c.soort===fSoort) && (!fPlaats||c.plaats===fPlaats);
   }).sort(function(a,b){ return b.datum>a.datum?1:-1; });
@@ -725,10 +725,17 @@ function buildAnalytics(){
   var uArt=new Set(DB.map(function(c){return c.artiest;})).size;
   var uPl=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;
   var withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
+  var hoofdDB=DB.filter(function(c){return c.soort==='Hoofdprogramma';});
+  var uLocAll=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;
+  var uLocHoofd=new Set(hoofdDB.map(function(c){return c.locatie;}).filter(Boolean)).size;
+  var uPlHoofd=new Set(hoofdDB.map(function(c){return c.plaats;}).filter(Boolean)).size;
+  var mcH={};hoofdDB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mcH[m]=(mcH[m]||0)+1;});
+  var bmH=Object.entries(mcH).sort(function(a,b){return b[1]-a[1];})[0];
+  var streakH=bmH?bmH[1]:0,streakHLbl=bmH?new Date(bmH[0]+'-01').toLocaleDateString('nl-NL',{month:'short',year:'numeric'}):'';
   var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater/Comedy'];
   var soortColors={'Hoofdprogramma':'var(--accent)','Voorprogramma':'var(--accent3)','Festivaloptreden':'#ffa032','Theater/Comedy':'#a78bfa'};
   var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});
-  var top10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,10);var maxA=top10[0]?top10[0][1]:1;
+  var top10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,25);var maxA=top10[0]?top10[0][1]:1;
   var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
   var yrs=Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];});
   var maxY=yrs.length?Math.max.apply(null,yrs.map(function(y){return y[1];})):1;
@@ -792,9 +799,7 @@ function buildAnalytics(){
     +'<span style="font-size:20px">&#127881;</span>'
     +'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'
     +'</div><div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div></div>'
-    +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uPl,'Plaatsen','bezocht')
-    +stEl2((total/uArt).toFixed(1)+'&times;','Loyalty','gem. per artiest')+stEl2(Math.round(uArt/total*100)+'%','Diversity','unieke artiesten')
-    +stEl2(streak,'Record maand',streakLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
+    +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uLocAll,'Locaties','alle')+stEl2(uLocHoofd,'Locaties','alleen hoofdprogramma')+stEl2(uPlHoofd,'Plaatsen','alleen hoofdprogramma')+stEl2(streak,'Record maand',streakLbl)+stEl2(streakH,'Record maand HP',streakHLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA)+'</div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per maand (alle jaren)</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="mfilters">'+mSoortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="mBars">'+mBarsHtml+'</div></div></div>'
