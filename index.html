@@ -87,7 +87,7 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .cbox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 .clbl{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
 .brow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.bname{font-size:12px;min-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.bname{font-size:12px;min-width:80px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
@@ -171,6 +171,9 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .locked #tab-sync { display: none; }
 .otd-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;transition:border-color .2s}
 .otd-card:hover{border-color:var(--accent)}
+.schip{display:flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:12px;cursor:default}
+.sdrag{cursor:grab;color:var(--muted);font-size:14px;padding:0 2px;user-select:none}
+.schip.drag-over{border-color:var(--accent);background:var(--bg2)}
 </style>
 </head>
 <body class="theme-dark">
@@ -403,7 +406,7 @@ function render(){
   var el = document.getElementById('APP');
   if     (page==='list')      el.innerHTML = buildList();
   else if(page==='add')       el.innerHTML = buildForm();
-  else if(page==='analytics') { el.innerHTML = buildAnalytics(); window._allFacts = buildAllFacts(); showFact(0); }
+  else if(page==='analytics') { buildAnalyticsPage(); }
   else if(page==='upcoming')   el.innerHTML = buildUpcoming();
   else if(page==='sync')      el.innerHTML = buildAdmin();
 }
@@ -693,11 +696,59 @@ function parseAndAddPaste(){
 
 function refreshSongArea(){
   var songs=FD.setlist;
-  var html=songs.length?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+songs.map(function(s,i){ return '<div class="schip"><span class="snum">'+(i+1)+'</span><span>'+escH(s)+'</span><button class="srem" onclick="rmSong('+i+')">&#215;</button></div>'; }).join('')+'</div>':'';
-  var existing=document.querySelector('.fcard div[style*="flex-wrap:wrap"][style*="gap:6px"]');
+  var container=document.querySelector('.fcard .song-chips');
   var sfSt=document.getElementById('sfSt');
-  if(existing) existing.outerHTML=html;
-  else if(sfSt) sfSt.insertAdjacentHTML('afterend',html);
+  var wrapper=document.createElement('div');
+  wrapper.className='song-chips';
+  wrapper.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px';
+  if(!songs.length){
+    if(container) container.remove();
+    return;
+  }
+  var num=0;
+  songs.forEach(function(s,i){
+    var chip=document.createElement('div');
+    chip.className='schip';
+    chip.draggable=true;
+    chip.dataset.idx=String(i);
+    if(s==='---'){
+      chip.style.cssText='width:100%;display:flex;align-items:center;gap:6px;margin:2px 0';
+      chip.innerHTML='<div style="flex:1;height:1px;background:var(--border)"></div>'
+        +'<span style="font-size:10px;color:var(--muted);flex-shrink:0">ENCORE</span>'
+        +'<div style="flex:1;height:1px;background:var(--border)"></div>'
+        +'<button class="srem" onclick="rmSong('+i+')">&#215;</button>';
+    } else {
+      num++;
+      chip.innerHTML='<span class="sdrag" title="Versleep om te herordenen">&#8597;</span>'
+        +'<span class="snum">'+num+'</span>'
+        +'<span>'+escH(s)+'</span>'
+        +'<button class="srem" onclick="rmSong('+i+')">&#215;</button>';
+    }
+    chip.addEventListener('dragstart',function(e){
+      e.dataTransfer.setData('text/plain',String(i));
+      chip.style.opacity='0.4';
+    });
+    chip.addEventListener('dragend',function(){
+      chip.style.opacity='';
+      wrapper.querySelectorAll('.schip').forEach(function(c){c.classList.remove('drag-over');});
+    });
+    chip.addEventListener('dragover',function(e){ e.preventDefault(); chip.classList.add('drag-over'); });
+    chip.addEventListener('dragleave',function(){ chip.classList.remove('drag-over'); });
+    chip.addEventListener('drop',function(e){
+      e.preventDefault();
+      chip.classList.remove('drag-over');
+      var from=parseInt(e.dataTransfer.getData('text/plain'));
+      var to=parseInt(chip.dataset.idx);
+      if(isNaN(from)||isNaN(to)||from===to) return;
+      syncFDFromForm();
+      var moved=FD.setlist.splice(from,1)[0];
+      FD.setlist.splice(to,0,moved);
+      refreshSongArea();
+    });
+    wrapper.appendChild(chip);
+  });
+  if(container){ container.replaceWith(wrapper); }
+  else if(sfSt){ sfSt.insertAdjacentElement('afterend',wrapper); }
 }
 
 function syncFDFromForm(){
@@ -751,7 +802,7 @@ function buildAnalytics(){
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
   function stEl2(v,l,s){return '<div class="stat"><div class="stl">'+l+'</div><div class="stv">'+v+'</div><div class="sts">'+s+'</div></div>';}
-  function bar2(entries,mx){return entries.map(function(e){return '<div class="brow"><div class="bname">'+escH(e[0])+'</div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div><div class="bcnt">'+e[1]+'</div></div>';}).join('');}
+  function bar2(entries,mx){return entries.map(function(e){return '<div class="brow"><div class="bname" title="'+escH(e[0])+'">'+escH(e[0])+'</div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div><div class="bcnt">'+e[1]+'</div></div>';}).join('');}
   var soortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="yToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
   var mSoortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="mToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
   var yrBarsHtml=yrs.map(function(e){
@@ -772,11 +823,13 @@ function buildAnalytics(){
     mBarsHtml+='<div class="ycol"><div class="ycnt" id="mcnt_'+mi2+'">'+(tot_m||'')+'</div><div class="ybar ystacked" id="mbar_'+mi2+'" style="height:'+h2+'px">'+(tot_m?segs2:'')+'</div><div class="ylbl">'+MAANDEN[mi2-1]+'</div></div>';
   }
   // ── ON THIS DAY ───────────────────────────────────────────────
-  var today=new Date();
-  var todayMD=(today.getMonth()+1<10?'0':'')+(today.getMonth()+1)+'-'+(today.getDate()<10?'0':'')+today.getDate();
+  var otdOffset = window._otdOffset || 0;
+  var today=new Date(); today.setHours(0,0,0,0);
+  var otdDate = new Date(today); otdDate.setDate(otdDate.getDate() + otdOffset);
+  var todayMD=(otdDate.getMonth()+1<10?'0':'')+(otdDate.getMonth()+1)+'-'+(otdDate.getDate()<10?'0':'')+otdDate.getDate();
   var onThisDay=DB.filter(function(x){ return x.datum&&x.datum.slice(5)===todayMD; })
     .sort(function(a,b){ return a.datum>b.datum?1:-1; });
-  var todayLabel=today.toLocaleDateString('nl-NL',{day:'numeric',month:'long'});
+  var todayLabel=otdDate.toLocaleDateString('nl-NL',{day:'numeric',month:'long'})+(otdOffset!==0?' ('+Math.abs(otdOffset)+' dag'+(Math.abs(otdOffset)===1?'':'en')+(otdOffset<0?' terug':' vooruit')+')':'');
   var otdHtml=onThisDay.length
     ? onThisDay.map(function(con){
         var yr=con.datum?con.datum.slice(0,4):'';
@@ -795,10 +848,7 @@ function buildAnalytics(){
 
   return '<h1>ANALYTICS</h1>'
     +'<div class="cbox" style="margin-bottom:14px">'
-    +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'
-    +'<span style="font-size:20px">&#127881;</span>'
-    +'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'
-    +'</div><div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div></div>'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">'+'<div style="display:flex;align-items:center;gap:8px">'+'<span style="font-size:20px">&#127881;</span>'+'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'+'</div>'+'<div style="display:flex;gap:4px">'+'<button class="btn b-sec b-sm" onclick="window._otdOffset=(window._otdOffset||0)-1;buildAnalyticsPage()" title="Vorige dag">&#8592;</button>'+(otdOffset!==0?'<button class="btn b-sec b-sm" onclick="window._otdOffset=0;buildAnalyticsPage()">Vandaag</button>':'')+'<button class="btn b-sec b-sm" onclick="window._otdOffset=(window._otdOffset||0)+1;buildAnalyticsPage()" title="Volgende dag">&#8594;</button>'+'</div>'+'</div><div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div></div>'
     +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uLocAll,'Locaties','alle')+stEl2(uLocHoofd,'Locaties','alleen hoofdprogramma')+stEl2(uPlHoofd,'Plaatsen','alleen hoofdprogramma')+stEl2(streak,'Record maand',streakLbl)+stEl2(streakH,'Record maand HP',streakHLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA)+'</div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div></div>'
@@ -806,12 +856,19 @@ function buildAnalytics(){
     +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar2(topP,maxP)+'</div><div class="cbox"><div class="clbl">Top locaties</div>'+bar2(topL,maxL)+'</div></div>'
     +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'+topS.map(function(e){return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>';}).join('')+'</div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div class="clbl" style="margin-bottom:0">&#10024; Leuke weetjes</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)" id="factCounter"></span><button class="btn b-sec b-sm" onclick="prevFact()">&#8592;</button><button class="btn b-sec b-sm" onclick="nextFact()">&#8594;</button><button class="btn b-pri b-sm" onclick="randomFact()">&#127922; Willekeurig</button></div></div><div id="factDisplay" style="font-size:14px;color:var(--text);line-height:1.8"></div></div>'
-    +'<div class="chat-box"><div style="padding:16px 16px 8px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">&#129302;</span><div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:.5px;color:var(--text)">Concert Assistent</div><div style="font-size:11px;color:var(--muted)">Stel vragen over jouw concertdata</div></div></div>'
+    +(unlocked ? +'<div class="chat-box"><div style="padding:16px 16px 8px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">&#129302;</span><div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:.5px;color:var(--text)">Concert Assistent</div><div style="font-size:11px;color:var(--muted)">Stel vragen over jouw concertdata</div></div></div>'
     +'<div class="chat-msgs" id="chatMsgs"><div class="chat-msg bot"><div class="chat-avatar chat-bot-avatar">&#129302;</div>'
     +(ANTHROPIC_KEY?'<div class="chat-bubble">Hoi! Ik kan vragen beantwoorden over jouw '+DB.length+' concerten. Vraag maar raak! &#127928;</div>':'<div class="chat-bubble">Hoi! Voeg een Anthropic API key in bij Admin om de chatbot te gebruiken. &#128272;</div>')
-    +'</div></div>'
+    +'</div></div>' : '')
     +'<div class="chat-suggestions"><span class="chat-sug" onclick="chatAsk(this.textContent)">Langste tijd tussen 2 concerten in dezelfde zaal?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Welke artiest zag ik het meest in \u00e9\u00e9n jaar?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Hoeveel unieke zalen heb ik bezocht?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Wat is mijn drukste concertmaand ooit?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Welk concert had de langste setlist?</span></div>'
     +'<div class="chat-input-row"><textarea class="chat-input" id="chatInput" placeholder="Stel een vraag over je concerten..." rows="1"></textarea><button class="chat-send" id="chatSend" onclick="chatSend()" title="Verstuur">&#10148;</button></div></div>';
+}
+
+function buildAnalyticsPage(){
+  var el=document.getElementById('APP');
+  el.innerHTML = buildAnalytics();
+  window._allFacts = buildAllFacts();
+  showFact(0);
 }
 
 function yToggle(btn){btn.classList.toggle('ybtn-on');yApplyFilter();}
