@@ -86,8 +86,8 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .sts{font-size:10px;color:var(--muted);margin-top:2px}
 .cbox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px}
 .clbl{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
-.brow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.bname{font-size:12px;min-width:80px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+.brow{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.bname{font-size:12px;min-width:90px;width:140px;flex-shrink:0;word-break:break-word;color:var(--text);line-height:1.3}
 .btrack{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden}
 .bfill{height:100%;background:var(--accent);border-radius:4px}
 .bcnt{font-size:12px;font-weight:600;color:var(--accent);min-width:24px;text-align:right}
@@ -405,7 +405,7 @@ function render(){
   if(tb){ var dk=['dark','ys-dark','ys-night','ys-petrol','ys-slate'].indexOf(curTheme)>-1; tb.textContent=dk?'☀️':'🌙'; tb.title=dk?'Naar licht thema':'Naar donker thema'; }
   var el = document.getElementById('APP');
   if     (page==='list')      el.innerHTML = buildList();
-  else if(page==='add')       el.innerHTML = buildForm();
+  else if(page==='add'){ el.innerHTML = buildForm(); setTimeout(refreshSongArea, 0); }
   else if(page==='analytics') { buildAnalyticsPage(); }
   else if(page==='upcoming')   el.innerHTML = buildUpcoming();
   else if(page==='sync')      el.innerHTML = buildAdmin();
@@ -613,8 +613,7 @@ function buildForm(){
   var songs=FD.setlist||[];
   var soortOpts=SOORTEN.map(function(s){ return '<option value="'+s+'"'+(FD.soort===s?' selected':'')+'>'+s+'</option>'; }).join('');
   var festTags=FESTS.map(function(f){ return '<span class="tag" onclick="setFest(\''+escH(f)+'\')">'+f+'</span>'; }).join('');
-  var songHtml=songs.length?'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
-    +songs.map(function(s,i){ return '<div class="schip"><span class="snum">'+(i+1)+'</span><span>'+escH(s)+'</span><button class="srem" onclick="rmSong('+i+')">&#215;</button></div>'; }).join('')+'</div>':'';
+  var songHtml='<div id="sfSt"></div>';
 
   return '<h1>'+(editId?'CONCERT BEWERKEN':'CONCERT TOEVOEGEN')+'</h1>'
     +'<div class="fcard"><div class="fgrid">'
@@ -860,8 +859,12 @@ function buildAnalytics(){
     +'<div class="chat-msgs" id="chatMsgs"><div class="chat-msg bot"><div class="chat-avatar chat-bot-avatar">&#129302;</div>'
     +(ANTHROPIC_KEY?'<div class="chat-bubble">Hoi! Ik kan vragen beantwoorden over jouw '+DB.length+' concerten. Vraag maar raak! &#127928;</div>':'<div class="chat-bubble">Hoi! Voeg een Anthropic API key in bij Admin om de chatbot te gebruiken. &#128272;</div>')
     +'</div></div>' : '')
-    +'<div class="chat-suggestions"><span class="chat-sug" onclick="chatAsk(this.textContent)">Langste tijd tussen 2 concerten in dezelfde zaal?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Welke artiest zag ik het meest in \u00e9\u00e9n jaar?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Hoeveel unieke zalen heb ik bezocht?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Wat is mijn drukste concertmaand ooit?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Welk concert had de langste setlist?</span></div>'
-    +'<div class="chat-input-row"><textarea class="chat-input" id="chatInput" placeholder="Stel een vraag over je concerten..." rows="1"></textarea><button class="chat-send" id="chatSend" onclick="chatSend()" title="Verstuur">&#10148;</button></div></div>';
+
+    +(unlocked
+      ? +'<div class="chat-suggestions"><span class="chat-sug" onclick="chatAsk(this.textContent)">Langste tijd tussen 2 concerten in dezelfde zaal?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Welke artiest zag ik het meest in \u00e9\u00e9n jaar?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Hoeveel unieke zalen heb ik bezocht?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Wat is mijn drukste concertmaand ooit?</span><span class="chat-sug" onclick="chatAsk(this.textContent)">Welk concert had de langste setlist?</span></div>'
+    +'<div class="chat-input-row"><textarea class="chat-input" id="chatInput" placeholder="Stel een vraag over je concerten..." rows="1"></textarea><button class="chat-send" id="chatSend" onclick="chatSend()" title="Verstuur">&#10148;</button></div></div>'
+      : '')
+;
 }
 
 function buildAnalyticsPage(){
