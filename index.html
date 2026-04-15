@@ -1383,7 +1383,7 @@ function buildUpcoming(){
           + "</div></div>"
           + badge
           + (unlocked
-            ? "<button onclick=\"delUpcoming("+i+")\" style=\"background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px;flex-shrink:0\" title=\"Verwijderen\">&#10005;</button>"
+            ? "<button onclick=\"delUpcoming('"+item.id+"')\" style=\"background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px;flex-shrink:0\" title=\"Verwijderen\">&#10005;</button>"
             : "")
           + "</div>";
       }).join("");
@@ -1424,9 +1424,9 @@ function addUpcoming(){
   toast("Toegevoegd!","ok");
 }
 
-function delUpcoming(i){
+function delUpcoming(id){
   if(!confirm("Verwijderen?")) return;
-  upcomingDB.splice(i,1);
+  upcomingDB = upcomingDB.filter(function(x){ return x.id !== id; });
   persistUpcoming();
   render();
   toast("Verwijderd","info");
