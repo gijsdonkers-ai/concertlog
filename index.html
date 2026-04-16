@@ -51,7 +51,14 @@ select option{background:var(--bg2)}
 .sw{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
 .sw select{padding:9px 6px;font-size:13px}
 @media(min-width:640px){.sw{flex-wrap:nowrap}}
-@media(max-width:639px){.sw .si{flex:1 1 45%}.sw select{flex:1 1 auto}}
+@media(max-width:639px){
+  .sw-search{flex:1 1 100%;order:1}
+  .sw-locatie{flex:1 1 auto;order:2;min-width:120px}
+  .sw-plaats{flex:1 1 auto;order:3;min-width:100px}
+  .sw-jaar{flex:1 1 auto;order:4;min-width:70px}
+  .sw-maand{flex:1 1 auto;order:5;min-width:70px}
+  .sw-soort{flex:1 1 auto;order:6;min-width:100px}
+}
 .si{position:relative}.si input{padding-left:30px}
 .sicon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:13px}
 .grid{display:flex;flex-direction:column;gap:10px}
@@ -174,6 +181,8 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .schip{display:flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px 8px;font-size:12px;cursor:default}
 .sdrag{cursor:grab;color:var(--muted);font-size:14px;padding:0 2px;user-select:none}
 .schip.drag-over{border-color:var(--accent);background:var(--bg2)}
+.logo-short{display:none}.logo-full{display:inline}
+@media(max-width:639px){.logo-short{display:inline}.logo-full{display:none}}
 </style>
 </head>
 <body class="theme-dark">
@@ -181,7 +190,7 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
   <div class="nav-safe"></div>
   <div style="display:flex;align-items:stretch;width:100%">
     <div class="nav-inner" style="flex:1;min-width:0">
-      <div class="logo">Gijs' Concertlog</div>
+      <div class="logo"><span class="logo-full">Gijs' Concertlog</span><span class="logo-short">GCL</span></div>
       <button class="ntab on" id="tab-list"      onclick="goPage('list')">Concerten</button>
       <button class="ntab"    id="tab-add"       onclick="goPage('add')">+ Toevoegen</button>
       <button class="ntab"    id="tab-analytics" onclick="goPage('analytics')">Analytics</button>
@@ -441,11 +450,11 @@ function buildList(){
     + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">'+(unlocked?badge+'<button class="btn b-pri b-sm" onclick="goPage(\'add\')">+ Toevoegen</button>':'')+'</div>'
     + '</div>'
     + '<div class="sw">'
-    + '<div class="si" style="flex:1;min-width:160px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
-    + '<div class="si" style="min-width:100px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Locatie/Festival..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
+    + '<div class="si sw-search" style="flex:1;min-width:160px"><span class="sicon">&#128269;</span><input id="searchInput" placeholder="Zoek..." value="'+escH(srchQ)+'" autocomplete="off"></div>'
+    + '<div class="si sw-locatie" style="min-width:100px"><span class="sicon">&#128205;</span><input id="locInput" placeholder="Locatie/Festival..." value="'+escH(fLocatie)+'" autocomplete="off"></div>'
     + '<select id="jaarSel" style="width:auto;min-width:80px"><option value="">Alle jaren</option>'
     + jaren.map(function(j){ return '<option value="'+j+'"'+(fJaar===String(j)?' selected':'')+'>'+j+'</option>'; }).join('')+'</select>'
-    + '<select id="maandSel" style="width:auto;min-width:80px"><option value="">Alle maanden</option>'
+    + '<select id="maandSel" class="sw-maand" style="width:auto;min-width:80px"><option value="">Alle maanden</option>'
     +'<option value="1"'+(fMaand==='1'?' selected':'')+'>Jan</option>'+'<option value="2"'+(fMaand==='2'?' selected':'')+'>Feb</option>'+'<option value="3"'+(fMaand==='3'?' selected':'')+'>Mrt</option>'+'<option value="4"'+(fMaand==='4'?' selected':'')+'>Apr</option>'+'<option value="5"'+(fMaand==='5'?' selected':'')+'>Mei</option>'+'<option value="6"'+(fMaand==='6'?' selected':'')+'>Jun</option>'+'<option value="7"'+(fMaand==='7'?' selected':'')+'>Jul</option>'+'<option value="8"'+(fMaand==='8'?' selected':'')+'>Aug</option>'+'<option value="9"'+(fMaand==='9'?' selected':'')+'>Sep</option>'+'<option value="10"'+(fMaand==='10'?' selected':'')+'>Okt</option>'+'<option value="11"'+(fMaand==='11'?' selected':'')+'>Nov</option>'+'<option value="12"'+(fMaand==='12'?' selected':'')+'>Dec</option>'
     + '</select>'
     + '<select id="soortSel" style="width:auto;min-width:110px"><option value="">Alle soorten</option>'
