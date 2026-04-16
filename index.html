@@ -53,11 +53,11 @@ select option{background:var(--bg2)}
 @media(min-width:640px){.sw{flex-wrap:nowrap}}
 @media(max-width:639px){
   .sw-search{flex:1 1 100%;order:1}
-  .sw-locatie{flex:1 1 auto;order:2;min-width:120px}
-  .sw-plaats{flex:1 1 auto;order:3;min-width:100px}
-  .sw-jaar{flex:1 1 auto;order:4;min-width:70px}
-  .sw-maand{flex:1 1 auto;order:5;min-width:70px}
-  .sw-soort{flex:1 1 auto;order:6;min-width:100px}
+  .sw-locatie{flex:1 1 calc(50% - 3px);order:2}
+  .sw-plaats{flex:1 1 calc(50% - 3px);order:3}
+  .sw-jaar{flex:1 1 calc(33% - 4px);order:4}
+  .sw-maand{flex:1 1 calc(33% - 4px);order:5}
+  .sw-soort{flex:1 1 calc(33% - 4px);order:6}
 }
 .si{position:relative}.si input{padding-left:30px}
 .sicon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:13px}
