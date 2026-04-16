@@ -48,16 +48,19 @@ input,select,textarea{background:var(--bg3);border:1px solid var(--border);borde
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent)}
 input::placeholder,textarea::placeholder{color:var(--muted)}
 select option{background:var(--bg2)}
-.sw{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.sw{display:flex;gap:6px;margin-bottom:12px;align-items:center;flex-wrap:nowrap;width:100%}
+.sw select,.sw .si{box-sizing:border-box}
 .sw select{padding:9px 6px;font-size:13px}
-@media(min-width:640px){.sw{flex-wrap:nowrap}}
 @media(max-width:639px){
-  .sw-search{flex:1 1 100%;order:1}
-  .sw-locatie{flex:1 1 calc(50% - 3px);order:2}
-  .sw-plaats{flex:1 1 calc(50% - 3px);order:3}
-  .sw-jaar{flex:1 1 calc(33% - 4px);order:4}
-  .sw-maand{flex:1 1 calc(33% - 4px);order:5}
-  .sw-soort{flex:1 1 calc(33% - 4px);order:6}
+  .sw{display:grid;grid-template-columns:1fr 1fr;gap:6px;grid-template-areas:'search search' 'locatie plaats' 'jaar maand soort'}
+  .sw{grid-template-columns:1fr 1fr 1fr}
+  .sw-search{grid-area:unset;grid-column:1 / -1;grid-row:1}
+  .sw-locatie{grid-column:1 / 2;grid-row:2}
+  .sw-plaats{grid-column:2 / 3;grid-row:2}
+  .sw-jaar{grid-column:1 / 2;grid-row:3}
+  .sw-maand{grid-column:2 / 3;grid-row:3}
+  .sw-soort{grid-column:3 / 4;grid-row:3}
+  .sw select,.sw .si{width:100%;min-width:0!important}
 }
 .si{position:relative}.si input{padding-left:30px}
 .sicon{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none;font-size:13px}
