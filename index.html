@@ -831,7 +831,19 @@ function buildAnalytics(){
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
   function stEl2(v,l,s){return '<div class="stat"><div class="stl">'+l+'</div><div class="stv">'+v+'</div><div class="sts">'+s+'</div></div>';}
-  function bar2(entries,mx){return entries.map(function(e){return '<div class="brow"><div class="bname" title="'+escH(e[0])+'">'+escH(e[0])+'</div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div><div class="bcnt">'+e[1]+'</div></div>';}).join('');}
+  function bar2(entries,mx,kind){
+  return entries.map(function(e){
+    var label = escH(e[0]);
+    var tooltip = escH(e[0]);
+    if(kind && aliasesDB[kind] && aliasesDB[kind][e[0]] && aliasesDB[kind][e[0]].length){
+      var aliases = aliasesDB[kind][e[0]];
+      label = escH(e[0]) + ' <span style="font-size:10px;color:var(--muted);font-weight:400">(' + aliases.map(escH).join(', ') + ')</span>';
+      tooltip = e[0] + ' — incl. ' + aliases.join(', ');
+      tooltip = tooltip.replace(/"/g,'&quot;');
+    }
+    return '<div class="brow"><div class="bname" title="'+tooltip+'">'+label+'</div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div><div class="bcnt">'+e[1]+'</div></div>';
+  }).join('');
+}
   var soortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="yToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
   var mSoortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="mToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
   var yrBarsHtml=yrs.map(function(e){
@@ -879,10 +891,10 @@ function buildAnalytics(){
     +'<div class="cbox" style="margin-bottom:14px">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">'+'<div style="display:flex;align-items:center;gap:8px">'+'<span style="font-size:20px">&#127881;</span>'+'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'+'</div>'+'<div style="display:flex;gap:4px">'+'<button class="btn b-sec b-sm" onclick="window._otdOffset=(window._otdOffset||0)-1;buildAnalyticsPage()" title="Vorige dag">&#8592;</button>'+(otdOffset!==0?'<button class="btn b-sec b-sm" onclick="window._otdOffset=0;buildAnalyticsPage()">Vandaag</button>':'')+'<button class="btn b-sec b-sm" onclick="window._otdOffset=(window._otdOffset||0)+1;buildAnalyticsPage()" title="Volgende dag">&#8594;</button>'+'</div>'+'</div><div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div></div>'
     +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uLocAll,'Locaties','alle')+stEl2(uLocHoofd,'Locaties','alleen hoofdprogramma')+stEl2(uPlHoofd,'Plaatsen','alleen hoofdprogramma')+stEl2(streak,'Record maand',streakLbl)+stEl2(streakH,'Record maand HP',streakHLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
-    +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA)+'</div>'
+    +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA,'artiest')+'</div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per maand (alle jaren)</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="mfilters">'+mSoortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="mBars">'+mBarsHtml+'</div></div></div>'
-    +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar2(topP,maxP)+'</div><div class="cbox"><div class="clbl">Top locaties</div>'+bar2(topL,maxL)+'</div></div>'
+    +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar2(topP,maxP)+'</div><div class="cbox"><div class="clbl">Top locaties</div>'+bar2(topL,maxL,'locatie')+'</div></div>'
     +'<div class="cbox"><div class="clbl">Soort optreden</div><div style="display:flex;flex-wrap:wrap;gap:10px">'+topS.map(function(e){return '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;display:flex;align-items:center;gap:8px"><span style="font-size:12px;color:var(--text)">'+escH(e[0])+'</span><span style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--accent)">'+e[1]+'</span></div>';}).join('')+'</div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px"><div class="clbl" style="margin-bottom:0">&#10024; Leuke weetjes</div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--muted)" id="factCounter"></span><button class="btn b-sec b-sm" onclick="prevFact()">&#8592;</button><button class="btn b-sec b-sm" onclick="nextFact()">&#8594;</button><button class="btn b-pri b-sm" onclick="randomFact()">&#127922; Willekeurig</button></div></div><div id="factDisplay" style="font-size:14px;color:var(--text);line-height:1.8"></div></div>'
     +(unlocked ? +'<div class="chat-box"><div style="padding:16px 16px 8px;display:flex;align-items:center;gap:8px"><span style="font-size:18px">&#129302;</span><div><div style="font-family:Bebas Neue,sans-serif;font-size:16px;letter-spacing:.5px;color:var(--text)">Concert Assistent</div><div style="font-size:11px;color:var(--muted)">Stel vragen over jouw concertdata</div></div></div>'
