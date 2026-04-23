@@ -217,6 +217,22 @@ var DB = [];
 var page = 'list';
 var editId = null;
 var upcomingDB = JSON.parse(localStorage.getItem('giglog_upcoming')||'[]');
+// Aliases: { artiest: {canonical: [alias1, alias2]}, locatie: {canonical: [alias1, alias2]} }
+var aliasesDB = JSON.parse(localStorage.getItem('giglog_aliases')||'{"artiest":{},"locatie":{}}');
+function persistAliases(){
+  try{ localStorage.setItem('giglog_aliases', JSON.stringify(aliasesDB)); }catch(e){}
+  if(GIST_ID&&GIST_TOKEN) saveToGist();
+}
+// Build reverse lookup: alias → canonical (for fast resolution)
+function canonical(kind, name){
+  if(!name) return name;
+  var map = aliasesDB[kind] || {};
+  for(var canon in map){
+    if(canon===name) return canon;
+    if(map[canon] && map[canon].indexOf(name)>-1) return canon;
+  }
+  return name;
+}
 function persistUpcoming(){
   try{ localStorage.setItem('giglog_upcoming', JSON.stringify(upcomingDB)); }catch(e){}
   if(GIST_ID&&GIST_TOKEN) saveToGist();
@@ -358,6 +374,8 @@ async function loadFromGist(){
     var data = JSON.parse(file.content);
     var upFile = gist.files && gist.files['upcoming.json'];
     if(upFile){ try{ upcomingDB=JSON.parse(upFile.content); localStorage.setItem('giglog_upcoming', JSON.stringify(upcomingDB)); }catch(e){} }
+    var aliasFile = gist.files && gist.files['aliases.json'];
+    if(aliasFile){ try{ aliasesDB=JSON.parse(aliasFile.content); localStorage.setItem('giglog_aliases', JSON.stringify(aliasesDB)); }catch(e){} }
     if(Array.isArray(data)){
       DB = data;
       normalize();
@@ -377,6 +395,7 @@ async function saveToGist(){
     var body={files:{}};
     body.files[GIST_FILE]={content:JSON.stringify(DB)};
     body.files['upcoming.json']={content:JSON.stringify(upcomingDB)};
+    body.files['aliases.json']={content:JSON.stringify(aliasesDB)};
     var r=await fetch('https://api.github.com/gists/'+GIST_ID,{
       method:'PATCH',
       headers:{'Authorization':'Bearer '+GIST_TOKEN,'Accept':'application/vnd.github+json','Content-Type':'application/json'},
@@ -783,26 +802,26 @@ function cancelEdit(){ editId=null; FD=mkFD(); goPage('list'); }
 function buildAnalytics(){
   if(!DB.length) return '<div class="empty"><div style="font-size:36px;margin-bottom:10px">&#128202;</div><div class="emtitle">Geen data</div></div>';
   var total=DB.length;
-  var uArt=new Set(DB.map(function(c){return c.artiest;})).size;
+  var uArt=new Set(DB.map(function(c){return canonical('artiest',c.artiest);})).size;
   var uPl=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;
   var withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
   var hoofdDB=DB.filter(function(c){return c.soort==='Hoofdprogramma';});
-  var uLocAll=new Set(DB.map(function(c){return c.locatie;}).filter(Boolean)).size;
-  var uLocHoofd=new Set(hoofdDB.map(function(c){return c.locatie;}).filter(Boolean)).size;
+  var uLocAll=new Set(DB.map(function(c){return canonical('locatie',c.locatie);}).filter(Boolean)).size;
+  var uLocHoofd=new Set(hoofdDB.map(function(c){return canonical('locatie',c.locatie);}).filter(Boolean)).size;
   var uPlHoofd=new Set(hoofdDB.map(function(c){return c.plaats;}).filter(Boolean)).size;
   var mcH={};hoofdDB.forEach(function(c){var m=c.datum&&c.datum.slice(0,7);if(m)mcH[m]=(mcH[m]||0)+1;});
   var bmH=Object.entries(mcH).sort(function(a,b){return b[1]-a[1];})[0];
   var streakH=bmH?bmH[1]:0,streakHLbl=bmH?new Date(bmH[0]+'-01').toLocaleDateString('nl-NL',{month:'short',year:'numeric'}):'';
   var SOORTEN=['Hoofdprogramma','Voorprogramma','Festivaloptreden','Theater/Comedy'];
   var soortColors={'Hoofdprogramma':'var(--accent)','Voorprogramma':'var(--accent3)','Festivaloptreden':'#ffa032','Theater/Comedy':'#a78bfa'};
-  var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});
+  var ac={};DB.forEach(function(c){var k=canonical('artiest',c.artiest);ac[k]=(ac[k]||0)+1;});
   var top10=Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,25);var maxA=top10[0]?top10[0][1]:1;
   var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
   var yrs=Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];});
   var maxY=yrs.length?Math.max.apply(null,yrs.map(function(y){return y[1];})):1;
   var pc={};DB.forEach(function(c){if(c.plaats)pc[c.plaats]=(pc[c.plaats]||0)+1;});
   var topP=Object.entries(pc).sort(function(a,b){return b[1]-a[1];}).slice(0,8);var maxP=topP[0]?topP[0][1]:1;
-  var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});
+  var lc={};DB.forEach(function(c){if(c.locatie){var k=canonical('locatie',c.locatie);lc[k]=(lc[k]||0)+1;}});
   var topL=Object.entries(lc).sort(function(a,b){return b[1]-a[1];}).slice(0,8);var maxL=topL[0]?topL[0][1]:1;
   var sc={};DB.forEach(function(c){if(c.soort)sc[c.soort]=(sc[c.soort]||0)+1;});
   var topS=Object.entries(sc).sort(function(a,b){return b[1]-a[1];});
@@ -928,6 +947,87 @@ function mApplyFilter(){
   });
 }
 
+function renderAliasSection(kind){
+  var map = aliasesDB[kind] || {};
+  var canons = Object.keys(map).sort();
+  var availableValues = [...new Set(DB.map(function(c){ return kind==='artiest'?c.artiest:c.locatie; }).filter(Boolean))].sort();
+  var html = '';
+  canons.forEach(function(canon){
+    var aliases = map[canon] || [];
+    html += '<div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px">'
+      +'<strong style="font-size:14px">'+escH(canon)+'</strong>'
+      +'<button class="btn b-del b-sm" onclick="removeCanonical(\''+kind+'\',\''+escJS(canon)+'\')">&#215;</button>'
+      +'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">';
+    aliases.forEach(function(a){
+      html += '<span style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:3px 10px;font-size:12px;display:inline-flex;align-items:center;gap:6px">'
+        +escH(a)
+        +'<button onclick="removeAlias(\''+kind+'\',\''+escJS(canon)+'\',\''+escJS(a)+'\')" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:0;font-size:14px;line-height:1">&#215;</button>'
+        +'</span>';
+    });
+    if(!aliases.length) html += '<span style="color:var(--muted);font-size:12px;font-style:italic">Nog geen aliassen</span>';
+    html += '</div>'
+      +'<div style="display:flex;gap:6px">'
+      +'<select id="aliasAdd_'+kind+'_'+escH(canon).replace(/[^a-zA-Z0-9]/g,'_')+'" style="flex:1;min-width:0">'
+      +'<option value="">+ Kies een alias om toe te voegen...</option>'
+      +availableValues.filter(function(v){return v!==canon && aliases.indexOf(v)===-1;}).map(function(v){return '<option value="'+escH(v)+'">'+escH(v)+'</option>';}).join('')
+      +'</select>'
+      +'<button class="btn b-sec b-sm" onclick="addAliasFromSelect(\''+kind+'\',\''+escJS(canon)+'\')">Toevoegen</button>'
+      +'</div>'
+      +'</div>';
+  });
+  html += '<div style="background:var(--bg3);border:1px dashed var(--border);border-radius:10px;padding:10px 12px;margin-top:8px">'
+    +'<div class="clbl" style="margin-bottom:8px">+ Nieuwe canonieke naam</div>'
+    +'<div style="display:flex;gap:6px">'
+    +'<select id="newCanon_'+kind+'" style="flex:1;min-width:0">'
+    +'<option value="">Kies...</option>'
+    +availableValues.filter(function(v){return !(v in map);}).map(function(v){return '<option value="'+escH(v)+'">'+escH(v)+'</option>';}).join('')
+    +'</select>'
+    +'<button class="btn b-pri b-sm" onclick="addCanonical(\''+kind+'\')">+</button>'
+    +'</div></div>';
+  return html;
+}
+
+function escJS(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'"); }
+
+function addCanonical(kind){
+  var sel = document.getElementById('newCanon_'+kind);
+  if(!sel || !sel.value) return;
+  if(!aliasesDB[kind]) aliasesDB[kind] = {};
+  aliasesDB[kind][sel.value] = aliasesDB[kind][sel.value] || [];
+  persistAliases();
+  goPage('sync');
+}
+
+function removeCanonical(kind, canon){
+  if(!confirm('Canonieke naam "'+canon+'" verwijderen? (aliassen worden ook losgekoppeld)')) return;
+  if(aliasesDB[kind]) delete aliasesDB[kind][canon];
+  persistAliases();
+  goPage('sync');
+}
+
+function addAliasFromSelect(kind, canon){
+  var id = 'aliasAdd_'+kind+'_'+canon.replace(/[^a-zA-Z0-9]/g,'_');
+  var sel = document.getElementById(id);
+  if(!sel || !sel.value) return;
+  if(!aliasesDB[kind]) aliasesDB[kind] = {};
+  if(!aliasesDB[kind][canon]) aliasesDB[kind][canon] = [];
+  if(aliasesDB[kind][canon].indexOf(sel.value)===-1){
+    aliasesDB[kind][canon].push(sel.value);
+  }
+  persistAliases();
+  goPage('sync');
+}
+
+function removeAlias(kind, canon, alias){
+  if(aliasesDB[kind] && aliasesDB[kind][canon]){
+    aliasesDB[kind][canon] = aliasesDB[kind][canon].filter(function(x){return x!==alias;});
+  }
+  persistAliases();
+  goPage('sync');
+}
+
 // ── ADMIN ─────────────────────────────────────────────────────────
 function buildAdmin(){
   var themes=[{id:'dark',bg:'#0a0a0f',ac:'#e8ff47',label:'Dark'},{id:'chalk',bg:'#f5f0eb',ac:'#1a1a2e',label:'Chalk'},{id:'arctic',bg:'#f0f6fc',ac:'#0d2240',label:'Arctic'},{id:'ys-dark',bg:'#0f1e25',ac:'#FDC300',label:'YS Dark'},{id:'ys-night',bg:'#080f12',ac:'#FDC300',label:'YS Night'},{id:'ys-petrol',bg:'#1a2830',ac:'#FDC300',label:'YS Petrol'},{id:'ys-slate',bg:'#1e2c38',ac:'#FDC300',label:'YS Slate'},{id:'ys-light',bg:'#f7f4ee',ac:'#1a313b',label:'YS Light'}];
@@ -938,6 +1038,14 @@ function buildAdmin(){
 
   return '<h1>ADMIN</h1>'
     +'<div class="cbox"><div class="clbl">&#127912; Kleurstijl</div><div style="display:flex;gap:10px;flex-wrap:wrap">'+swatches+'</div></div>'
+    +'<div class="cbox"><div class="clbl">&#128279; Aliassen &mdash; artiesten</div>'
+    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">Koppel verschillende naamvarianten aan één canonieke naam zodat ze in de analytics als één artiest tellen.</p>'
+    +renderAliasSection('artiest')
+    +'</div>'
+    +'<div class="cbox"><div class="clbl">&#127971; Aliassen &mdash; locaties</div>'
+    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">Koppel verschillende benamingen van dezelfde zaal (bv. bij een verhuizing of naamswijziging).</p>'
+    +renderAliasSection('locatie')
+    +'</div>'
     +'<div class="cbox"><div class="clbl">&#9729; Centrale opslag via GitHub Gist</div>'
     +'<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7">Met een Gist worden al je concerten centraal opgeslagen. Alle apparaten laden automatisch de nieuwste data. De read-only versie leest ook uit dezelfde Gist.</p>'
     +'<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px">'
@@ -1127,7 +1235,7 @@ function buildAllFacts(){
   var mNames=['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
   var jarArr=DB.map(function(c){return c.jaar;}).filter(Boolean);
   var span=jarArr.length?Math.max.apply(null,jarArr)-Math.min.apply(null,jarArr)+1:0;
-  var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});
+  var lc={};DB.forEach(function(c){if(c.locatie){var k=canonical('locatie',c.locatie);lc[k]=(lc[k]||0)+1;}});
   var withSl=DB.filter(function(c){return c.setlist&&c.setlist.length;}).length;
   var locV={};sorted.forEach(function(c){if(c.locatie){if(!locV[c.locatie])locV[c.locatie]=[];locV[c.locatie].push(c.datum);}});
   var artDates={};sorted.forEach(function(c){if(c.artiest){if(!artDates[c.artiest])artDates[c.artiest]=[];artDates[c.artiest].push(c.datum);}});
@@ -1352,9 +1460,9 @@ function buildDataSummary(){
   var firstYear=dated.length?dated[0].datum.slice(0,4):'?';
   var lastYear=dated.length?dated[dated.length-1].datum.slice(0,4):'?';
   lines.push('TOTAAL: '+DB.length+' concerten van '+firstYear+' t/m '+lastYear);
-  var ac={};DB.forEach(function(c){ac[c.artiest]=(ac[c.artiest]||0)+1;});
+  var ac={};DB.forEach(function(c){var k=canonical('artiest',c.artiest);ac[k]=(ac[k]||0)+1;});
   lines.push('\nTOP ARTIESTEN:');Object.entries(ac).sort(function(a,b){return b[1]-a[1];}).slice(0,30).forEach(function(e){lines.push('  '+e[0]+': '+e[1]);});
-  var lc={};DB.forEach(function(c){if(c.locatie)lc[c.locatie]=(lc[c.locatie]||0)+1;});
+  var lc={};DB.forEach(function(c){if(c.locatie){var k=canonical('locatie',c.locatie);lc[k]=(lc[k]||0)+1;}});
   lines.push('\nTOP LOCATIES:');Object.entries(lc).sort(function(a,b){return b[1]-a[1];}).slice(0,30).forEach(function(e){lines.push('  '+e[0]+': '+e[1]);});
   var yc={};DB.forEach(function(c){if(c.jaar)yc[c.jaar]=(yc[c.jaar]||0)+1;});
   lines.push('\nPER JAAR:');Object.entries(yc).sort(function(a,b){return+a[0]-+b[0];}).forEach(function(e){lines.push('  '+e[0]+': '+e[1]);});
