@@ -837,13 +837,23 @@ function buildAnalytics(){
     var tooltip = escH(e[0]);
     if(kind && aliasesDB[kind] && aliasesDB[kind][e[0]] && aliasesDB[kind][e[0]].length){
       var aliases = aliasesDB[kind][e[0]];
-      label = escH(e[0]) + ' <span style="font-size:10px;color:var(--muted);font-weight:400">(' + aliases.map(escH).join(', ') + ')</span>';
-      tooltip = e[0] + ' — incl. ' + aliases.join(', ');
+      var counts = {};
+      counts[e[0]] = 0;
+      aliases.forEach(function(a){ counts[a] = 0; });
+      DB.forEach(function(r){
+        var v = kind==='artiest' ? r.artiest : r.locatie;
+        if(v && counts.hasOwnProperty(v)) counts[v]++;
+      });
+      var canonCount = counts[e[0]];
+      var parts = aliases.map(function(a){ return escH(a)+' ('+(counts[a]||0)+')'; });
+      label = escH(e[0]) + ' <span style="font-size:10px;color:var(--muted);font-weight:400">(' + canonCount + ', ' + parts.join(', ') + ')</span>';
+      tooltip = e[0]+' ('+canonCount+') — incl. '+aliases.map(function(a){return a+' ('+(counts[a]||0)+')';}).join(', ');
       tooltip = tooltip.replace(/"/g,'&quot;');
     }
     return '<div class="brow"><div class="bname" title="'+tooltip+'">'+label+'</div><div class="btrack"><div class="bfill" style="width:'+Math.round(e[1]/mx*100)+'%"></div></div><div class="bcnt">'+e[1]+'</div></div>';
   }).join('');
 }
+
   var soortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="yToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
   var mSoortBtns=SOORTEN.map(function(s){return '<button class="ybtn ybtn-on" data-s="'+escH(s)+'" onclick="mToggle(this)" style="--yc:'+(soortColors[s]||'var(--accent)')+'">'+escH(s)+'</button>';}).join('');
   var yrBarsHtml=yrs.map(function(e){
