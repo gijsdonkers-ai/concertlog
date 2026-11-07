@@ -336,6 +336,99 @@ function topRemove(y, cat, i){
   persistTop(); render();
 }
 
+// ── TOP-LIJSTEN IMPORTEREN (toplijsten.json) ──────────────────────
+function normName(s){
+  s = String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  var skip = ['the','de','het','and','en','van','der','von'];
+  return s.replace(/&/g,' ').split(/[^a-z0-9]+/).filter(function(w){ return w && skip.indexOf(w)<0; });
+}
+function nameSim(a, b){
+  if(!a.length || !b.length) return 0;
+  var n = 0; a.forEach(function(w){ if(b.indexOf(w)>-1) n++; });
+  return n/Math.min(a.length, b.length);
+}
+function shiftDate(iso, k){
+  var p = iso.split('-');
+  return new Date(Date.UTC(+p[0], +p[1]-1, +p[2]+k)).toISOString().slice(0,10);
+}
+// Zoekt het concert dat bij een regel uit de lijst hoort: datum + artiest (±1 dag toegestaan)
+function topMatch(it){
+  if(!it.d) return null;
+  var an = normName(it.a), ln = normName(it.l);
+  var dates = [it.d, shiftDate(it.d,-1), shiftDate(it.d,1)];
+  var best = null, bestScore = 0;
+  DB.forEach(function(c){
+    if(dates.indexOf(c.datum)<0) return;
+    var s = nameSim(an, normName(c.artiest));
+    if(s<0.5) return;
+    var score = s + (c.datum===it.d ? 1 : 0);
+    if(score>bestScore){ bestScore = score; best = c; }
+  });
+  if(best) return {c:best, weak:false};
+  // Geen artiestmatch: accepteer als er die dag maar één concert is op dezelfde locatie
+  var same = DB.filter(function(c){ return c.datum===it.d; });
+  if(same.length===1 && nameSim(ln, normName(same[0].locatie))>=0.5) return {c:same[0], weak:true};
+  return null;
+}
+function importTopData(data){
+  var rep = {matched:0, missing:[], conflict:[], other:[], weak:[]};
+  var fresh = {}, used = {};
+  Object.keys(data).sort().forEach(function(y){
+    fresh[y] = {hp:[], fest:[]};
+    ['hp','fest'].forEach(function(cat){
+      (data[y][cat]||[]).forEach(function(it, i){
+        var tag = y+' '+(cat==='fest'?'festivals':'concerten')+' #'+(i+1)+': '+it.a+' ('+it.d+')';
+        var m = topMatch(it);
+        if(!m){ rep.missing.push(tag); return; }
+        if(used[m.c.id]){ rep.conflict.push(tag+' staat al in een andere lijst'); return; }
+        used[m.c.id] = 1;
+        fresh[y][cat].push(m.c.id);
+        rep.matched++;
+        if(m.weak) rep.weak.push(tag+' → gekoppeld op locatie aan '+m.c.artiest);
+        if(topCat(m.c)!==cat) rep.other.push(tag+' (in je concertlijst: '+m.c.soort+')');
+      });
+    });
+  });
+  return {fresh:fresh, rep:rep};
+}
+function importTopFile(input){
+  var file = input.files[0]; if(!file) return;
+  if(!DB.length){ toast('Wacht tot de concerten geladen zijn','err'); input.value=''; return; }
+  var r = new FileReader();
+  r.onload = function(e){
+    try{
+      var data = JSON.parse(e.target.result);
+      var res = importTopData(data), rep = res.rep;
+      var years = Object.keys(res.fresh);
+      var overlap = years.filter(function(y){ return topDB[y]; });
+      var q = rep.matched+' concerten gekoppeld, '+rep.missing.length+' niet gevonden.'
+        +(overlap.length?'\n\nLet op: bestaande lijsten van '+overlap.join(', ')+' worden vervangen.':'')
+        +'\n\nDoorgaan?';
+      if(!confirm(q)){ input.value=''; return; }
+      years.forEach(function(y){ topDB[y] = res.fresh[y]; });
+      persistTop(); render();
+      showTopReport(rep);
+    } catch(err){ toast('Import fout: '+err.message,'err'); }
+    input.value = '';
+  };
+  r.readAsText(file);
+}
+function showTopReport(rep){
+  var parts = ['Gekoppeld: '+rep.matched];
+  function sec(t, a){ if(a.length) parts.push('\n'+t+' ('+a.length+'):\n  '+a.join('\n  ')); }
+  sec('Niet gevonden in je concertlijst (positie schuift op, voeg handmatig toe)', rep.missing);
+  sec('Overgeslagen: concert stond al in een andere lijst', rep.conflict);
+  sec('Gekoppeld op locatie, controleer even', rep.weak);
+  sec('Soort optreden wijkt af van de lijst', rep.other);
+  var ov = document.createElement('div');
+  ov.className = 'modal-overlay'; ov.id = 'detailModal';
+  ov.innerHTML = '<div class="modal"><div class="modal-header"><div class="modal-title">Import klaar</div>'
+    +'<button class="modal-close" onclick="closeDetail()">&#215;</button></div>'
+    +'<div class="modal-body"><pre style="white-space:pre-wrap;font-family:DM Sans,sans-serif;font-size:12px;color:var(--text)">'+escH(parts.join('\n'))+'</pre></div></div>';
+  ov.addEventListener('click', function(e){ if(e.target===ov) closeDetail(); });
+  document.body.appendChild(ov); document.body.style.overflow = 'hidden';
+}
+
 function buildTop(){
   var years = Object.keys(topDB).sort(function(a,b){ return b-a; });
   var html = '<h1>TOP CONCERTEN</h1>';
@@ -1227,6 +1320,11 @@ function buildAdmin(){
     +'<p style="font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.7">De read-only versie heeft geen toevoegen/bewerken/admin knoppen en laadt data direct uit jouw Gist, inclusief de Top-lijsten. Upload <strong style="color:var(--text)">readonly.html</strong> naast index.html op GitHub.</p>'
     +'<button class="btn b-sec" onclick="downloadReadOnly()">&#11015; Download readonly.html</button>'
     +(GIST_ID?'':'<p style="font-size:12px;color:var(--accent2);margin-top:8px">Koppel eerst een Gist zodat de read-only versie altijd de laatste data toont.</p>')
+    +'</div>'
+    +'<div class="cbox"><div class="clbl">&#127942; Top-lijsten importeren</div>'
+    +'<p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7">Kies het bestand <strong style="color:var(--text)">toplijsten.json</strong>. De site koppelt elke regel automatisch aan een concert uit je lijst (op datum en artiest) en meldt wat niet gevonden is.</p>'
+    +'<input type="file" id="topImpIn" accept=".json,application/json" style="display:none" onchange="importTopFile(this)">'
+    +'<button class="btn b-sec" onclick="document.getElementById(\'topImpIn\').click()">&#128194; Kies toplijsten.json</button>'
     +'</div>'
     +'<div class="dz" onclick="document.getElementById(\'xlIn\').click()">'
     +'<div style="font-size:28px;margin-bottom:8px">&#128194;</div>'
