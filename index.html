@@ -254,6 +254,7 @@ var GIST_ID    = localStorage.getItem('giglog_gist_id')    || DEFAULT_GIST_ID;
 var GIST_TOKEN = localStorage.getItem('giglog_gist_token') || DEFAULT_GIST_TOKEN;
 var GIST_FILE  = 'concertlog.json';
 var gistStatus = 'none';
+var gistStale = false; // true = lokale kopie getoond omdat de Gist niet laadde
 var ANTHROPIC_KEY = localStorage.getItem('giglog_anthropic_key') || '';
 var _factIdx = 0;
 var CAPI  = 'https://api.anthropic.com/v1/messages';
@@ -542,7 +543,7 @@ function toggleDayNight(){
 function forcePush(){
   if(!GIST_ID||!GIST_TOKEN){ toast('Geen Gist ID of token','err'); return; }
   if(!confirm('Lokale data uploaden? Gist wordt overschreven.')) return;
-  saveToGist(); toast('Geüpload naar Gist','ok');
+  saveToGist(true); toast('Geüpload naar Gist','ok');
 }
 function mkFD(){ return {artiest:'',locatie:'',plaats:'',datum:'',setlist:[],festival:'',soort:'Hoofdprogramma'}; }
 
@@ -609,7 +610,9 @@ async function loadFromGist(){
   if(!GIST_ID) return;
   gistStatus='syncing'; updateSyncBadge();
   try {
-    var r = await fetch('https://api.github.com/gists/'+GIST_ID, {headers:{'Accept':'application/vnd.github+json'}});
+    var hdr = {'Accept':'application/vnd.github+json'};
+    if(GIST_TOKEN) hdr['Authorization'] = 'Bearer '+GIST_TOKEN;
+    var r = await fetch('https://api.github.com/gists/'+GIST_ID, {headers:hdr});
     if(!r.ok) throw new Error('HTTP '+r.status);
     var gist = await r.json();
     var file = gist.files && gist.files[GIST_FILE];
@@ -622,6 +625,7 @@ async function loadFromGist(){
     var topFile = gist.files && gist.files['top.json'];
     if(topFile){ try{ topDB=JSON.parse(topFile.content); _topMap=null; localStorage.setItem('giglog_top', JSON.stringify(topDB)); }catch(e){} }
     if(Array.isArray(data)){
+      gistStale = false;
       DB = data;
       normalize();
       persist();
@@ -629,11 +633,26 @@ async function loadFromGist(){
       render();
     } else { gistStatus='ok'; }
     updateSyncBadge();
-  } catch(e){ console.warn('Gist load:',e.message); gistStatus='err'; updateSyncBadge(); }
+  } catch(e){
+    console.warn('Gist load:',e.message); gistStatus='err'; updateSyncBadge();
+    var why = /403|429/.test(e.message) ? 'GitHub-limiet bereikt, probeer het over een uur opnieuw' : 'Gist niet bereikbaar ('+e.message+')';
+    if(!DB.length){
+      try{
+        var cache = JSON.parse(localStorage.getItem('giglog_v4')||'[]');
+        if(Array.isArray(cache) && cache.length){
+          DB = cache; normalize(); gistStale = true; render();
+          toast(why+' — lokale kopie getoond','err');
+          return;
+        }
+      }catch(x){}
+    }
+    toast(why,'err');
+  }
 }
 
-async function saveToGist(){
+async function saveToGist(force){
   if(!GIST_ID||!GIST_TOKEN){ toast('Voer eerst Gist ID en token in bij Admin','err'); return; }
+  if(gistStale && force!==true){ toast('Lokale kopie is mogelijk verouderd — synchroniseer eerst met de Gist','err'); return; }
   if(!DB.length){ console.warn('saveToGist: DB is leeg, niet opgeslagen'); return; }
   gistStatus='syncing'; updateSyncBadge();
   try {
@@ -1612,23 +1631,34 @@ function roMain(GID){
       +'<div class="cb"><div class="cl">Concerten per jaar</div><div class="ybars">'+yrs.map(function(e){ var h=Math.round(e[1]/mY*72)+4; return '<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar" style="height:'+h+'px"></div><div class="ylbl">\''+String(e[0]).slice(2)+'</div></div>'; }).join('')+'</div></div>'
       +'<div class="cb"><div class="cl">Top plaatsen</div>'+bar(tP,mP)+'</div>';
   }
+  var CK = 'ro_cache_'+GID;
+  function loadCache(){ try{ return JSON.parse(localStorage.getItem(CK)||'null'); }catch(x){ return null; } }
+  function applyData(dbTxt, topTxt){
+    DB = JSON.parse(dbTxt).map(function(c){
+      if(c.soort==='Theater'||c.soort==='Musical'||c.soort==='Comedy') c.soort='Theater/Comedy';
+      return c;
+    });
+    try{ TOP = topTxt ? (JSON.parse(topTxt)||{}) : {}; }catch(x){ TOP = {}; }
+    buildTM();
+    re();
+  }
   async function init(){
     if(!GID){ $('A').innerHTML='<p style="padding:40px;text-align:center;color:#777">Geen Gist ID geconfigureerd.</p>'; return; }
+    var c = loadCache();
+    if(c && Date.now()-c.t < 600000){ applyData(c.db, c.top); return; } // 10 minuten vers genoeg
     try{
       var r=await fetch('https://api.github.com/gists/'+GID,{headers:{'Accept':'application/vnd.github+json'}});
       if(!r.ok) throw new Error('HTTP '+r.status);
       var g=await r.json(), f=g.files&&g.files[GF];
       if(!f) throw new Error('Bestand niet gevonden');
-      DB=JSON.parse(f.content).map(function(c){
-        if(c.soort==='Theater'||c.soort==='Musical'||c.soort==='Comedy') c.soort='Theater/Comedy';
-        return c;
-      });
       var tf=g.files&&g.files['top.json'];
-      if(tf){ try{ TOP=JSON.parse(tf.content)||{}; }catch(x){ TOP={}; } }
-      buildTM();
-      re();
+      var topTxt = tf ? tf.content : '';
+      applyData(f.content, topTxt);
+      try{ localStorage.setItem(CK, JSON.stringify({t:Date.now(), db:f.content, top:topTxt})); }catch(x){}
     }catch(e){
-      $('A').innerHTML='<p style="padding:40px;text-align:center;color:#ff4d6d">Laden mislukt: '+eh(e.message)+'</p>';
+      if(c){ applyData(c.db, c.top); return; } // oude kopie is beter dan niets
+      var lim = /403|429/.test(e.message) ? ' (GitHub-limiet bereikt, probeer het over een uur opnieuw)' : '';
+      $('A').innerHTML='<p style="padding:40px;text-align:center;color:#ff4d6d">Laden mislukt: '+eh(e.message)+lim+'</p>';
     }
   }
   window.gp=gp; window.od=od; window.cd=cd; window.pn=pn;
