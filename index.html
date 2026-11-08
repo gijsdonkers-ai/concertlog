@@ -1165,32 +1165,45 @@ function buildAnalytics(){
 ;
 }
 
-// Artiesten die het vaakst in de jaarlijkse top (hoofd- & voorprogramma) staan
+// Top 20 artiesten op gemiddelde score in de jaarlijkse top (hoofd- & voorprogramma)
+// Punten per concert: #1 = 15 ... #15 = 1, niet in de top = 0.
+// Score = punten / aantal hoofd- en voorprogramma-concerten van de artiest in jaren met een Top-lijst.
 function topArtistsBox(){
+  var years = Object.keys(topDB);
+  if(!years.length) return '';
   var byId = {}; DB.forEach(function(c){ byId[c.id] = c; });
   var map = {};
-  Object.keys(topDB).forEach(function(y){
+  function get(k){ return map[k] || (map[k] = {seen:0, pts:0, yrs:[]}); }
+  DB.forEach(function(c){
+    if(topCat(c)!=='hp' || !topDB[String(c.jaar)]) return;
+    get(canonical('artiest', c.artiest)).seen++;
+  });
+  years.forEach(function(y){
     ((topDB[y] && topDB[y].hp) || []).forEach(function(id,i){
       var c = byId[id]; if(!c) return;
-      var k = canonical('artiest', c.artiest);
-      if(!map[k]) map[k] = {n:0, sum:0, yrs:[]};
-      map[k].n++; map[k].sum += i+1; map[k].yrs.push({y:y, p:i+1});
+      var e = get(canonical('artiest', c.artiest));
+      e.pts += Math.max(0, 15-i);
+      e.yrs.push({y:y, p:i+1});
     });
   });
-  var rows = Object.entries(map).sort(function(a,b){
-    return b[1].n-a[1].n || (a[1].sum/a[1].n)-(b[1].sum/b[1].n);
-  }).slice(0,15);
+  var rows = Object.entries(map).filter(function(e){ return e[1].yrs.length; }).map(function(e){
+    var v = e[1]; v.seen = Math.max(v.seen, v.yrs.length); v.score = v.pts/v.seen;
+    return [e[0], v];
+  }).sort(function(a,b){
+    return b[1].score-a[1].score || b[1].yrs.length-a[1].yrs.length || b[1].seen-a[1].seen;
+  }).slice(0,20);
   if(!rows.length) return '';
-  var mx = rows[0][1].n;
-  return '<div class="cbox"><div class="clbl">Vaakst in de jaarlijkse top &mdash; hoofd- &amp; voorprogramma</div>'
-    + rows.map(function(e){
-        var yrs = e[1].yrs.sort(function(a,b){ return a.y-b.y; }).map(function(x){ return x.y+' #'+x.p; }).join(' &middot; ');
+  return '<div class="cbox"><div class="clbl">Top 20 artiesten &mdash; gemiddelde score in de jaarlijkse top</div>'
+    + rows.map(function(e,i){
+        var v = e[1];
+        var yrs = v.yrs.sort(function(a,b){ return a.y-b.y; }).map(function(x){ return x.y+' #'+x.p; }).join(' &middot; ');
         return '<div style="margin-bottom:9px"><div class="brow" style="margin-bottom:2px">'
-          +'<div class="bname">'+escH(e[0])+'</div>'
-          +'<div class="btrack"><div class="bfill" style="width:'+Math.round(e[1].n/mx*100)+'%"></div></div>'
-          +'<div class="bcnt">'+e[1].n+'&times;</div></div>'
-          +'<div style="font-size:11px;color:var(--muted);line-height:1.4">'+yrs+'</div></div>';
+          +'<div class="bname"><span style="color:var(--muted)">'+(i+1)+'.</span> '+escH(e[0])+'</div>'
+          +'<div class="btrack"><div class="bfill" style="width:'+Math.round(v.score/15*100)+'%"></div></div>'
+          +'<div class="bcnt" style="min-width:34px">'+v.score.toFixed(1).replace('.',',')+'</div></div>'
+          +'<div style="font-size:11px;color:var(--muted);line-height:1.4">'+v.seen+'&times; gezien &middot; top: '+yrs+'</div></div>';
       }).join('')
+    +'<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Punten per concert: #1 = 15 &hellip; #15 = 1, niet in de top = 0. De score is het gemiddelde over alle hoofd- en voorprogrammaconcerten van de artiest in jaren met een Top-lijst.</div>'
     +'</div>';
 }
 
@@ -1555,24 +1568,31 @@ function roMain(GID){
     return h;
   }
   function topA(){
-    var byId = {}; DB.forEach(function(c){ byId[c.id]=c; });
-    var map = {};
+    if(!Object.keys(TOP).length) return '';
+    var byId={}; DB.forEach(function(c){ byId[c.id]=c; });
+    var map={};
+    function get(k){ return map[k]||(map[k]={seen:0,pts:0,yrs:[]}); }
+    DB.forEach(function(c){
+      if((c.soort!=='Hoofdprogramma'&&c.soort!=='Voorprogramma')||!TOP[String(c.jaar)]) return;
+      get(c.artiest).seen++;
+    });
     Object.keys(TOP).forEach(function(y){
       ((TOP[y]&&TOP[y].hp)||[]).forEach(function(id,i){
         var c=byId[id]; if(!c) return;
-        var k=c.artiest;
-        if(!map[k]) map[k]={n:0,sum:0,yrs:[]};
-        map[k].n++; map[k].sum+=i+1; map[k].yrs.push({y:y,p:i+1});
+        var e=get(c.artiest); e.pts+=Math.max(0,15-i); e.yrs.push({y:y,p:i+1});
       });
     });
-    var rows=Object.entries(map).sort(function(a,b){ return b[1].n-a[1].n || (a[1].sum/a[1].n)-(b[1].sum/b[1].n); }).slice(0,15);
+    var rows=Object.entries(map).filter(function(e){ return e[1].yrs.length; }).map(function(e){
+      var v=e[1]; v.seen=Math.max(v.seen,v.yrs.length); v.score=v.pts/v.seen; return [e[0],v];
+    }).sort(function(a,b){ return b[1].score-a[1].score||b[1].yrs.length-a[1].yrs.length||b[1].seen-a[1].seen; }).slice(0,20);
     if(!rows.length) return '';
-    var mx=rows[0][1].n;
-    return '<div class="cb"><div class="cl">Vaakst in de jaarlijkse top &mdash; hoofd- &amp; voorprogramma</div>'
-      + rows.map(function(e){
-          var yrs=e[1].yrs.sort(function(a,b){return a.y-b.y;}).map(function(x){return x.y+' #'+x.p;}).join(' &middot; ');
-          return '<div style="margin-bottom:9px"><div class="br" style="margin-bottom:2px"><div class="bn">'+eh(e[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(e[1].n/mx*100)+'%"></div></div><div class="bc">'+e[1].n+'&times;</div></div><div style="font-size:11px;color:#777">'+yrs+'</div></div>';
+    return '<div class="cb"><div class="cl">Top 20 artiesten &mdash; gemiddelde score in de jaarlijkse top</div>'
+      + rows.map(function(e,i){
+          var v=e[1];
+          var yrs=v.yrs.sort(function(a,b){return a.y-b.y;}).map(function(x){return x.y+' #'+x.p;}).join(' &middot; ');
+          return '<div style="margin-bottom:9px"><div class="br" style="margin-bottom:2px"><div class="bn"><span style="color:#777">'+(i+1)+'.</span> '+eh(e[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(v.score/15*100)+'%"></div></div><div class="bc" style="min-width:34px">'+v.score.toFixed(1).replace('.',',')+'</div></div><div style="font-size:11px;color:#777">'+v.seen+'&times; gezien &middot; top: '+yrs+'</div></div>';
         }).join('')
+      +'<div style="font-size:11px;color:#777;margin-top:10px;line-height:1.5">Punten per concert: #1 = 15 &hellip; #15 = 1, niet in de top = 0. De score is het gemiddelde over alle hoofd- en voorprogrammaconcerten van de artiest in jaren met een Top-lijst.</div>'
       +'</div>';
   }
   function bA(){
