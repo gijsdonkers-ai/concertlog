@@ -1148,6 +1148,7 @@ function buildAnalytics(){
     +'<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">'+'<div style="display:flex;align-items:center;gap:8px">'+'<span style="font-size:20px">&#127881;</span>'+'<div class="clbl" style="margin-bottom:0">On This Day &mdash; '+escH(todayLabel)+'</div>'+'</div>'+'<div style="display:flex;gap:4px">'+'<button class="btn b-sec b-sm" onclick="window._otdOffset=(window._otdOffset||0)-1;buildAnalyticsPage()" title="Vorige dag">&#8592;</button>'+(otdOffset!==0?'<button class="btn b-sec b-sm" onclick="window._otdOffset=0;buildAnalyticsPage()">Vandaag</button>':'')+'<button class="btn b-sec b-sm" onclick="window._otdOffset=(window._otdOffset||0)+1;buildAnalyticsPage()" title="Volgende dag">&#8594;</button>'+'</div>'+'</div><div style="display:flex;flex-direction:column;gap:8px">'+otdHtml+'</div></div>'
     +'<div class="sgrid2">'+stEl2(total.toLocaleString('nl'),'Totaal','concerten')+stEl2(uArt,'Artiesten','uniek')+stEl2(uLocAll,'Locaties','alle')+stEl2(uLocHoofd,'Locaties','alleen hoofdprogramma')+stEl2(uPlHoofd,'Plaatsen','alleen hoofdprogramma')+stEl2(streak,'Record maand',streakLbl)+stEl2(streakH,'Record maand HP',streakHLbl)+stEl2(span,'Jaren actief','jaar bijgehouden')+stEl2(withSl,'Met setlist','concerten')+'</div>'
     +'<div class="cbox"><div class="clbl">Top 10 artiesten</div>'+bar2(top10,maxA,'artiest')+'</div>'
+    +topArtistsBox()
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per jaar</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="yfilters">'+soortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="yrBars">'+yrBarsHtml+'</div></div></div>'
     +'<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px"><div class="clbl" style="margin-bottom:0">Concerten per maand (alle jaren)</div><div style="display:flex;flex-wrap:wrap;gap:5px" id="mfilters">'+mSoortBtns+'</div></div><div class="ybars-wrap"><div class="ybars" id="mBars">'+mBarsHtml+'</div></div></div>'
     +'<div class="two"><div class="cbox"><div class="clbl">Top plaatsen</div>'+bar2(topP,maxP)+'</div><div class="cbox"><div class="clbl">Top locaties</div>'+bar2(topL,maxL,'locatie')+'</div></div>'
@@ -1162,6 +1163,35 @@ function buildAnalytics(){
     +'<div class="chat-input-row"><textarea class="chat-input" id="chatInput" placeholder="Stel een vraag over je concerten..." rows="1"></textarea><button class="chat-send" id="chatSend" onclick="chatSend()" title="Verstuur">&#10148;</button></div></div>'
       : '')
 ;
+}
+
+// Artiesten die het vaakst in de jaarlijkse top (hoofd- & voorprogramma) staan
+function topArtistsBox(){
+  var byId = {}; DB.forEach(function(c){ byId[c.id] = c; });
+  var map = {};
+  Object.keys(topDB).forEach(function(y){
+    ((topDB[y] && topDB[y].hp) || []).forEach(function(id,i){
+      var c = byId[id]; if(!c) return;
+      var k = canonical('artiest', c.artiest);
+      if(!map[k]) map[k] = {n:0, sum:0, yrs:[]};
+      map[k].n++; map[k].sum += i+1; map[k].yrs.push({y:y, p:i+1});
+    });
+  });
+  var rows = Object.entries(map).sort(function(a,b){
+    return b[1].n-a[1].n || (a[1].sum/a[1].n)-(b[1].sum/b[1].n);
+  }).slice(0,15);
+  if(!rows.length) return '';
+  var mx = rows[0][1].n;
+  return '<div class="cbox"><div class="clbl">Vaakst in de jaarlijkse top &mdash; hoofd- &amp; voorprogramma</div>'
+    + rows.map(function(e){
+        var yrs = e[1].yrs.sort(function(a,b){ return a.y-b.y; }).map(function(x){ return x.y+' #'+x.p; }).join(' &middot; ');
+        return '<div style="margin-bottom:9px"><div class="brow" style="margin-bottom:2px">'
+          +'<div class="bname">'+escH(e[0])+'</div>'
+          +'<div class="btrack"><div class="bfill" style="width:'+Math.round(e[1].n/mx*100)+'%"></div></div>'
+          +'<div class="bcnt">'+e[1].n+'&times;</div></div>'
+          +'<div style="font-size:11px;color:var(--muted);line-height:1.4">'+yrs+'</div></div>';
+      }).join('')
+    +'</div>';
 }
 
 function buildAnalyticsPage(){
@@ -1524,6 +1554,27 @@ function roMain(GID){
     });
     return h;
   }
+  function topA(){
+    var byId = {}; DB.forEach(function(c){ byId[c.id]=c; });
+    var map = {};
+    Object.keys(TOP).forEach(function(y){
+      ((TOP[y]&&TOP[y].hp)||[]).forEach(function(id,i){
+        var c=byId[id]; if(!c) return;
+        var k=c.artiest;
+        if(!map[k]) map[k]={n:0,sum:0,yrs:[]};
+        map[k].n++; map[k].sum+=i+1; map[k].yrs.push({y:y,p:i+1});
+      });
+    });
+    var rows=Object.entries(map).sort(function(a,b){ return b[1].n-a[1].n || (a[1].sum/a[1].n)-(b[1].sum/b[1].n); }).slice(0,15);
+    if(!rows.length) return '';
+    var mx=rows[0][1].n;
+    return '<div class="cb"><div class="cl">Vaakst in de jaarlijkse top &mdash; hoofd- &amp; voorprogramma</div>'
+      + rows.map(function(e){
+          var yrs=e[1].yrs.sort(function(a,b){return a.y-b.y;}).map(function(x){return x.y+' #'+x.p;}).join(' &middot; ');
+          return '<div style="margin-bottom:9px"><div class="br" style="margin-bottom:2px"><div class="bn">'+eh(e[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(e[1].n/mx*100)+'%"></div></div><div class="bc">'+e[1].n+'&times;</div></div><div style="font-size:11px;color:#777">'+yrs+'</div></div>';
+        }).join('')
+      +'</div>';
+  }
   function bA(){
     if(!DB.length) return '<p style="padding:40px;text-align:center;color:#777">Geen data</p>';
     var tot=DB.length, uA=new Set(DB.map(function(c){return c.artiest;})).size, uP=new Set(DB.map(function(c){return c.plaats;}).filter(Boolean)).size;
@@ -1537,6 +1588,7 @@ function roMain(GID){
     function bar(e,m){ return e.map(function(x){ return '<div class="br"><div class="bn">'+eh(x[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(x[1]/m*100)+'%"></div></div><div class="bc">'+x[1]+'</div></div>'; }).join(''); }
     return '<h1>ANALYTICS</h1><div class="sg">'+st(tot.toLocaleString('nl'),'Totaal','concerten')+st(uA,'Artiesten','uniek')+st(uP,'Plaatsen','bezocht')+st((tot/uA).toFixed(1)+'&times;','Loyalty','gem. per artiest')+st(Math.round(uA/tot*100)+'%','Diversity','unieke artiesten')+'</div>'
       +'<div class="cb"><div class="cl">Top 10 artiesten</div>'+bar(t10,mA)+'</div>'
+      +topA()
       +'<div class="cb"><div class="cl">Concerten per jaar</div><div class="ybars">'+yrs.map(function(e){ var h=Math.round(e[1]/mY*72)+4; return '<div class="ycol"><div class="ycnt">'+e[1]+'</div><div class="ybar" style="height:'+h+'px"></div><div class="ylbl">\''+String(e[0]).slice(2)+'</div></div>'; }).join('')+'</div></div>'
       +'<div class="cb"><div class="cl">Top plaatsen</div>'+bar(tP,mP)+'</div>';
   }
