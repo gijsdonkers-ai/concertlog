@@ -187,6 +187,10 @@ label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase
 .toprow{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
 .toprow:last-child{border-bottom:none}
 .toppos{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);min-width:34px;text-align:right}
+.ychips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.ychip{padding:6px 12px;border-radius:20px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s}
+.ychip:hover{border-color:var(--accent);color:var(--text)}
+.ychip.on{background:var(--accent);color:var(--bg);border-color:var(--accent)}
 </style>
 </head>
 <body class="theme-dark">
@@ -305,12 +309,14 @@ function addTopYear(){
   var sel = document.getElementById('topYearIn');
   if(!sel || !sel.value) return;
   if(!topDB[sel.value]) topDB[sel.value] = {hp:[], fest:[]};
+  topYear = sel.value;
   persistTop(); render();
 }
 function removeTopYear(y){
   var n = ((topDB[y].hp||[]).length)+((topDB[y].fest||[]).length);
   if(!confirm('Top-lijsten van '+y+' verwijderen ('+n+' concerten)? De concerten zelf blijven bestaan.')) return;
   delete topDB[y];
+  topYear = null;
   persistTop(); render();
 }
 function topAdd(y, cat){
@@ -429,33 +435,44 @@ function showTopReport(rep){
   document.body.appendChild(ov); document.body.style.overflow = 'hidden';
 }
 
+var topYear = null;
+function selTopYear(y){ topYear = y; render(); }
+
 function buildTop(){
   var years = Object.keys(topDB).sort(function(a,b){ return b-a; });
+  if(!topYear || !topDB[topYear]) topYear = years[0] || null;
   var html = '<h1>TOP CONCERTEN</h1>';
   if(unlocked){
     var avail = [...new Set(DB.map(function(c){return c.jaar;}).filter(Boolean))]
       .filter(function(y){ return !topDB[String(y)]; })
       .sort(function(a,b){ return b-a; });
-    html += '<div class="cbox"><div class="clbl">Jaar toevoegen</div>'
-      +'<div style="display:flex;gap:6px"><select id="topYearIn" style="flex:1;min-width:0">'
-      +avail.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('')
-      +'</select><button class="btn b-pri b-sm" onclick="addTopYear()">+ Jaar</button></div></div>';
+    if(avail.length){
+      html += '<div style="display:flex;gap:6px;margin-bottom:14px"><select id="topYearIn" style="flex:1;min-width:0">'
+        +avail.map(function(y){ return '<option value="'+y+'">'+y+'</option>'; }).join('')
+        +'</select><button class="btn b-pri b-sm" onclick="addTopYear()">+ Jaar toevoegen</button></div>';
+    }
   }
   if(!years.length){
-    html += '<div class="empty"><div class="emtitle">Nog geen top-lijsten</div></div>';
+    return html + '<div class="empty"><div class="emtitle">Nog geen top-lijsten</div></div>';
   }
-  years.forEach(function(y){ html += buildTopYear(y); });
-  return html;
+  html += '<div class="ychips">'+years.map(function(y){
+    return '<button class="ychip'+(y===topYear?' on':'')+'" onclick="selTopYear(\''+y+'\')">'+y+'</button>';
+  }).join('')+'</div>';
+  return html + buildTopYear(topYear);
 }
 
 function buildTopYear(y){
-  var html = '<div class="cbox"><div style="display:flex;align-items:center;justify-content:space-between">'
-    +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:28px;color:var(--text)">'+escH(y)+'</div>'
-    +(unlocked?'<button class="btn b-del b-sm" onclick="removeTopYear(\''+y+'\')">&#215; Jaar</button>':'')
-    +'</div>';
-  ['hp','fest'].forEach(function(cat){
+  var showCats = ['hp','fest'].filter(function(cat){
+    return unlocked || ((topDB[y] && topDB[y][cat]) || []).length;
+  });
+  var html = '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
+    +'<div style="font-family:\'Bebas Neue\',sans-serif;font-size:34px;line-height:1;color:var(--text)">'+escH(y)+'</div>'
+    +(unlocked?'<button class="btn b-del b-sm" onclick="removeTopYear(\''+y+'\')">&#215; Jaar verwijderen</button>':'')
+    +'</div>'
+    +'<div class="two"'+(showCats.length<2?' style="grid-template-columns:1fr"':'')+'>';
+  showCats.forEach(function(cat){
     var ids = (topDB[y] && topDB[y][cat]) || [];
-    html += '<div class="clbl" style="margin-top:14px">'+TOP_CATS[cat]+' ('+ids.length+')</div>';
+    html += '<div class="cbox" style="margin-bottom:0"><div class="clbl">'+TOP_CATS[cat]+' ('+ids.length+')</div>';
     if(!ids.length) html += '<div style="color:var(--muted);font-size:13px;padding:4px 0">Nog geen concerten in deze lijst.</div>';
     ids.forEach(function(id, i){
       var c = DB.find(function(x){ return x.id===id; });
@@ -486,6 +503,7 @@ function buildTopYear(y){
         +'</datalist>'
         +'<button class="btn b-pri b-sm" onclick="topAdd(\''+y+'\',\''+cat+'\')">+</button></div>';
     }
+    html += '</div>';
   });
   return html + '</div>';
 }
