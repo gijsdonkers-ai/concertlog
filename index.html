@@ -1186,7 +1186,8 @@ function buildAnalytics(){
 
 // Top 20 artiesten op gemiddelde score in de jaarlijkse top (hoofd- & voorprogramma)
 // Punten per concert: #1 = 15 ... #15 = 1, niet in de top = 0.
-// Score = punten / aantal hoofd- en voorprogramma-concerten van de artiest in jaren met een Top-lijst.
+// Gewogen gemiddelde: (punten + M*mu) / (aantal concerten + M), M = 2 neutrale concerten (mild),
+// mu = gemiddeld aantal punten per hoofd-/voorprogrammaconcert in jaren met een Top-lijst.
 function topArtistsBox(){
   var years = Object.keys(topDB);
   if(!years.length) return '';
@@ -1205,24 +1206,30 @@ function topArtistsBox(){
       e.yrs.push({y:y, p:i+1});
     });
   });
+  var M = 2, totP = 0, totS = 0;
+  Object.keys(map).forEach(function(k){
+    var v = map[k]; v.seen = Math.max(v.seen, v.yrs.length); totP += v.pts; totS += v.seen;
+  });
+  var mu = totS ? totP/totS : 0;
   var rows = Object.entries(map).filter(function(e){ return e[1].yrs.length; }).map(function(e){
-    var v = e[1]; v.seen = Math.max(v.seen, v.yrs.length); v.score = v.pts/v.seen;
+    var v = e[1]; v.score = (v.pts + M*mu)/(v.seen + M);
     return [e[0], v];
   }).sort(function(a,b){
     return b[1].score-a[1].score || b[1].yrs.length-a[1].yrs.length || b[1].seen-a[1].seen;
   }).slice(0,20);
   if(!rows.length) return '';
+  var maxS = rows[0][1].score, muT = mu.toFixed(1).replace('.',',');
   return '<div class="cbox"><div class="clbl">Top 20 artiesten &mdash; gemiddelde score in de jaarlijkse top</div>'
     + rows.map(function(e,i){
         var v = e[1];
         var yrs = v.yrs.sort(function(a,b){ return a.y-b.y; }).map(function(x){ return x.y+' #'+x.p; }).join(' &middot; ');
         return '<div style="margin-bottom:9px"><div class="brow" style="margin-bottom:2px">'
           +'<div class="bname"><span style="color:var(--muted)">'+(i+1)+'.</span> '+escH(e[0])+'</div>'
-          +'<div class="btrack"><div class="bfill" style="width:'+Math.round(v.score/15*100)+'%"></div></div>'
+          +'<div class="btrack"><div class="bfill" style="width:'+Math.round(v.score/maxS*100)+'%"></div></div>'
           +'<div class="bcnt" style="min-width:34px">'+v.score.toFixed(1).replace('.',',')+'</div></div>'
           +'<div style="font-size:11px;color:var(--muted);line-height:1.4">'+v.seen+'&times; gezien &middot; top: '+yrs+'</div></div>';
       }).join('')
-    +'<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Punten per concert: #1 = 15 &hellip; #15 = 1, niet in de top = 0. De score is het gemiddelde over alle hoofd- en voorprogrammaconcerten van de artiest in jaren met een Top-lijst.</div>'
+    +'<div style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.6"><strong style="color:var(--text)">Zo werkt het.</strong> Elk hoofd- of voorprogrammaconcert dat in een jaarlijkse top staat, krijgt punten: #1 = 15, #2 = 14, &hellip; #15 = 1. Een concert dat niet in de top staat, krijgt 0. Alleen jaren met een Top-lijst tellen mee, en festivals niet. De score is een gewogen gemiddelde: bij de punten van een artiest tel ik 2 gemiddelde concerten op, van elk '+muT+' punten (het gemiddelde van al je concerten in die jaren). Wie maar &eacute;&eacute;n of twee keer is gezien, schuift daardoor richting dat gemiddelde. Wie vaker is gezien en steeds hoog scoort, houdt zijn eigen score. Formule: (punten + 2 &times; '+muT+') &divide; (aantal concerten + 2).</div>'
     +'</div>';
 }
 
@@ -1601,17 +1608,21 @@ function roMain(GID){
         var e=get(c.artiest); e.pts+=Math.max(0,15-i); e.yrs.push({y:y,p:i+1});
       });
     });
+    var M=2, totP=0, totS=0;
+    Object.keys(map).forEach(function(k){ var v=map[k]; v.seen=Math.max(v.seen,v.yrs.length); totP+=v.pts; totS+=v.seen; });
+    var mu=totS?totP/totS:0;
     var rows=Object.entries(map).filter(function(e){ return e[1].yrs.length; }).map(function(e){
-      var v=e[1]; v.seen=Math.max(v.seen,v.yrs.length); v.score=v.pts/v.seen; return [e[0],v];
+      var v=e[1]; v.score=(v.pts+M*mu)/(v.seen+M); return [e[0],v];
     }).sort(function(a,b){ return b[1].score-a[1].score||b[1].yrs.length-a[1].yrs.length||b[1].seen-a[1].seen; }).slice(0,20);
     if(!rows.length) return '';
+    var maxS=rows[0][1].score, muT=mu.toFixed(1).replace('.',',');
     return '<div class="cb"><div class="cl">Top 20 artiesten &mdash; gemiddelde score in de jaarlijkse top</div>'
       + rows.map(function(e,i){
           var v=e[1];
           var yrs=v.yrs.sort(function(a,b){return a.y-b.y;}).map(function(x){return x.y+' #'+x.p;}).join(' &middot; ');
-          return '<div style="margin-bottom:9px"><div class="br" style="margin-bottom:2px"><div class="bn"><span style="color:#777">'+(i+1)+'.</span> '+eh(e[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(v.score/15*100)+'%"></div></div><div class="bc" style="min-width:34px">'+v.score.toFixed(1).replace('.',',')+'</div></div><div style="font-size:11px;color:#777">'+v.seen+'&times; gezien &middot; top: '+yrs+'</div></div>';
+          return '<div style="margin-bottom:9px"><div class="br" style="margin-bottom:2px"><div class="bn"><span style="color:#777">'+(i+1)+'.</span> '+eh(e[0])+'</div><div class="bt"><div class="bf" style="width:'+Math.round(v.score/maxS*100)+'%"></div></div><div class="bc" style="min-width:34px">'+v.score.toFixed(1).replace('.',',')+'</div></div><div style="font-size:11px;color:#777">'+v.seen+'&times; gezien &middot; top: '+yrs+'</div></div>';
         }).join('')
-      +'<div style="font-size:11px;color:#777;margin-top:10px;line-height:1.5">Punten per concert: #1 = 15 &hellip; #15 = 1, niet in de top = 0. De score is het gemiddelde over alle hoofd- en voorprogrammaconcerten van de artiest in jaren met een Top-lijst.</div>'
+      +'<div style="font-size:11px;color:#777;margin-top:10px;line-height:1.6"><strong style="color:#f0ede8">Zo werkt het.</strong> Elk hoofd- of voorprogrammaconcert dat in een jaarlijkse top staat, krijgt punten: #1 = 15, #2 = 14, &hellip; #15 = 1. Een concert dat niet in de top staat, krijgt 0. Alleen jaren met een Top-lijst tellen mee, en festivals niet. De score is een gewogen gemiddelde: bij de punten van een artiest tel ik 2 gemiddelde concerten op, van elk '+muT+' punten (het gemiddelde van alle concerten in die jaren). Wie maar &eacute;&eacute;n of twee keer is gezien, schuift daardoor richting dat gemiddelde. Wie vaker is gezien en steeds hoog scoort, houdt zijn eigen score. Formule: (punten + 2 &times; '+muT+') &divide; (aantal concerten + 2).</div>'
       +'</div>';
   }
   function bA(){
